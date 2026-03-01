@@ -19,8 +19,8 @@ import {
   resetSession,
   type SessionState,
 } from "./session.js";
-import { announceResult, announceError, writeAnnouncement } from "./announcer.js";
-import type { ParsedResultEvent } from "./types.js";
+import { announceResult, announceError, writeAnnouncement } from "@claude-accessible/core";
+import type { ParsedResultEvent } from "@claude-accessible/core";
 
 // package.json version — injected at build time or read dynamically
 function getOwnVersion(): string {

@@ -6,11 +6,17 @@
  */
 
 import { spawn, type ChildProcess } from "node:child_process";
-import { createStreamParser } from "./stream-parser.js";
-import { createChunkSanitizer, sanitize } from "./sanitizer.js";
-import { announceToolUse, announceResult, announceError, writeAnnouncement } from "./announcer.js";
-import { formatForSpeech } from "./speech-formatter.js";
-import type { ParsedEvent, ParsedResultEvent } from "./types.js";
+import {
+  createStreamParser,
+  createChunkSanitizer,
+  sanitize,
+  announceToolUse,
+  announceResult,
+  announceError,
+  writeAnnouncement,
+  formatForSpeech,
+} from "@claude-accessible/core";
+import type { ParsedEvent, ParsedResultEvent } from "@claude-accessible/core";
 
 export interface RunResult {
   sessionId: string | null;

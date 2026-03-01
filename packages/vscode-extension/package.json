@@ -1,0 +1,227 @@
+{
+  "name": "claude-accessible-vscode",
+  "displayName": "Accessible AI Chat",
+  "description": "Makes AI chat responses accessible to screen readers. Transforms markdown into speech-friendly output with structural announcements for code blocks, headings, tables, and more.",
+  "version": "1.0.0",
+  "publisher": "team-snowdust",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JacquelineDMcGraw/claude-accessible",
+    "directory": "packages/vscode-extension"
+  },
+  "engines": {
+    "vscode": "^1.93.0"
+  },
+  "categories": [
+    "Chat",
+    "Accessibility",
+    "Other"
+  ],
+  "keywords": [
+    "accessibility", "screen-reader", "a11y", "copilot", "claude",
+    "ai", "nvda", "jaws", "voiceover", "blind", "cognitive", "speech"
+  ],
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "main": "./dist/extension.js",
+  "contributes": {
+    "chatParticipants": [
+      {
+        "id": "claude-accessible.accessible",
+        "name": "accessible",
+        "fullName": "Accessible AI",
+        "description": "AI assistant with screen-reader-friendly output. All responses formatted for speech — code blocks, headings, tables, and formatting announced as structural cues.",
+        "isSticky": true,
+        "commands": [
+          {
+            "name": "format",
+            "description": "Format text or clipboard content for screen reader"
+          },
+          {
+            "name": "explain",
+            "description": "Explain code with accessible structural annotations"
+          },
+          {
+            "name": "verbosity",
+            "description": "Set output verbosity: minimal, normal, or detailed"
+          }
+        ]
+      }
+    ],
+    "commands": [
+      {
+        "command": "claude-accessible.formatSelection",
+        "title": "Format Selection for Screen Reader",
+        "category": "Accessible AI"
+      },
+      {
+        "command": "claude-accessible.formatClipboard",
+        "title": "Format Clipboard for Screen Reader",
+        "category": "Accessible AI"
+      },
+      {
+        "command": "claude-accessible.showPanel",
+        "title": "Show Accessible AI Panel",
+        "category": "Accessible AI"
+      },
+      {
+        "command": "claude-accessible.clearPanel",
+        "title": "Clear Accessible AI Panel",
+        "category": "Accessible AI"
+      },
+      {
+        "command": "claude-accessible.toggleAutoFormat",
+        "title": "Toggle Auto-Format for Screen Reader",
+        "category": "Accessible AI"
+      },
+      {
+        "command": "claude-accessible.readLastResponse",
+        "title": "Read Last AI Response",
+        "category": "Accessible AI"
+      },
+      {
+        "command": "claude-accessible.setVerbosity",
+        "title": "Set Verbosity Level",
+        "category": "Accessible AI"
+      }
+    ],
+    "keybindings": [
+      {
+        "command": "claude-accessible.formatSelection",
+        "key": "ctrl+shift+alt+f",
+        "mac": "cmd+shift+alt+f",
+        "when": "editorHasSelection"
+      },
+      {
+        "command": "claude-accessible.readLastResponse",
+        "key": "ctrl+shift+alt+r",
+        "mac": "cmd+shift+alt+r"
+      },
+      {
+        "command": "claude-accessible.showPanel",
+        "key": "ctrl+shift+alt+a",
+        "mac": "cmd+shift+alt+a"
+      }
+    ],
+    "viewsContainers": {
+      "panel": [
+        {
+          "id": "accessible-ai-panel",
+          "title": "Accessible AI",
+          "icon": "$(accessibility)"
+        }
+      ]
+    },
+    "views": {
+      "accessible-ai-panel": [
+        {
+          "type": "webview",
+          "id": "claude-accessible.accessibleView",
+          "name": "Accessible AI Output",
+          "retainContextWhenHidden": true
+        }
+      ]
+    },
+    "configuration": {
+      "title": "Accessible AI",
+      "properties": {
+        "claude-accessible.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable accessible formatting of AI responses."
+        },
+        "claude-accessible.autoActivate": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically activate when a screen reader is detected."
+        },
+        "claude-accessible.verbosity": {
+          "type": "string",
+          "enum": ["minimal", "normal", "detailed"],
+          "default": "normal",
+          "description": "Verbosity level for speech-formatted output.",
+          "enumDescriptions": [
+            "Code blocks and headings only. Strips other annotations.",
+            "Code blocks, headings, lists, links, tables. Default.",
+            "Everything including line counts, table dimensions, and richer descriptions."
+          ]
+        },
+        "claude-accessible.announceToolUse": {
+          "type": "boolean",
+          "default": true,
+          "description": "Announce when AI uses tools (reading files, running commands, etc.)."
+        },
+        "claude-accessible.announceMode": {
+          "type": "string",
+          "enum": ["notification", "output", "both"],
+          "default": "output",
+          "description": "How to announce AI activity.",
+          "enumDescriptions": [
+            "Show VS Code notifications (may interrupt screen reader).",
+            "Write to the Accessible AI output channel (recommended).",
+            "Both notifications and output channel."
+          ]
+        },
+        "claude-accessible.codeBlockAnnouncement": {
+          "type": "string",
+          "enum": ["language", "language-and-lines", "minimal"],
+          "default": "language",
+          "description": "How to announce code blocks.",
+          "enumDescriptions": [
+            "[Python] ... [End Python]",
+            "[Python, 15 lines] ... [End Python]",
+            "[Code] ... [End Code] (no language name)"
+          ]
+        },
+        "claude-accessible.outputToChannel": {
+          "type": "boolean",
+          "default": true,
+          "description": "Mirror formatted AI responses to the Accessible AI output channel."
+        },
+        "claude-accessible.backend": {
+          "type": "string",
+          "enum": ["language-model-api", "claude-cli", "auto"],
+          "default": "auto",
+          "description": "Backend for the @accessible chat participant.",
+          "enumDescriptions": [
+            "Use VS Code Language Model API (requires Copilot or compatible extension).",
+            "Use Claude Code CLI subprocess (requires claude CLI installed).",
+            "Auto-detect: try Language Model API first, fall back to CLI."
+          ]
+        },
+        "claude-accessible.claudeCliPath": {
+          "type": "string",
+          "default": "",
+          "description": "Path to the Claude Code CLI binary (leave empty for auto-detect)."
+        }
+      }
+    },
+    "markdown.markdownItPlugins": true,
+    "menus": {
+      "editor/context": [
+        {
+          "command": "claude-accessible.formatSelection",
+          "when": "editorHasSelection",
+          "group": "1_modification"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "compile": "node esbuild.mjs",
+    "watch": "node esbuild.mjs --watch",
+    "package": "node esbuild.mjs --production",
+    "vscode:prepublish": "npm run package",
+    "test": "vitest run",
+    "lint": "eslint src/"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.93.0",
+    "@claude-accessible/core": "1.0.0",
+    "esbuild": "^0.21.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
+  }
+}

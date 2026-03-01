@@ -19,22 +19,28 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node }}
+          cache: npm
 
-      - run: npm install
-      - run: npm run build
-      - run: npm test
+      - run: npm ci
 
-      # Byte-level verification (Linux/macOS only — needs xxd)
-      - name: Verify clean output
-        if: runner.os != 'Windows'
-        run: bash tests/verify.sh
+      - name: Build core
+        run: npm run build -w packages/core
 
-      # Benchmarks (informational, don't fail CI)
-      - name: Run benchmarks
-        run: npx tsx tests/benchmark.ts
-        continue-on-error: true
+      - name: Build CLI
+        run: npm run build -w packages/cli
 
-  # Package size check
+      - name: Build extension
+        run: npm run compile -w packages/vscode-extension
+
+      - name: Test core
+        run: npm test -w packages/core
+
+      - name: Test CLI
+        run: npm test -w packages/cli
+
+      - name: Test extension
+        run: npm test -w packages/vscode-extension
+
   package-size:
     runs-on: ubuntu-latest
     steps:
@@ -42,9 +48,17 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
-      - run: npm install && npm run build
-      - name: Check package size
+          cache: npm
+
+      - run: npm ci
+      - name: Build all
+        run: npm run build:all
+
+      - name: CLI package size
+        working-directory: packages/cli
+        run: npm pack --dry-run 2>&1
+
+      - name: Extension bundle size
         run: |
-          npm pack --dry-run 2>&1
-          echo "Package contents:"
-          npm pack --dry-run 2>&1 | tail -20
+          echo "Extension bundle:"
+          ls -lh packages/vscode-extension/dist/extension.js 2>/dev/null || echo "Not built"

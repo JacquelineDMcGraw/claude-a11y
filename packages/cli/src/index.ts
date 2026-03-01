@@ -8,8 +8,7 @@
 import { parseArgs } from "node:util";
 import { checkClaudeInstalled, runOneShot } from "./runner.js";
 import { startRepl } from "./repl.js";
-import { sanitize } from "./sanitizer.js";
-import { initFormatter } from "./speech-formatter.js";
+import { sanitize, initFormatter } from "@claude-accessible/core";
 
 const VERSION = (() => {
   try {

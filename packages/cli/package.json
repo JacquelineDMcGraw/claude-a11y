@@ -1,0 +1,45 @@
+{
+  "name": "claude-accessible",
+  "version": "1.0.0",
+  "description": "Screen-reader-friendly wrapper for Claude Code CLI. Makes Claude Code usable with NVDA, JAWS, VoiceOver, and Orca.",
+  "keywords": [
+    "claude", "claude-code", "accessibility", "screen-reader",
+    "nvda", "jaws", "voiceover", "a11y", "cli", "blind", "low-vision"
+  ],
+  "license": "MIT",
+  "author": "Jacqueline McGraw (Team Snowdust)",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JacquelineDMcGraw/claude-accessible",
+    "directory": "packages/cli"
+  },
+  "bin": {
+    "claude-sr": "./bin/claude-sr.js",
+    "claude-accessible": "./bin/claude-sr.js"
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist/",
+    "bin/"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "start": "node ./bin/claude-sr.js",
+    "test:speech": "bash ./bin/test-with-speech.sh --say"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "@claude-accessible/core": "1.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.0",
+    "vitest": "^1.6.0"
+  }
+}
