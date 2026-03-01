@@ -211,8 +211,8 @@ If you use a screen reader, have a cognitive processing difference, or just care
 ## Contributing
 
 ```bash
-git clone https://github.com/JacquelineDMcGraw/claude-accessible.git
-cd claude-accessible
+git clone https://github.com/JacquelineDMcGraw/claude-a11y.git
+cd claude-a11y
 npm install
 npm run build
 npm test          # 149 tests
@@ -232,6 +232,6 @@ MIT — see [LICENSE](./LICENSE)
 
 ---
 
-Built by [Jacqueline McGraw](https://github.com/JacquelineDMcGraw) (Team Snowdust).
+Built by [Jacqueline McGraw](https://github.com/JacquelineDMcGraw) (Jackie's Jawn).
 
 AI made coding possible for me. This project is about making sure it's possible for everyone.

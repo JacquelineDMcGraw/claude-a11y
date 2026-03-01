@@ -80,7 +80,7 @@ REQUIREMENTS
   Install: https://docs.anthropic.com/en/docs/claude-code/overview
 
 ABOUT
-  GitHub: https://github.com/JacquelineDMcGraw/claude-accessible
+  GitHub: https://github.com/JacquelineDMcGraw/claude-a11y
   License: MIT
 `;
 

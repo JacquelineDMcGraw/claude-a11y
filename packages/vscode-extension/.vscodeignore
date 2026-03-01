@@ -2,8 +2,8 @@ src/
 tests/
 node_modules/
 .vscode/
-*.ts
 tsconfig.json
 esbuild.mjs
 vitest.config.ts
 .gitignore
+!media/**

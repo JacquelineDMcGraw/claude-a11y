@@ -3,11 +3,11 @@
   "displayName": "Accessible AI Chat",
   "description": "Makes AI chat responses accessible to screen readers. Transforms markdown into speech-friendly output with structural announcements for code blocks, headings, tables, and more.",
   "version": "1.0.0",
-  "publisher": "team-snowdust",
+  "publisher": "jackies-jawn",
   "license": "MIT",
   "repository": {
     "type": "git",
-    "url": "https://github.com/JacquelineDMcGraw/claude-accessible",
+    "url": "https://github.com/JacquelineDMcGraw/claude-a11y",
     "directory": "packages/vscode-extension"
   },
   "engines": {
@@ -84,6 +84,16 @@
       {
         "command": "claude-accessible.setVerbosity",
         "title": "Set Verbosity Level",
+        "category": "Accessible AI"
+      },
+      {
+        "command": "claude-accessible.enableChatInjection",
+        "title": "Enable Chat Accessibility (patches Cursor renderer)",
+        "category": "Accessible AI"
+      },
+      {
+        "command": "claude-accessible.disableChatInjection",
+        "title": "Disable Chat Accessibility (restore Cursor renderer)",
         "category": "Accessible AI"
       }
     ],

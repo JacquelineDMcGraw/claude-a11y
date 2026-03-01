@@ -64,14 +64,27 @@ export function getLastResponse(): string {
 }
 
 /**
- * Format arbitrary text for speech and write to the output channel.
+ * Format arbitrary text for speech and open in a focused editor tab.
+ * This is the most screen-reader-friendly approach: a plain text document
+ * that the screen reader can immediately start reading line by line.
  */
-export function formatAndWrite(text: string): void {
-  const channel = getOutputChannel();
+export async function formatAndWrite(text: string): Promise<void> {
   const formatted = formatForSpeech(text);
-  channel.appendLine(formatted);
-  channel.show(true); // true = preserve focus
   lastResponse = formatted;
+
+  // Also write to output channel as backup
+  const channel = getOutputChannel();
+  channel.appendLine(formatted);
+
+  // Open as a real text document — screen readers read these natively
+  const doc = await vscode.workspace.openTextDocument({
+    content: formatted,
+    language: "plaintext",
+  });
+  await vscode.window.showTextDocument(doc, {
+    preview: true,
+    preserveFocus: false, // TAKE FOCUS so screen reader starts reading
+  });
 }
 
 export function registerOutputChannel(

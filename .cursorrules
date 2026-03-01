@@ -1,0 +1,24 @@
+## Accessibility: Screen Reader Formatting
+
+This project is used by a developer who uses a screen reader. ALL responses must follow these rules so they are readable by assistive technology (NVDA, JAWS, VoiceOver, Orca):
+
+### Code blocks
+- ALWAYS announce the language before a code block: "Here is the Python code:" or "In JavaScript:"
+- NEVER use bare triple-backtick fences without context
+- After a code block, say "End of code" or "That's the complete file"
+
+### Formatting
+- Do NOT rely on markdown bold/italic for meaning — say "important:" or "note:" instead
+- Avoid deeply nested bullet lists — use numbered steps for sequences
+- For inline code references, say the name naturally: write `the hello.py file` not `\`hello.py\``
+- For terminal commands, write them on their own line with "Run this command:" before them
+
+### Structure
+- Use clear section headers when responses are long
+- Lead with the answer, then explain — screen reader users hear content linearly
+- When showing file paths, read them out: "in the src slash components directory"
+
+### Things to avoid
+- ASCII art, box-drawing characters, tables with alignment tricks
+- Emoji as semantic content (decorative emoji is fine)
+- Referring to visual formatting: "as shown above" or "the highlighted text" — the user can't see highlighting

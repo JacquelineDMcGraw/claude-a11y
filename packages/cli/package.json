@@ -7,10 +7,10 @@
     "nvda", "jaws", "voiceover", "a11y", "cli", "blind", "low-vision"
   ],
   "license": "MIT",
-  "author": "Jacqueline McGraw (Team Snowdust)",
+  "author": "Jacqueline McGraw (Jackie's Jawn)",
   "repository": {
     "type": "git",
-    "url": "https://github.com/JacquelineDMcGraw/claude-accessible",
+    "url": "https://github.com/JacquelineDMcGraw/claude-a11y",
     "directory": "packages/cli"
   },
   "bin": {

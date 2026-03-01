@@ -31,6 +31,7 @@ import {
 import { registerStatusBar } from "./inline/status-bar.js";
 import { registerCodeAction } from "./inline/code-action.js";
 import { extendMarkdownIt } from "./markdown/markdown-plugin.js";
+import { install as installInjection, uninstall as uninstallInjection, isInstalled as isInjectionInstalled } from "./inject/patcher.js";
 
 export async function activate(
   context: vscode.ExtensionContext
@@ -123,10 +124,33 @@ function registerCommands(context: vscode.ExtensionContext): void {
       async () => {
         const text = await vscode.env.clipboard.readText();
         if (!text.trim()) {
-          vscode.window.showInformationMessage("Clipboard is empty.");
+          vscode.window.showInformationMessage(
+            "Copy a chat response first, then run this command."
+          );
           return;
         }
         formatAndWrite(text);
+        vscode.window.showInformationMessage(
+          "Formatted. Switch to the Accessible AI output panel to read it."
+        );
+      }
+    )
+  );
+
+  // Format Chat Response — reads clipboard and opens accessible version in a new tab
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "claude-accessible.formatChatResponse",
+      async () => {
+        const text = await vscode.env.clipboard.readText();
+        if (!text.trim()) {
+          vscode.window.showInformationMessage(
+            "Copy a chat response first (Cmd+A then Cmd+C in the chat), then press Cmd+Shift+Alt+F."
+          );
+          return;
+        }
+
+        await formatAndWrite(text);
       }
     )
   );
@@ -230,6 +254,76 @@ function registerCommands(context: vscode.ExtensionContext): void {
       }
     )
   );
+
+  // -----------------------------------------------------------------------
+  // Chat Accessibility Injection — patches Cursor/VS Code renderer
+  // -----------------------------------------------------------------------
+
+  // Enable: inject into workbench.html
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "claude-accessible.enableChatInjection",
+      async () => {
+        if (isInjectionInstalled()) {
+          vscode.window.showInformationMessage(
+            "Chat accessibility is already installed. Restart Cursor if it's not active."
+          );
+          return;
+        }
+
+        const ok = await installInjection(context);
+        if (ok) {
+          const action = await vscode.window.showInformationMessage(
+            "Chat accessibility installed. Restart Cursor to activate it.",
+            "Restart Now"
+          );
+          if (action === "Restart Now") {
+            vscode.commands.executeCommand("workbench.action.reloadWindow");
+          }
+        }
+      }
+    )
+  );
+
+  // Disable: remove injection
+  context.subscriptions.push(
+    vscode.commands.registerCommand(
+      "claude-accessible.disableChatInjection",
+      async () => {
+        const ok = await uninstallInjection();
+        if (ok) {
+          const action = await vscode.window.showInformationMessage(
+            "Chat accessibility removed. Restart Cursor to take effect.",
+            "Restart Now"
+          );
+          if (action === "Restart Now") {
+            vscode.commands.executeCommand("workbench.action.reloadWindow");
+          }
+        }
+      }
+    )
+  );
+
+  // Auto-prompt to install on first activation if not already installed
+  if (!isInjectionInstalled()) {
+    const prompted = context.globalState.get<boolean>("ca11y-prompted", false);
+    if (!prompted) {
+      context.globalState.update("ca11y-prompted", true);
+      vscode.window
+        .showInformationMessage(
+          "Accessible AI can inject into Cursor's chat to make all responses screen-reader friendly. Enable now?",
+          "Enable",
+          "Not Now"
+        )
+        .then((choice) => {
+          if (choice === "Enable") {
+            vscode.commands.executeCommand(
+              "claude-accessible.enableChatInjection"
+            );
+          }
+        });
+    }
+  }
 }
 
 export function deactivate(): void {

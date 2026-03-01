@@ -26,7 +26,8 @@ class AccessiblePanelProvider implements vscode.WebviewViewProvider {
     this.view = webviewView;
 
     webviewView.webview.options = {
-      enableScripts: false, // No JS needed — pure semantic HTML
+      enableScripts: true,
+      localResourceRoots: [this.extensionUri],
     };
 
     this.updateHtml();
@@ -40,6 +41,7 @@ class AccessiblePanelProvider implements vscode.WebviewViewProvider {
       id: randomUUID(),
       formattedText,
       timestamp: Date.now(),
+      role: "assistant",
     });
 
     this.updateHtml();
@@ -56,9 +58,22 @@ class AccessiblePanelProvider implements vscode.WebviewViewProvider {
   private updateHtml(): void {
     if (!this.view) return;
 
-    // Generate a nonce for CSP
     const nonce = randomUUID().replace(/-/g, "");
-    this.view.webview.html = generatePanelHtml(this.messages, nonce);
+    const cspSource = this.view.webview.cspSource;
+
+    // Build script URI for external JS (avoids Trusted Types issues)
+    const scriptUri = this.view.webview
+      .asWebviewUri(
+        vscode.Uri.joinPath(this.extensionUri, "media", "panel.js")
+      )
+      .toString();
+
+    this.view.webview.html = generatePanelHtml(
+      this.messages,
+      nonce,
+      cspSource,
+      scriptUri
+    );
   }
 }
 

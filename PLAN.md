@@ -260,7 +260,7 @@ Create `packages/vscode-extension/` with:
 
 ## Phase 6: Distribution
 
-1. **VS Code Marketplace** — publish under `team-snowdust` publisher
+1. **VS Code Marketplace** — publish under `jackies-jawn` publisher
 2. **Open VSX Registry** — same .vsix, enables Cursor discovery
 3. **Direct .vsix download** — for offline/restricted environments
 4. **npm** — CLI continues as `claude-accessible`, core as `@claude-accessible/core`

@@ -3,10 +3,10 @@
   "private": true,
   "description": "Accessible AI coding tools — CLI and VS Code extension for screen reader users.",
   "license": "MIT",
-  "author": "Jacqueline McGraw (Team Snowdust)",
+  "author": "Jacqueline McGraw (Jackie's Jawn)",
   "repository": {
     "type": "git",
-    "url": "https://github.com/JacquelineDMcGraw/claude-accessible"
+    "url": "https://github.com/JacquelineDMcGraw/claude-a11y"
   },
   "workspaces": [
     "packages/core",
