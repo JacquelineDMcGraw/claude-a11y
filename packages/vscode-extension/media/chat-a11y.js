@@ -1,7 +1,9 @@
 /**
- * chat-a11y.js — DOM injection script for Cursor/VS Code chat accessibility.
+ * chat-a11y.js — DOM injection script for AI chat accessibility.
  *
- * Runs inside the Electron renderer via workbench.html patch.
+ * Works in Cursor/VS Code (via workbench.html patch) AND Claude Desktop
+ * (via mainView.js preload injection). Also works on claude.ai in browsers.
+ *
  * Uses a MutationObserver to watch for new chat messages and transforms
  * rendered markdown into screen-reader-friendly markup in-place.
  *
@@ -293,9 +295,15 @@
   // ---------------------------------------------------------------------------
 
   function transformChatMessages(root) {
-    // Cursor renders AI responses in divs with specific classes
-    // Try multiple selector patterns
+    // Selectors for AI response containers across different apps
     var messageSelectors = [
+      // Claude.ai / Claude Desktop
+      '[data-testid="chat-message-content"]',
+      '[class*="font-claude"]',
+      ".prose",
+      '[data-testid="conversation-turn"]',
+      '[class*="ConversationItem"]',
+      // Cursor AI chat
       '[class*="agentTurn"]',
       '[class*="chat-response"]',
       '[class*="assistantMessage"]',
@@ -348,10 +356,16 @@
   }
 
   // ---------------------------------------------------------------------------
-  // 7. Selectors for chat content areas in VS Code / Cursor
+  // 7. Selectors for chat content areas across apps
   // ---------------------------------------------------------------------------
 
   var CHAT_SELECTORS = [
+    // Claude.ai / Claude Desktop
+    '[data-testid="chat-message-content"]',
+    '[class*="font-claude"]',
+    ".prose",
+    '[data-testid="conversation-turn"]',
+    '[class*="ConversationItem"]',
     // Cursor AI chat
     '[class*="agentTurn"]',
     '[class*="markdown"]',
