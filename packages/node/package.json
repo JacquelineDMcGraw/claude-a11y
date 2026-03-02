@@ -9,7 +9,7 @@
   "icon": "media/icon.png",
   "repository": {
     "type": "git",
-    "url": "https://github.com/JacquelineDMcGraw/claude-a11y",
+    "url": "git+https://github.com/JacquelineDMcGraw/claude-a11y.git",
     "directory": "packages/node"
   },
   "keywords": [
@@ -40,8 +40,8 @@
     "vscode": "^1.93.0"
   },
   "bin": {
-    "claude-sr": "./bin/claude-sr.js",
-    "claude-accessible": "./bin/claude-sr.js"
+    "claude-sr": "bin/claude-sr.js",
+    "claude-accessible": "bin/claude-sr.js"
   },
   "main": "./dist/core/index.js",
   "types": "./dist/core/index.d.ts",
