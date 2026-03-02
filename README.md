@@ -61,19 +61,23 @@ Install the resulting .vsix file through the Extensions view, or run it in the E
 ### CLI
 
 ```
-npm install -g claude-accessible
+git clone https://github.com/JacquelineDMcGraw/claude-a11y.git
+cd claude-a11y
+npm install
+npm run build
+npm link -w packages/cli
 claude-sr "explain this project"
 ```
 
-Requires Node.js 18 or later and Claude Code CLI installed.
+Requires Node.js 18 or later and Claude Code CLI installed. npm packages are not yet published to the registry.
 
 ### Core library
 
 ```
-npm install @claude-accessible/core
+npm run build -w packages/core
 ```
 
-Import `speechFormat` to transform markdown strings into screen-reader-friendly plain text in your own tools.
+Import from `@claude-accessible/core` within the monorepo. The package is not yet published to npm independently.
 
 ## How it works
 
@@ -81,7 +85,7 @@ The browser and editor extensions use the same approach:
 
 1. A MutationObserver watches the DOM for new or changed chat messages.
 2. When a message appears, the extension walks its rendered HTML elements: code blocks, headings, tables, blockquotes, inline code, and links.
-3. For each element, it adds ARIA attributes in-place. Code blocks get `role="region"` and an `aria-label` like "Python code block." Tables get `role="table"` with proper column headers. Headings get screen-reader-only prefix spans.
+3. For each element, it adds ARIA attributes in-place. Code blocks get an `aria-label` like "Python code block." Tables get `role="table"` with proper column headers. Headings get screen-reader-only prefix spans. Each AI response container is marked as a `role="region"` landmark so screen reader users can jump between responses.
 4. Screen-reader-only spans are inserted before and after structural elements to announce boundaries. These spans use the standard visually-hidden CSS pattern (1px clipped box) so they are invisible to sighted users but read by assistive technology.
 5. An ARIA live region announces activity like "Response complete" without interrupting the current reading position.
 
@@ -134,6 +138,12 @@ Without claude-a11y, a table built from pipes is announced as a stream of pipe c
 - Any terminal on macOS, Windows, or Linux
 - Any screen reader: VoiceOver, NVDA, JAWS, Orca
 - Requires Node.js 18 or later
+
+## Claude Desktop
+
+Claude Desktop's Electron build has security fuses that block every standard injection method. The only path that works is launching with `CLAUDE_DEV_TOOLS=detach` and pasting chat-a11y.js into the DevTools console. This is a per-session workaround, not a real solution. See ARCHITECTURE.md for the full technical analysis of what Anthropic would need to change to support proper accessibility in the desktop app.
+
+This setup process is not accessible with a screen reader. That is a known contradiction. The launch-claude-a11y.js helper in the VS Code extension package attempts to automate it with AppleScript on macOS, but that requires granting Accessibility permissions to the terminal, which is itself a multi-step System Settings navigation. If you have a sighted person available to help with the initial setup, the accessibility layer works for the rest of the session.
 
 ## Contributing
 

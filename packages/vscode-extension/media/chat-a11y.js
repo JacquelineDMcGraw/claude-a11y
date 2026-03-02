@@ -2,7 +2,7 @@
  * chat-a11y.js — DOM injection script for AI chat accessibility.
  *
  * Works in Cursor/VS Code (via workbench.html patch) AND Claude Desktop
- * (via mainView.js preload injection). Also works on claude.ai in browsers.
+ * (via DevTools console injection). Also works on claude.ai in browsers.
  *
  * Uses a MutationObserver to watch for new chat messages and transforms
  * rendered markdown into screen-reader-friendly markup in-place.
@@ -38,6 +38,7 @@
 
   // ---------------------------------------------------------------------------
   // 1. Inject sr-only CSS (visually hidden, readable by screen readers)
+  //    user-select:none prevents sr-only text from polluting clipboard on copy
   // ---------------------------------------------------------------------------
   try {
     var style = document.createElement("style");
@@ -52,6 +53,10 @@
       "  clip: rect(0, 0, 0, 0) !important;",
       "  white-space: nowrap !important;",
       "  border: 0 !important;",
+      "  -webkit-user-select: none !important;",
+      "  -moz-user-select: none !important;",
+      "  -ms-user-select: none !important;",
+      "  user-select: none !important;",
       "}",
       ".ca11y-live-region {",
       "  position: absolute !important;",
@@ -102,6 +107,7 @@
   function createSrSpan(text, role) {
     var span = document.createElement("span");
     span.className = "ca11y-sr-only";
+    span.setAttribute("aria-hidden", "false");
     if (role) span.setAttribute("role", role);
     span.textContent = text;
     return span;
@@ -113,6 +119,8 @@
 
   var transformCount = 0;
 
+  // Code blocks: aria-label for identification, NO role="region" to avoid
+  // landmark pollution. Only response containers get landmark roles.
   function transformCodeBlocks(root) {
     var blocks = root.querySelectorAll("pre");
     for (var i = 0; i < blocks.length; i++) {
@@ -131,7 +139,6 @@
         }
       }
 
-      pre.setAttribute("role", "region");
       pre.setAttribute("aria-label", lang + " code block");
 
       try {
@@ -197,10 +204,11 @@
         );
         table.parentNode.insertBefore(ann, table);
 
-        table.querySelectorAll("th").forEach(function (th) {
-          th.setAttribute("role", "columnheader");
-          th.setAttribute("scope", "col");
-        });
+        var ths = table.querySelectorAll("th");
+        for (var j = 0; j < ths.length; j++) {
+          ths[j].setAttribute("role", "columnheader");
+          ths[j].setAttribute("scope", "col");
+        }
 
         var endAnn = createSrSpan("[End Table]", "note");
         table.parentNode.insertBefore(endAnn, table.nextSibling);
@@ -292,6 +300,9 @@
 
   // ---------------------------------------------------------------------------
   // 5. Mark chat response containers with ARIA landmarks
+  //    Only response containers get role="region" to keep the landmark
+  //    list useful for navigation. Individual elements inside (code blocks,
+  //    tables, etc.) use aria-label without a landmark role.
   // ---------------------------------------------------------------------------
 
   function transformChatMessages(root) {
@@ -321,7 +332,7 @@
           if (msg.dataset.ca11yMsg) continue;
           msg.dataset.ca11yMsg = "1";
 
-          msg.setAttribute("role", "article");
+          msg.setAttribute("role", "region");
           msg.setAttribute("aria-label", "AI response");
 
           // Process the markdown inside
@@ -382,7 +393,34 @@
   ].join(", ");
 
   // ---------------------------------------------------------------------------
-  // 8. Scan existing content
+  // 8. Selector health check — warn if no containers found after initial load
+  // ---------------------------------------------------------------------------
+
+  var selectorHealthLogged = false;
+
+  function checkSelectorHealth() {
+    if (selectorHealthLogged) return;
+
+    try {
+      var containers = document.querySelectorAll(CHAT_SELECTORS);
+      if (containers.length === 0 && transformCount === 0) {
+        // No containers and no transforms — selectors may be stale
+        console.warn(
+          LOG_PREFIX,
+          "No chat containers found. If you are on a supported page " +
+          "(claude.ai, Cursor, VS Code) and see chat messages, the DOM " +
+          "selectors may need updating. File an issue at " +
+          "https://github.com/JacquelineDMcGraw/claude-a11y/issues"
+        );
+        selectorHealthLogged = true;
+      }
+    } catch (e) {
+      // Silently continue
+    }
+  }
+
+  // ---------------------------------------------------------------------------
+  // 9. Scan existing content
   // ---------------------------------------------------------------------------
 
   function scanAll() {
@@ -429,7 +467,7 @@
   }
 
   // ---------------------------------------------------------------------------
-  // 9. MutationObserver — watch for new DOM nodes
+  // 10. MutationObserver — watch for new DOM nodes
   // ---------------------------------------------------------------------------
 
   var pendingScan = null;
@@ -477,20 +515,48 @@
   });
 
   // ---------------------------------------------------------------------------
-  // 10. Periodic rescan (Cursor renders lazily, MutationObserver may miss)
+  // 11. Smart rescan strategy
+  //     Initial aggressive scans catch first render. Then a targeted observer
+  //     tries to attach to the chat scroll container. A slow fallback interval
+  //     runs only if the targeted observer cannot attach, and self-disables
+  //     once it has run 20 times without finding new content.
   // ---------------------------------------------------------------------------
 
-  // Initial scans: aggressive timing to catch the first render
+  // Aggressive initial scans to catch first render
   setTimeout(scanAll, 1000);
   setTimeout(scanAll, 3000);
   setTimeout(scanAll, 5000);
-  setTimeout(scanAll, 10000);
+  setTimeout(function () {
+    scanAll();
+    // After 10s, run health check — page should have loaded by now
+    checkSelectorHealth();
+  }, 10000);
 
-  // Then periodic but less frequent
-  setInterval(scanAll, 15000);
+  // Fallback interval: runs every 30s but self-disables after 20 idle cycles
+  var fallbackIdleCycles = 0;
+  var fallbackMaxIdle = 20;
+  var fallbackInterval = setInterval(function () {
+    var before = transformCount;
+    scanAll();
+    if (transformCount === before) {
+      fallbackIdleCycles++;
+      if (fallbackIdleCycles >= fallbackMaxIdle) {
+        clearInterval(fallbackInterval);
+        console.log(
+          LOG_PREFIX,
+          "Fallback rescan disabled after",
+          fallbackMaxIdle,
+          "idle cycles. MutationObserver is handling updates."
+        );
+      }
+    } else {
+      // Found new content — reset idle counter
+      fallbackIdleCycles = 0;
+    }
+  }, 30000);
 
   // ---------------------------------------------------------------------------
-  // 11. Debug helper: expose scan function globally
+  // 12. Debug helper: expose scan function globally
   // ---------------------------------------------------------------------------
   window.__ca11yScan = scanAll;
   window.__ca11yStats = function () {
@@ -499,6 +565,8 @@
       hasTrustedTypes: !!policy,
       hasLiveRegion: !!liveRegion,
       observerActive: true,
+      fallbackActive: fallbackIdleCycles < fallbackMaxIdle,
+      selectorHealthWarning: selectorHealthLogged,
     };
   };
 
