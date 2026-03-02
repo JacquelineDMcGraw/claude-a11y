@@ -39,7 +39,7 @@ jobs:
         run: npm test -w packages/browser
 
       - name: Verify chat-a11y.js synced to node media
-        run: diff packages/browser/chat-a11y.js packages/node/media/chat-a11y.js
+        run: git diff --no-index --exit-code packages/browser/chat-a11y.js packages/node/media/chat-a11y.js
 
   package-size:
     runs-on: ubuntu-latest

@@ -1,7 +1,7 @@
 {
   "name": "claude-accessible",
   "displayName": "Accessible AI Chat",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "description": "Screen-reader-friendly formatting for AI chat responses. CLI wrapper for Claude Code and VS Code extension with ARIA landmarks, code block announcements, and structural annotations.",
   "license": "MIT",
   "author": "Jacqueline McGraw (Jackie's Jawn)",

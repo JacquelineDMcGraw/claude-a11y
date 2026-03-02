@@ -20,7 +20,6 @@ import type { ParsedEvent, ParsedResultEvent } from "../core/index.js";
 
 let passthroughMode = false;
 let quietMode = false;
-let srVerboseMode = false;
 
 export function setPassthroughMode(enabled: boolean): void {
   passthroughMode = enabled;
@@ -30,9 +29,6 @@ export function setQuietMode(enabled: boolean): void {
   quietMode = enabled;
 }
 
-export function setSrVerboseMode(enabled: boolean): void {
-  srVerboseMode = enabled;
-}
 
 export interface RunResult {
   sessionId: string | null;

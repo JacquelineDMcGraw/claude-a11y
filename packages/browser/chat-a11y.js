@@ -18,6 +18,11 @@
   window.__claudeA11yInjected = true;
 
   var LOG_PREFIX = "[claude-accessible]";
+  var DEBUG = !!(window.__ca11yDebug || (typeof sessionStorage !== "undefined" && sessionStorage.getItem("ca11y-debug")));
+
+  function debugLog() {
+    if (DEBUG) console.log.apply(console, arguments);
+  }
 
   // ---------------------------------------------------------------------------
   // 0. Configuration — user-overridable announcement phrasing and behavior.
@@ -71,7 +76,7 @@
         createScript: function (s) { return s; },
         createScriptURL: function (s) { return s; },
       });
-      console.log(LOG_PREFIX, "TrustedTypes policy created.");
+      debugLog(LOG_PREFIX, "TrustedTypes policy created.");
     }
   } catch (e) {
     console.warn(LOG_PREFIX, "Could not create TrustedTypes policy:", e.message);
@@ -134,7 +139,7 @@
       "}",
     ].join("\n");
     document.head.appendChild(style);
-    console.log(LOG_PREFIX, "Injected sr-only CSS.");
+    debugLog(LOG_PREFIX, "Injected sr-only CSS.");
   } catch (e) {
     console.error(LOG_PREFIX, "Failed to inject CSS:", e.message);
   }
@@ -420,7 +425,7 @@
           globalToggleBtn.textContent = "Accessible";
           globalToggleBtn.setAttribute("aria-pressed", "true");
           globalToggleBtn.setAttribute("aria-label", "Show accessibility annotations, hide raw output");
-          announce("Accessibility annotations hidden");
+          announce(phrasing.annotationsHidden || "Accessibility annotations hidden");
         } else {
           for (var j = 0; j < srSpans.length; j++) {
             srSpans[j].setAttribute("aria-hidden", "false");
@@ -429,7 +434,7 @@
           globalToggleBtn.textContent = "Raw";
           globalToggleBtn.setAttribute("aria-pressed", "false");
           globalToggleBtn.setAttribute("aria-label", "Show raw output, hide accessibility annotations");
-          announce("Accessibility annotations restored");
+          announce(phrasing.annotationsRestored || "Accessibility annotations restored");
         }
       });
 
@@ -577,7 +582,7 @@
       try {
         if (siteAdapters[i].match(host)) {
           activeAdapter = siteAdapters[i];
-          console.log(LOG_PREFIX, "Site adapter:", activeAdapter.name);
+          debugLog(LOG_PREFIX, "Site adapter:", activeAdapter.name);
           return activeAdapter;
         }
       } catch (e) { /* skip */ }
@@ -779,7 +784,7 @@
           );
         }
       } else {
-        console.log(LOG_PREFIX, "Heuristic fallback active — found", heuristicFound, "containers.");
+        debugLog(LOG_PREFIX, "Heuristic fallback active — found", heuristicFound, "containers.");
         fallbackActive = true;
         if (liveRegion) {
           announce(
@@ -828,7 +833,7 @@
 
     var newTransforms = transformCount - beforeCount;
     if (newTransforms > 0) {
-      console.log(
+      debugLog(
         LOG_PREFIX,
         "Scan complete. Transformed",
         newTransforms,
@@ -899,7 +904,7 @@
       fallbackIdleCycles++;
       if (fallbackIdleCycles >= fallbackMaxIdle) {
         clearInterval(fallbackInterval);
-        console.log(
+        debugLog(
           LOG_PREFIX,
           "Fallback rescan disabled after",
           fallbackMaxIdle,
@@ -986,7 +991,7 @@
 
     setTimeout(function () {
       if (!statusChecked) {
-        console.log(
+        debugLog(
           LOG_PREFIX,
           "Generation status detection: no stop-button selectors matched yet. " +
           "Generating/complete announcements may not fire on this page."
@@ -1111,23 +1116,23 @@
         config[key] = overrides[key];
       }
     }
-    console.log(LOG_PREFIX, "Config updated. Run __ca11yScan() to re-apply.");
+    debugLog(LOG_PREFIX, "Config updated. Run __ca11yScan() to re-apply.");
     return config;
   };
 
   window.__ca11yDisable = function () {
     config.enabled = false;
-    console.log(LOG_PREFIX, "Transforms disabled. New content will not be processed.");
+    debugLog(LOG_PREFIX, "Transforms disabled. New content will not be processed.");
   };
 
   window.__ca11yEnable = function () {
     config.enabled = true;
     scanAll();
-    console.log(LOG_PREFIX, "Transforms re-enabled.");
+    debugLog(LOG_PREFIX, "Transforms re-enabled.");
   };
 
-  console.log(LOG_PREFIX, "Chat accessibility layer active.");
-  console.log(
+  debugLog(LOG_PREFIX, "Chat accessibility layer active.");
+  debugLog(
     LOG_PREFIX,
     "API: __ca11yScan() rescan, __ca11yStats() stats, " +
     "__ca11ySetConfig({key:val}) customize, __ca11yDisable()/__ca11yEnable() toggle."

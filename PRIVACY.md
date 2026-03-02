@@ -10,7 +10,7 @@ This extension does not collect, transmit, or store any personal data. It does n
 
 ## What the extension does
 
-The extension modifies the visual presentation of claude.ai chat responses in your browser to make them accessible to screen readers. All processing happens locally in your browser.
+The extension modifies the visual presentation of AI chat responses on supported sites (claude.ai, chatgpt.com, gemini.google.com, copilot.microsoft.com) to make them accessible to screen readers. All processing happens locally in your browser.
 
 ## Local storage
 
@@ -27,10 +27,10 @@ The extension popup includes an "Export feedback data" button that copies anonym
 
 ## Permissions
 
-- **activeTab**: Injects the accessibility script into claude.ai tabs
+- **activeTab**: Checks whether the current tab is a supported AI chat site
 - **scripting**: Injects content scripts to transform chat responses
 - **storage**: Stores your enabled/disabled preference locally
-- **Host access to claude.ai**: The extension only operates on claude.ai pages
+- **Host access**: The extension operates on claude.ai, chatgpt.com, chat.openai.com, gemini.google.com, and copilot.microsoft.com
 
 ## Third-party services
 

@@ -94,16 +94,7 @@ export function announceToolUse(event: ParsedToolUseEvent): string {
  * Format a result event as a completion announcement.
  */
 export function announceResult(event: ParsedResultEvent): string {
-  const parts = [`[Done] Response complete.`];
-
-  if (event.turns > 0) {
-    parts.push(`(${event.turns} turn${event.turns !== 1 ? "s" : ""}`);
-  } else {
-    parts.push("(");
-  }
-
   if (event.cost > 0) {
-    // Remove the opening paren we added and rebuild
     const turnStr = event.turns > 0
       ? `${event.turns} turn${event.turns !== 1 ? "s" : ""}, `
       : "";

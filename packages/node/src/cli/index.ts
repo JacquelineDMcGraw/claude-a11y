@@ -6,7 +6,7 @@
  */
 
 import { parseArgs } from "node:util";
-import { checkClaudeInstalled, runOneShot, setPassthroughMode, setQuietMode, setSrVerboseMode } from "./runner.js";
+import { checkClaudeInstalled, runOneShot, setPassthroughMode, setQuietMode } from "./runner.js";
 import { startRepl } from "./repl.js";
 import { sanitize, initFormatter } from "../core/index.js";
 
@@ -14,7 +14,7 @@ const VERSION = (() => {
   try {
     return (require("../package.json") as { version: string }).version;
   } catch {
-    return "1.0.0";
+    return "1.1.0";
   }
 })();
 
@@ -47,7 +47,7 @@ REPL COMMANDS
 CLAUDE-SR FLAGS
   --raw                              Disable speech formatting (sanitized passthrough)
   --quiet                            Suppress heartbeat and status messages on stderr
-  --sr-verbose                       Extra-verbose: announce every tool call and heartbeat
+
 
 FLAGS (passed through to claude)
   -m, --model <model>                Set model (sonnet, opus, haiku, or full name)
@@ -98,7 +98,6 @@ interface ParsedArgs {
   version: boolean;
   raw: boolean;
   quiet: boolean;
-  srVerbose: boolean;
   prompt: string | null;
 
   // Session management
@@ -123,8 +122,6 @@ function parseCliArgs(argv: string[]): ParsedArgs {
         version: { type: "boolean", short: "v", default: false },
         raw: { type: "boolean", default: false },
         quiet: { type: "boolean", default: false },
-        "sr-verbose": { type: "boolean", default: false },
-        print: { type: "boolean", short: "p", default: false },
 
         // Session management
         continue: { type: "boolean", short: "c", default: false },
@@ -216,7 +213,6 @@ function parseCliArgs(argv: string[]): ParsedArgs {
     version: values.version as boolean ?? false,
     raw: values.raw as boolean ?? false,
     quiet: values.quiet as boolean ?? false,
-    srVerbose: values["sr-verbose"] as boolean ?? false,
     prompt,
     continueSession: values.continue as boolean ?? false,
     resumeId: values.resume as string | undefined ?? null,
@@ -262,9 +258,6 @@ async function main(): Promise<void> {
   }
   if (args.quiet) {
     setQuietMode(true);
-  }
-  if (args.srVerbose) {
-    setSrVerboseMode(true);
   }
 
   // Determine mode: one-shot or REPL

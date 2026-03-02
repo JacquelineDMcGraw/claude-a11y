@@ -69,7 +69,7 @@ When installed in VS Code or Cursor:
 
 - The `@accessible` chat participant formats responses from Copilot Chat
 - Screen reader detection auto-enables formatting
-- Three verbosity levels: minimal, default, verbose
+- Three verbosity levels: minimal, normal, detailed
 - Cursor workbench patching injects accessibility into the Cursor chat panel
 
 ## Verbosity levels

@@ -17,7 +17,7 @@ Both packages use the same announcement strings defined in `packages/browser/phr
 
 ### MutationObserver pattern
 
-A MutationObserver watches `document.documentElement` for `childList`, `subtree`, and `characterData` mutations. When new element nodes are added, they are processed immediately. When character data changes (streaming responses), a debounced full scan is scheduled at 300ms to avoid thrashing during rapid token delivery.
+A MutationObserver watches `document.documentElement` for `childList`, `subtree`, and `characterData` mutations. When new element nodes are added, they are processed immediately. When character data changes (streaming responses), a debounced full scan is scheduled at 150ms (with requestAnimationFrame batching) to avoid thrashing during rapid token delivery.
 
 ### Element transformation pipeline
 
@@ -35,7 +35,7 @@ A visually-hidden `div` with `role="status"` and `aria-live="polite"` is appende
 
 ### Debounced scanning with periodic rescans
 
-The observer triggers a debounced `scanAll()` at 300ms. In addition, aggressive initial scans fire at 1s, 3s, 5s, and 10s after injection to catch first-render content. A self-disabling 30-second fallback interval handles lazy rendering in Cursor, where the MutationObserver may miss elements rendered outside the observed subtree. The fallback tracks idle cycles (scans that find no new elements) and disables itself after 20 consecutive idle cycles to avoid wasting resources on a settled page. Any new MutationObserver hit resets the idle counter.
+The observer triggers a debounced `scanAll()` at 150ms (200ms without requestAnimationFrame). In addition, aggressive initial scans fire at 1s, 3s, 5s, and 10s after injection to catch first-render content. A self-disabling 30-second fallback interval handles lazy rendering in Cursor, where the MutationObserver may miss elements rendered outside the observed subtree. The fallback tracks idle cycles (scans that find no new elements) and disables itself after 20 consecutive idle cycles to avoid wasting resources on a settled page. Any new MutationObserver hit resets the idle counter.
 
 ### Selector strategy
 
@@ -44,6 +44,8 @@ Chat message containers are matched by a union of selectors (versioned via `SELE
 - claude.ai / Claude Desktop: `[data-testid="chat-message-content"]`, `[data-testid="conversation-turn"]`, `.prose`
 - Cursor: `[class*="agentTurn"]`, `[class*="chat-message"]`
 - VS Code: `.interactive-result-editor-wrapper`, `.chat-tree-container`, `.rendered-markdown`, `.markdown-body`
+
+Multi-site support is provided via a site adapter registry (`siteAdapters` array). Each adapter defines `messageSelectors`, `inputSelectors`, `stopSelectors`, and `titleSelectors` for its platform. Currently defined: claude (claude.ai), chatgpt (chatgpt.com, chat.openai.com), gemini (gemini.google.com), copilot (copilot.microsoft.com), and cursor (Cursor IDE webview). The claude adapter has the most complete and battle-tested selectors. Other adapters use best-effort selectors that may need updating when those sites change their DOM.
 
 A catch-all pass scans for bare `pre`, `table`, `blockquote`, and heading elements regardless of container. When no selectors match, a heuristic fallback activates and announces the degraded state via the ARIA live region.
 

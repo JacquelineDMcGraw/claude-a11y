@@ -6,3 +6,7 @@ benchmark-results.txt
 *.vsix
 *.zip
 .DS_Store
+.env
+.env.*
+*.log
+coverage/

@@ -5,9 +5,9 @@
  * text used by both the browser-side DOM transforms (chat-a11y.js) and
  * the Node-side speech formatter. Both packages import these defaults.
  *
- * Organized into three verbosity presets: minimal, normal, detailed.
- * "minimal" strips most annotations. "normal" is the default. "detailed"
- * adds line counts and table dimensions.
+ * Organized by locale with English as the default. Each locale defines
+ * the same set of announcement keys. Missing keys in any locale fall
+ * back to the English value.
  */
 
 /* eslint-disable no-implicit-globals */

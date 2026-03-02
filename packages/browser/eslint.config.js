@@ -22,7 +22,8 @@ module.exports = [
         fetch: "readonly",
         HTMLElement: "readonly",
         Function: "readonly",
-        module: "readonly"
+        module: "readonly",
+        sessionStorage: "readonly"
       }
     },
     rules: {

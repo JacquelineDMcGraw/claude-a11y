@@ -31,7 +31,7 @@ These are not edge cases. They are the default experience for blind and low-visi
 
 ## What this project does
 
-claude-a11y transforms AI chat output into screen-reader-friendly markup. It works at three layers: in the browser, in the editor, and in the terminal. No visual changes are made. Sighted users see the same interface. Screen reader users hear structured, navigable output.
+claude-a11y transforms AI chat output into screen-reader-friendly markup. It works at three layers: in the browser, in the editor, and in the terminal. The only visible addition is a small toggle button (near-transparent until hovered or focused) that lets users switch between accessible and raw output. Everything else is invisible to sighted users -- only the accessibility tree changes. Screen reader users hear structured, navigable output.
 
 ## Packages
 
@@ -39,13 +39,13 @@ This is a monorepo with two packages:
 
 - **packages/browser** -- Browser extension for claude.ai and DOM injection script for VS Code/Cursor. Runs a MutationObserver that transforms rendered markdown in-place, adding ARIA roles, landmarks, screen-reader-only announcements, keyboard navigation between responses (Alt+Up/Down), and generation status announcements. Also includes the shared announcement phrasing used by both packages. Works with Chrome, Edge, and Brave.
 
-- **packages/node** -- Everything that runs in Node.js. Contains the markdown-to-speech formatter, ANSI sanitizer, stream parser, CLI wrapper (claude-sr), and VS Code extension source. The CLI strips ANSI and spinner artifacts, streams responses incrementally with heartbeat status, and supports a --raw flag to bypass formatting. The VS Code extension provides an @accessible chat participant, an output channel, configurable verbosity, and keyboard shortcuts.
+- **packages/node** -- Everything that runs in Node.js. Contains the markdown-to-speech formatter, ANSI sanitizer, stream parser, CLI wrapper (claude-sr), and VS Code extension source. The CLI strips ANSI and spinner artifacts, streams responses incrementally with heartbeat status in interactive mode, and supports a --raw flag to bypass formatting. The VS Code extension provides an @accessible chat participant, an output channel, configurable verbosity, and keyboard shortcuts.
 
 ## Quick start
 
 ### Chrome extension
 
-Clone the repository, open chrome://extensions, enable Developer mode, and load the packages/browser directory as an unpacked extension. Navigate to claude.ai.
+Clone the repository, open chrome://extensions, enable Developer mode, and load the packages/browser directory as an unpacked extension. Navigate to any supported site: claude.ai, chatgpt.com, gemini.google.com, or copilot.microsoft.com.
 
 ### VS Code / Cursor extension
 
@@ -123,7 +123,8 @@ Without claude-a11y, a table built from pipes is announced as a stream of pipe c
 
 ### Chrome extension
 - Chrome, Edge, Brave, and other Chromium-based browsers
-- Works on claude.ai
+- Works on claude.ai, chatgpt.com, gemini.google.com, and copilot.microsoft.com
+- Note: claude.ai has the most complete selector coverage. Other sites use best-effort DOM selectors that may need updating as those sites change. If transforms stop working on a site, file an issue or submit a PR with updated selectors -- the site adapter pattern makes this straightforward.
 
 ### VS Code / Cursor extension
 - VS Code 1.93 or later

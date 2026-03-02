@@ -1,3 +1,8 @@
+<!-- This file is tracked intentionally. It tells AI coding assistants how to
+     format responses for screen reader users, which is core to this project's
+     mission. Contributors working in Cursor will automatically get accessible
+     AI responses when editing this repo. -->
+
 ## Accessibility: Screen Reader Formatting
 
 This project is used by a developer who uses a screen reader. ALL responses must follow these rules so they are readable by assistive technology (NVDA, JAWS, VoiceOver, Orca):

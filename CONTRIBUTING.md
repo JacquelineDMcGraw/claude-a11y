@@ -16,7 +16,7 @@ Requires Node.js 18 or later.
 
 This is a monorepo with two packages:
 
-- packages/browser -- Chrome extension, shared phrasing config, and DOM injection script. No build step. Load as unpacked in Chrome. Has 29 tests.
+- packages/browser -- Chrome extension, shared phrasing config, and DOM injection script. No build step. Load as unpacked in Chrome. Has 81 tests (DOM transforms, axe-core WCAG, ARIA snapshots, content script, background, popup).
 - packages/node -- Node.js library, CLI wrapper (claude-sr), and VS Code extension. Contains the speech formatter, sanitizer, and all Node-based tooling. Has 193 tests.
 
 Build the node package (which includes the core library, CLI, and VS Code extension):
@@ -38,7 +38,7 @@ npm run build:all
 npm test
 ```
 
-This runs all test suites across both packages: browser (29 tests) and node (193 tests, covering core, CLI, and VS Code extension).
+This runs all test suites across both packages: browser (81 tests) and node (193 tests, covering core, CLI, and VS Code extension). 274 tests total.
 
 ## Screen reader testing
 
@@ -73,7 +73,7 @@ Before submitting a PR:
 
 1. Run `npm test` and confirm all tests pass.
 2. Run `npm run build` and confirm it compiles without errors.
-3. If you changed the Chrome extension, load it as unpacked in Chrome and verify it works on claude.ai.
+3. If you changed the Chrome extension, load it as unpacked in Chrome and verify it works on a supported site (claude.ai, chatgpt.com, gemini.google.com, copilot.microsoft.com).
 4. If you changed the VS Code extension, test it in the Extension Development Host (F5).
 5. If you changed the CLI, run `claude-sr "hello"` and verify the output is clean.
 6. Describe what you changed, why, and how you tested it.
@@ -95,7 +95,7 @@ Feature requests should describe the problem you are trying to solve, not just t
 ## Code style
 
 - TypeScript for core and CLI. Plain JavaScript (ES5-compatible) for the Chrome extension and chat-a11y.js.
-- No linter is configured yet. Match the style of the surrounding code.
+- ESLint is configured for the browser package. Run it with `npm run lint -w packages/browser`.
 - Prefer explicit over clever. This codebase is meant to be readable.
 
 ## License

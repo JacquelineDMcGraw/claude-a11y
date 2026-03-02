@@ -22,11 +22,11 @@ Claude Accessible
 
 ### Short description (132 chars max)
 
-Formats Claude AI chat responses for screen readers. Adds ARIA landmarks, code block labels, keyboard navigation, and live regions.
+Formats AI chat responses for screen readers. Adds ARIA landmarks, code block labels, keyboard navigation, and live regions.
 
 ### Detailed description
 
-Claude Accessible makes claude.ai usable with screen readers (NVDA, JAWS, VoiceOver, Orca).
+Claude Accessible makes AI chat sites usable with screen readers (NVDA, JAWS, VoiceOver, Orca). Works on claude.ai, ChatGPT, Gemini, and Microsoft Copilot.
 
 Without this extension, screen readers announce code blocks as "backtick backtick backtick python print open paren hello close paren backtick backtick backtick." Tables are read as pipes and dashes. There are no landmarks to navigate between responses.
 
@@ -82,7 +82,7 @@ What it does:
 4. Adds ARIA landmarks to chat responses
 5. Provides a CLI wrapper for Claude Code that strips ANSI codes and spinner animations
 6. Announces generation status so you know when AI is responding
-7. Three verbosity levels: minimal, default, verbose
+7. Three verbosity levels: minimal, normal, detailed
 
 Works with:
 - VS Code Copilot Chat (via chat participant)
@@ -106,7 +106,7 @@ accessibility, screen-reader, a11y, blind, low-vision, nvda, jaws, voiceover, ai
 
 ### About description (shown in repo sidebar)
 
-Screen reader formatting for AI chat responses. Chrome extension for claude.ai, VS Code extension, and CLI wrapper.
+Screen reader formatting for AI chat responses. Chrome extension for claude.ai, ChatGPT, Gemini, and Copilot. VS Code extension and CLI wrapper.
 
 ### Topics
 

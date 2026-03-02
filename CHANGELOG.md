@@ -1,5 +1,31 @@
 # Changelog
 
+## 1.1.0 (2026-03-02)
+
+### Browser extension (packages/browser)
+
+- Multi-site support: works on claude.ai, ChatGPT, Gemini, and Microsoft Copilot via site adapter pattern
+- Internationalization: announcement strings available in English, Spanish, Portuguese, German, French, and Japanese
+- Global accessibility toggle replaces per-response toggles, reducing keyboard tab stops
+- MutationObserver debouncing with requestAnimationFrame for better streaming performance
+- ESLint integration for static analysis
+- axe-core automated WCAG compliance tests
+- ARIA snapshot tests for programmatic screen reader output verification
+- Manual screen reader validation page (packages/browser/tests/sr-validation.html)
+
+### Node library and CLI (packages/node)
+
+- Quiet mode flag (--quiet) suppresses heartbeat and status announcements
+- Removed dead code: unused srVerboseMode, print option, orphaned parts array in announcer
+- Slim npm publishing via prepack/postpack lifecycle scripts (35 KB npm package vs 315 KB vsix)
+
+### CI/CD
+
+- Fixed diff step to work on Windows (git diff --no-index)
+- Added browser ESLint step to CI pipeline
+
+---
+
 ## 1.0.0 (2026-03-02)
 
 Initial release.
@@ -24,8 +50,8 @@ Initial release.
 - Stream parser for NDJSON events from Claude Code subprocess
 - ANSI sanitizer: strips escape codes, spinner frames, cursor repositioning
 - Announcer: queues and deduplicates screen reader announcements
-- Three verbosity presets: minimal, default, verbose
+- Three verbosity presets: minimal, normal, detailed
 - CLI wrapper (`claude-sr` / `claude-accessible`): runs Claude Code with screen reader formatting
-- Heartbeat messages during long responses ("Still working...")
+- Heartbeat messages during long responses in interactive REPL mode ("Still working...")
 - VS Code extension: chat participant, response formatting, Cursor workbench patching
 - Screen reader detection for auto-configuration
