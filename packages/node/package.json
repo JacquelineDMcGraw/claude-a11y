@@ -249,6 +249,8 @@
     "package": "node esbuild.mjs --production",
     "vscode:prepublish": "npm run package",
     "vsix": "npx @vscode/vsce package --no-dependencies",
+    "prepack": "node scripts/slim-pack.js pre",
+    "postpack": "node scripts/slim-pack.js post",
     "prepublishOnly": "npm run build",
     "test": "vitest run",
     "test:watch": "vitest",

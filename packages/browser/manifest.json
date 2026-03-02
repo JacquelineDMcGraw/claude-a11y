@@ -16,7 +16,13 @@
 
   "content_scripts": [
     {
-      "matches": ["*://claude.ai/*"],
+      "matches": [
+        "*://claude.ai/*",
+        "*://chatgpt.com/*",
+        "*://chat.openai.com/*",
+        "*://gemini.google.com/*",
+        "*://copilot.microsoft.com/*"
+      ],
       "js": ["content.js"],
       "run_at": "document_idle"
     }
@@ -34,7 +40,13 @@
   "web_accessible_resources": [
     {
       "resources": ["phrasing.js", "chat-a11y.js"],
-      "matches": ["*://claude.ai/*"]
+      "matches": [
+        "*://claude.ai/*",
+        "*://chatgpt.com/*",
+        "*://chat.openai.com/*",
+        "*://gemini.google.com/*",
+        "*://copilot.microsoft.com/*"
+      ]
     }
   ]
 }

@@ -40,9 +40,9 @@ chrome.runtime.onMessage.addListener(function (message, sender, sendResponse) {
 
       var tab = tabs[0];
       var url = tab.url || "";
-      var isClaudeAI = /^https?:\/\/claude\.ai\b/.test(url);
+      var isSupportedSite = /^https?:\/\/(claude\.ai|chatgpt\.com|chat\.openai\.com|gemini\.google\.com|copilot\.microsoft\.com)\b/.test(url);
 
-      sendResponse({ active: isClaudeAI, url: url, tabId: tab.id });
+      sendResponse({ active: isSupportedSite, url: url, tabId: tab.id });
     });
 
     // Return true to indicate we will send a response asynchronously

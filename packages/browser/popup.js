@@ -71,15 +71,15 @@
       }
 
       if (response.active) {
-        setStatus("active", "Active on claude.ai");
+        setStatus("active", "Active on supported AI chat site");
         fetchStats();
       } else {
-        setStatus("inactive", "Not on claude.ai");
+        setStatus("inactive", "Not on a supported AI chat site");
         updateStats(null);
         rescanBtn.disabled = true;
         rescanBtn.setAttribute(
           "aria-label",
-          "Force Rescan (unavailable — navigate to claude.ai first)"
+          "Force Rescan (unavailable — navigate to a supported AI chat site first)"
         );
       }
     });

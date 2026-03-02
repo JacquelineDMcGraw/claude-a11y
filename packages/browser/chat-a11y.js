@@ -440,34 +440,171 @@
   }
 
   // ---------------------------------------------------------------------------
-  // 7. Mark chat response containers with ARIA landmarks
-  //    Only response containers get role="region" to keep the landmark
-  //    list useful for navigation. Individual elements inside (code blocks,
-  //    tables, etc.) use aria-label without a landmark role.
+  // 7. Site adapters — per-site selectors for message containers, input area,
+  //    generation status, and page detection. Core transforms are site-agnostic;
+  //    adapters tell the engine where to find chat-specific UI elements.
+  // ---------------------------------------------------------------------------
+
+  var siteAdapters = [
+    {
+      name: "claude",
+      match: function (host) { return host.indexOf("claude.ai") !== -1; },
+      messageSelectors: [
+        '[data-testid="chat-message-content"]',
+        '[data-testid="conversation-turn"]',
+        '[class*="font-claude"]',
+        ".prose",
+        '[class*="ConversationItem"]',
+      ],
+      inputSelectors: [
+        'div[contenteditable="true"][data-placeholder]',
+        'div[contenteditable="true"][role="textbox"]',
+        "textarea[placeholder]",
+      ],
+      stopSelectors: [
+        '[data-testid="stop-button"]',
+        'button[aria-label*="top"]',
+        'button[aria-label*="Cancel"]',
+      ],
+      titleSelectors: [
+        '[data-testid="conversation-title"]',
+        'nav a[aria-current="page"]',
+      ],
+    },
+    {
+      name: "chatgpt",
+      match: function (host) {
+        return host.indexOf("chatgpt.com") !== -1 || host.indexOf("chat.openai.com") !== -1;
+      },
+      messageSelectors: [
+        '[data-message-author-role="assistant"]',
+        'div[class*="agent-turn"]',
+        'div[class*="markdown"]',
+        ".prose",
+      ],
+      inputSelectors: [
+        "#prompt-textarea",
+        'textarea[data-id="root"]',
+        'div[contenteditable="true"]',
+      ],
+      stopSelectors: [
+        'button[aria-label="Stop generating"]',
+        'button[data-testid="stop-button"]',
+      ],
+      titleSelectors: [
+        'nav a[class*="active"]',
+      ],
+    },
+    {
+      name: "gemini",
+      match: function (host) { return host.indexOf("gemini.google.com") !== -1; },
+      messageSelectors: [
+        "model-response",
+        'div[class*="response-container"]',
+        ".markdown",
+        'message-content[class*="model"]',
+      ],
+      inputSelectors: [
+        'rich-textarea textarea',
+        'div[contenteditable="true"]',
+        '.text-input-field textarea',
+      ],
+      stopSelectors: [
+        'button[aria-label="Stop response"]',
+        'button[aria-label="Stop"]',
+      ],
+      titleSelectors: [],
+    },
+    {
+      name: "copilot",
+      match: function (host) {
+        return host.indexOf("copilot.microsoft.com") !== -1;
+      },
+      messageSelectors: [
+        'cib-message-group[source="bot"]',
+        '[class*="response"]',
+        ".ac-adaptiveCard",
+      ],
+      inputSelectors: [
+        "#searchbox",
+        'textarea[aria-label]',
+      ],
+      stopSelectors: [
+        'button[aria-label="Stop Responding"]',
+      ],
+      titleSelectors: [],
+    },
+    {
+      name: "cursor",
+      match: function () {
+        try {
+          if (typeof acquireVsCodeApi === "function") return true;
+          if (document.querySelector(".monaco-workbench")) return true;
+        } catch (e) { /* not Cursor */ }
+        return false;
+      },
+      messageSelectors: [
+        '[class*="agentTurn"]',
+        '[class*="chat-response"]',
+        '[class*="assistantMessage"]',
+        '[class*="response-container"]',
+        '[class*="aiMessage"]',
+        '[class*="message-content"]',
+        ".interactive-item-container",
+        ".interactive-result-editor-wrapper",
+        ".chat-tree-container",
+        ".rendered-markdown",
+        ".markdown-body",
+      ],
+      inputSelectors: [
+        'textarea[placeholder]',
+      ],
+      stopSelectors: [
+        'button[aria-label*="Cancel"]',
+      ],
+      titleSelectors: [],
+    },
+  ];
+
+  var activeAdapter = null;
+
+  function detectAdapter() {
+    if (activeAdapter) return activeAdapter;
+    var host = "";
+    try { host = window.location.hostname; } catch (e) { /* no host */ }
+
+    for (var i = 0; i < siteAdapters.length; i++) {
+      try {
+        if (siteAdapters[i].match(host)) {
+          activeAdapter = siteAdapters[i];
+          console.log(LOG_PREFIX, "Site adapter:", activeAdapter.name);
+          return activeAdapter;
+        }
+      } catch (e) { /* skip */ }
+    }
+    return null;
+  }
+
+  function getAllMessageSelectors() {
+    var adapter = detectAdapter();
+    if (adapter) return adapter.messageSelectors;
+    var all = [];
+    for (var i = 0; i < siteAdapters.length; i++) {
+      all = all.concat(siteAdapters[i].messageSelectors);
+    }
+    return all;
+  }
+
+  // ---------------------------------------------------------------------------
+  // 7b. Mark chat response containers with ARIA landmarks
   // ---------------------------------------------------------------------------
 
   function transformChatMessages(root) {
-    var messageSelectors = [
-      // Claude.ai / Claude Desktop — stable selectors first
-      '[data-testid="chat-message-content"]',
-      '[data-testid="conversation-turn"]',
-      // Claude.ai class-based (may change between deploys)
-      '[class*="font-claude"]',
-      ".prose",
-      '[class*="ConversationItem"]',
-      // Cursor AI chat
-      '[class*="agentTurn"]',
-      '[class*="chat-response"]',
-      '[class*="assistantMessage"]',
-      '[class*="response-container"]',
-      '[class*="aiMessage"]',
-      '[class*="message-content"]',
-      ".interactive-item-container",
-    ];
+    var selectors = getAllMessageSelectors();
 
-    for (var s = 0; s < messageSelectors.length; s++) {
+    for (var s = 0; s < selectors.length; s++) {
       try {
-        var messages = root.querySelectorAll(messageSelectors[s]);
+        var messages = root.querySelectorAll(selectors[s]);
         for (var i = 0; i < messages.length; i++) {
           var msg = messages[i];
           if (msg.dataset.ca11yMsg) continue;
@@ -488,22 +625,17 @@
   // ---------------------------------------------------------------------------
   // 8. Heuristic fallback — if no known selectors match, find containers
   //    that hold rendered markdown by checking for structural child elements.
-  //    This handles the case where Anthropic changes class names.
   // ---------------------------------------------------------------------------
 
-  var CHAT_PAGE_SIGNALS = [
-    "claude.ai",
-    "chat.openai.com",
-    "chatgpt.com",
-  ];
-
   function isLikelyChatPage() {
+    if (detectAdapter()) return true;
     try {
       var host = window.location.hostname;
-      for (var i = 0; i < CHAT_PAGE_SIGNALS.length; i++) {
-        if (host.indexOf(CHAT_PAGE_SIGNALS[i]) !== -1) return true;
-      }
-      // Inside Cursor/VS Code webview — no hostname, but has vscode API
+      if (host.indexOf("claude.ai") !== -1) return true;
+      if (host.indexOf("chatgpt.com") !== -1) return true;
+      if (host.indexOf("chat.openai.com") !== -1) return true;
+      if (host.indexOf("gemini.google.com") !== -1) return true;
+      if (host.indexOf("copilot.microsoft.com") !== -1) return true;
       if (typeof acquireVsCodeApi === "function") return true;
       if (document.querySelector(".monaco-workbench")) return true;
     } catch (e) {
@@ -569,23 +701,22 @@
   //     zero-match selectors are logged once so stale selectors are visible.
   // ---------------------------------------------------------------------------
 
-  var SELECTOR_VERSION = 2;
+  var SELECTOR_VERSION = 3;
 
-  var CHAT_SELECTOR_LIST = [
-    // Claude.ai / Claude Desktop — data-testid preferred (most stable)
-    '[data-testid="chat-message-content"]',
-    '[data-testid="conversation-turn"]',
-    // Claude.ai — structural (no substring class matches)
-    ".prose",
-    // Cursor AI chat
-    '[class*="agentTurn"]',
-    '[class*="chat-message"]',
-    // VS Code chat / Copilot
-    ".interactive-result-editor-wrapper",
-    ".chat-tree-container",
-    ".rendered-markdown",
-    ".markdown-body",
-  ];
+  function buildSelectorList() {
+    var selectors = getAllMessageSelectors();
+    var unique = [];
+    var seen = {};
+    for (var i = 0; i < selectors.length; i++) {
+      if (!seen[selectors[i]]) {
+        seen[selectors[i]] = true;
+        unique.push(selectors[i]);
+      }
+    }
+    return unique;
+  }
+
+  var CHAT_SELECTOR_LIST = buildSelectorList();
 
   var selectorMatchCounts = {};
 
@@ -791,24 +922,33 @@
   function transformInputArea() {
     if (inputTransformed) return;
 
-    // Find the chat input (textarea or contenteditable)
-    var input = document.querySelector(
-      'textarea[placeholder], [contenteditable="true"][data-placeholder], ' +
-      'div[contenteditable="true"][role="textbox"]'
-    );
-    if (input) {
-      if (!input.getAttribute("aria-label")) {
-        input.setAttribute("aria-label", "Message input");
-      }
-      if (!input.getAttribute("role") && input.tagName !== "TEXTAREA") {
-        input.setAttribute("role", "textbox");
-      }
-      inputTransformed = true;
+    var adapter = detectAdapter();
+    var inputSels = adapter ? adapter.inputSelectors : [
+      'textarea[placeholder]',
+      '[contenteditable="true"][data-placeholder]',
+      'div[contenteditable="true"][role="textbox"]',
+    ];
+
+    for (var s = 0; s < inputSels.length; s++) {
+      try {
+        var input = document.querySelector(inputSels[s]);
+        if (input) {
+          if (!input.getAttribute("aria-label")) {
+            input.setAttribute("aria-label", "Message input");
+          }
+          if (!input.getAttribute("role") && input.tagName !== "TEXTAREA") {
+            input.setAttribute("role", "textbox");
+          }
+          inputTransformed = true;
+          return;
+        }
+      } catch (e) { /* skip invalid selector */ }
     }
   }
 
   function observeGenerationStatus() {
-    var stopSelectors = [
+    var adapter = detectAdapter();
+    var stopSels = adapter ? adapter.stopSelectors : [
       '[data-testid="stop-button"]',
       'button[aria-label*="top"]',
       'button[aria-label*="Cancel"]',
@@ -818,9 +958,9 @@
 
     var statusObserver = new MutationObserver(function () {
       var found = false;
-      for (var i = 0; i < stopSelectors.length; i++) {
+      for (var i = 0; i < stopSels.length; i++) {
         try {
-          if (document.querySelector(stopSelectors[i])) {
+          if (document.querySelector(stopSels[i])) {
             found = true;
             break;
           }
@@ -830,10 +970,10 @@
       if (found && !isGenerating) {
         isGenerating = true;
         statusChecked = true;
-        announce("Generating response...");
+        announce(phrasing.generatingStatus || "Generating response...");
       } else if (!found && isGenerating) {
         isGenerating = false;
-        announce("Response complete.");
+        announce(phrasing.responseComplete || "Response complete.");
       }
     });
 
@@ -844,8 +984,6 @@
       attributeFilter: ["class", "aria-label", "disabled"],
     });
 
-    // Health check: if after 30s we never detected a generation cycle,
-    // log it so it's diagnosable. Don't announce — not a user-facing error.
     setTimeout(function () {
       if (!statusChecked) {
         console.log(
@@ -908,16 +1046,24 @@
   }
 
   function readConversationTitle() {
-    var titleEl = document.querySelector(
-      '[data-testid="conversation-title"], ' +
-      'h1[class*="conversation"], ' +
-      'nav a[aria-current="page"]'
-    );
-    if (titleEl && titleEl.textContent) {
-      var mainChat = document.querySelector("main") || document.querySelector('[role="main"]');
-      if (mainChat && !mainChat.getAttribute("aria-label")) {
-        mainChat.setAttribute("aria-label", "Chat: " + titleEl.textContent.trim());
-      }
+    var adapter = detectAdapter();
+    var titleSels = adapter && adapter.titleSelectors ? adapter.titleSelectors : [
+      '[data-testid="conversation-title"]',
+      'h1[class*="conversation"]',
+      'nav a[aria-current="page"]',
+    ];
+
+    for (var s = 0; s < titleSels.length; s++) {
+      try {
+        var titleEl = document.querySelector(titleSels[s]);
+        if (titleEl && titleEl.textContent) {
+          var mainChat = document.querySelector("main") || document.querySelector('[role="main"]');
+          if (mainChat && !mainChat.getAttribute("aria-label")) {
+            mainChat.setAttribute("aria-label", "Chat: " + titleEl.textContent.trim());
+          }
+          return;
+        }
+      } catch (e) { /* skip */ }
     }
   }
 
@@ -952,9 +1098,12 @@
       selectorHealthWarning: selectorHealthWarning,
       selectorVersion: SELECTOR_VERSION,
       selectorMatchCounts: selectorMatchCounts,
+      siteAdapter: activeAdapter ? activeAdapter.name : "none",
       config: config,
     };
   };
+
+  window.__ca11yAdapters = siteAdapters;
 
   window.__ca11ySetConfig = function (overrides) {
     for (var key in overrides) {
