@@ -106,23 +106,31 @@
       "  overflow: hidden !important;",
       "  clip: rect(0, 0, 0, 0) !important;",
       "}",
-      ".ca11y-raw-toggle {",
-      "  position: absolute;",
-      "  top: 4px;",
-      "  right: 4px;",
-      "  padding: 2px 6px;",
-      "  font-size: 11px;",
-      "  background: transparent;",
-      "  border: 1px solid currentColor;",
-      "  border-radius: 3px;",
+      ".ca11y-global-toggle {",
+      "  position: fixed;",
+      "  bottom: 12px;",
+      "  right: 12px;",
+      "  padding: 6px 12px;",
+      "  font-size: 13px;",
+      "  font-family: system-ui, sans-serif;",
+      "  background: rgba(0, 0, 0, 0.75);",
+      "  color: #fff;",
+      "  border: 2px solid transparent;",
+      "  border-radius: 6px;",
       "  cursor: pointer;",
+      "  z-index: 10000;",
       "  opacity: 0.01;",
-      "  z-index: 10;",
-      "  transition: opacity 0.15s;",
+      "  transition: opacity 0.2s, border-color 0.2s;",
       "}",
-      ".ca11y-raw-toggle:focus, .ca11y-raw-toggle:focus-visible,",
-      "[data-ca11y-msg]:hover .ca11y-raw-toggle {",
+      ".ca11y-global-toggle:hover {",
       "  opacity: 1;",
+      "}",
+      ".ca11y-global-toggle:focus,",
+      ".ca11y-global-toggle:focus-visible {",
+      "  opacity: 1;",
+      "  border-color: #58a6ff;",
+      "  outline: 2px solid #58a6ff;",
+      "  outline-offset: 2px;",
       "}",
     ].join("\n");
     document.head.appendChild(style);
@@ -381,53 +389,51 @@
   }
 
   // ---------------------------------------------------------------------------
-  // 6. Raw markdown toggle — escape hatch for per-message bypass.
-  //    Stores original innerHTML before transforms so users can switch
-  //    between accessible view and raw markdown.
+  // 6. Global Raw/Accessible toggle — single button, toggles ALL annotations.
+  //    Avoids polluting the tab order with per-response buttons.
   // ---------------------------------------------------------------------------
 
-  function addRawToggle(container) {
+  var globalToggleBtn = null;
+
+  function createGlobalToggle() {
     if (!config.showRawToggle) return;
-    if (container.querySelector(".ca11y-raw-toggle")) return;
+    if (document.getElementById("ca11y-global-toggle")) return;
 
     try {
-      var pos = container.style.position;
-      if (!pos || pos === "static") {
-        container.style.position = "relative";
-      }
+      globalToggleBtn = document.createElement("button");
+      globalToggleBtn.id = "ca11y-global-toggle";
+      globalToggleBtn.className = "ca11y-global-toggle";
+      globalToggleBtn.textContent = "Raw";
+      globalToggleBtn.setAttribute("aria-label", "Show raw output, hide accessibility annotations");
+      globalToggleBtn.setAttribute("aria-pressed", "false");
+      globalToggleBtn.setAttribute("type", "button");
 
-      var btn = document.createElement("button");
-      btn.className = "ca11y-raw-toggle";
-      btn.textContent = "Raw";
-      btn.setAttribute("aria-label", "Show raw markdown, hide accessibility annotations");
-      btn.setAttribute("aria-pressed", "false");
-      btn.setAttribute("type", "button");
+      globalToggleBtn.addEventListener("click", function () {
+        var isRaw = globalToggleBtn.getAttribute("aria-pressed") === "true";
+        var srSpans = document.querySelectorAll(".ca11y-sr-only");
 
-      btn.addEventListener("click", function () {
-        var isRaw = btn.getAttribute("aria-pressed") === "true";
-        var srSpans = container.querySelectorAll(".ca11y-sr-only");
         if (!isRaw) {
           for (var i = 0; i < srSpans.length; i++) {
             srSpans[i].setAttribute("aria-hidden", "true");
             srSpans[i].style.display = "none";
           }
-          btn.textContent = "Accessible";
-          btn.setAttribute("aria-pressed", "true");
-          btn.setAttribute("aria-label", "Show accessibility annotations, hide raw view");
-          announce("Accessibility annotations hidden for this response");
+          globalToggleBtn.textContent = "Accessible";
+          globalToggleBtn.setAttribute("aria-pressed", "true");
+          globalToggleBtn.setAttribute("aria-label", "Show accessibility annotations, hide raw output");
+          announce("Accessibility annotations hidden");
         } else {
-          for (var i = 0; i < srSpans.length; i++) {
-            srSpans[i].setAttribute("aria-hidden", "false");
-            srSpans[i].style.display = "";
+          for (var j = 0; j < srSpans.length; j++) {
+            srSpans[j].setAttribute("aria-hidden", "false");
+            srSpans[j].style.display = "";
           }
-          btn.textContent = "Raw";
-          btn.setAttribute("aria-pressed", "false");
-          btn.setAttribute("aria-label", "Show raw markdown, hide accessibility annotations");
-          announce("Accessibility annotations restored for this response");
+          globalToggleBtn.textContent = "Raw";
+          globalToggleBtn.setAttribute("aria-pressed", "false");
+          globalToggleBtn.setAttribute("aria-label", "Show raw output, hide accessibility annotations");
+          announce("Accessibility annotations restored");
         }
       });
 
-      container.insertBefore(btn, container.firstChild);
+      document.body.appendChild(globalToggleBtn);
     } catch (e) {
       // Toggle is non-critical
     }
@@ -472,7 +478,6 @@
           msg.setAttribute("aria-label", config.responseLabel);
 
           processElement(msg);
-          addRawToggle(msg);
         }
       } catch (e) {
         // Selector may not be valid, skip it
@@ -526,7 +531,6 @@
           container.setAttribute("role", "region");
           container.setAttribute("aria-label", config.responseLabel);
           processElement(container);
-          addRawToggle(container);
           found++;
         }
       }
@@ -678,7 +682,7 @@
       var elements = document.querySelectorAll(
         "pre, table, blockquote, h1, h2, h3, h4, h5, h6, ul, ol"
       );
-      for (var i = 0; i < elements.length; i++) {
+      for (i = 0; i < elements.length; i++) {
         processElement(elements[i].parentElement || elements[i]);
       }
     } catch (e) {
@@ -707,39 +711,34 @@
   // ---------------------------------------------------------------------------
 
   var pendingScan = null;
+  var scanQueued = false;
 
-  function debouncedScan() {
-    if (pendingScan) return;
-    pendingScan = setTimeout(function () {
-      pendingScan = null;
-      scanAll();
-    }, 300);
+  function scheduleScan() {
+    if (scanQueued) return;
+    scanQueued = true;
+    if (typeof requestAnimationFrame === "function") {
+      requestAnimationFrame(function () {
+        scanQueued = false;
+        if (pendingScan) return;
+        pendingScan = setTimeout(function () {
+          pendingScan = null;
+          scanAll();
+        }, 150);
+      });
+    } else {
+      if (!pendingScan) {
+        pendingScan = setTimeout(function () {
+          pendingScan = null;
+          scanQueued = false;
+          scanAll();
+        }, 200);
+      }
+    }
   }
 
-  var observer = new MutationObserver(function (mutations) {
+  var observer = new MutationObserver(function () {
     if (!config.enabled) return;
-    var shouldScan = false;
-
-    for (var i = 0; i < mutations.length; i++) {
-      var mutation = mutations[i];
-
-      for (var j = 0; j < mutation.addedNodes.length; j++) {
-        var node = mutation.addedNodes[j];
-        if (node.nodeType === Node.ELEMENT_NODE) {
-          processElement(node);
-          transformChatMessages(node);
-          shouldScan = true;
-        }
-      }
-
-      if (mutation.type === "characterData") {
-        shouldScan = true;
-      }
-    }
-
-    if (shouldScan) {
-      debouncedScan();
-    }
+    scheduleScan();
   });
 
   observer.observe(document.documentElement, {
@@ -929,6 +928,7 @@
     transformInputArea();
     labelResponses();
     readConversationTitle();
+    createGlobalToggle();
   };
 
   // Start generation status observation

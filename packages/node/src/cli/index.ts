@@ -6,7 +6,7 @@
  */
 
 import { parseArgs } from "node:util";
-import { checkClaudeInstalled, runOneShot, setPassthroughMode } from "./runner.js";
+import { checkClaudeInstalled, runOneShot, setPassthroughMode, setQuietMode, setSrVerboseMode } from "./runner.js";
 import { startRepl } from "./repl.js";
 import { sanitize, initFormatter } from "../core/index.js";
 
@@ -46,6 +46,8 @@ REPL COMMANDS
 
 CLAUDE-SR FLAGS
   --raw                              Disable speech formatting (sanitized passthrough)
+  --quiet                            Suppress heartbeat and status messages on stderr
+  --sr-verbose                       Extra-verbose: announce every tool call and heartbeat
 
 FLAGS (passed through to claude)
   -m, --model <model>                Set model (sonnet, opus, haiku, or full name)
@@ -95,6 +97,8 @@ interface ParsedArgs {
   help: boolean;
   version: boolean;
   raw: boolean;
+  quiet: boolean;
+  srVerbose: boolean;
   prompt: string | null;
 
   // Session management
@@ -118,6 +122,8 @@ function parseCliArgs(argv: string[]): ParsedArgs {
         help: { type: "boolean", short: "h", default: false },
         version: { type: "boolean", short: "v", default: false },
         raw: { type: "boolean", default: false },
+        quiet: { type: "boolean", default: false },
+        "sr-verbose": { type: "boolean", default: false },
         print: { type: "boolean", short: "p", default: false },
 
         // Session management
@@ -209,6 +215,8 @@ function parseCliArgs(argv: string[]): ParsedArgs {
     help: values.help as boolean ?? false,
     version: values.version as boolean ?? false,
     raw: values.raw as boolean ?? false,
+    quiet: values.quiet as boolean ?? false,
+    srVerbose: values["sr-verbose"] as boolean ?? false,
     prompt,
     continueSession: values.continue as boolean ?? false,
     resumeId: values.resume as string | undefined ?? null,
@@ -249,9 +257,14 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  // Apply --raw mode (skips speech formatting, outputs sanitized plaintext)
   if (args.raw) {
     setPassthroughMode(true);
+  }
+  if (args.quiet) {
+    setQuietMode(true);
+  }
+  if (args.srVerbose) {
+    setSrVerboseMode(true);
   }
 
   // Determine mode: one-shot or REPL

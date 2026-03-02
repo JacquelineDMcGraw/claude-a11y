@@ -32,6 +32,9 @@ jobs:
       - name: Test node package
         run: npm test -w packages/node
 
+      - name: Lint browser package
+        run: npm run lint -w packages/browser
+
       - name: Test browser package
         run: npm test -w packages/browser
 

@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude A11y — Screen Reader Validation Page</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; }
+    .test-section { border: 1px solid #ccc; border-radius: 8px; padding: 16px; margin: 16px 0; }
+    .test-section h3 { margin-top: 0; }
+    .expected { background: #f0f7f0; padding: 12px; border-radius: 4px; margin-top: 8px; }
+    .expected strong { display: block; margin-bottom: 4px; }
+    pre { background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; }
+    code.language-python { color: #ce9178; }
+    code.language-javascript { color: #dcdcaa; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    blockquote { border-left: 3px solid #666; padding-left: 12px; margin-left: 0; color: #555; }
+  </style>
+</head>
+<body>
+  <h1>Claude A11y Screen Reader Validation</h1>
+  <p>
+    Open this page with a screen reader (NVDA, JAWS, VoiceOver, Orca) and
+    verify that each section is announced correctly. Load chat-a11y.js into the
+    page (paste the script into DevTools console or use the extension), then
+    navigate through each test section.
+  </p>
+  <p>
+    <strong>How to test:</strong> After injecting chat-a11y.js, navigate with
+    your screen reader's virtual cursor (down arrow in NVDA/JAWS, VO+Right in
+    VoiceOver). Record what is announced for each section and compare against
+    the expected output listed below.
+  </p>
+
+  <div class="test-section" data-testid="chat-message-content">
+    <h3>Test 1: Python Code Block</h3>
+    <pre><code class="language-python">def hello():
+    print("Hello, World!")
+
+hello()</code></pre>
+    <div class="expected">
+      <strong>Expected screen reader output:</strong>
+      "[Python]" announced before code. "def hello colon print open paren
+      quote Hello comma World exclamation quote close paren hello open paren
+      close paren" for the code content. "[End Python]" announced after code.
+      The pre element should have aria-label "Python code block".
+    </div>
+  </div>
+
+  <div class="test-section" data-testid="chat-message-content">
+    <h3>Test 2: JavaScript Code Block</h3>
+    <pre><code class="language-javascript">const greet = (name) => `Hello, ${name}!`;</code></pre>
+    <div class="expected">
+      <strong>Expected screen reader output:</strong>
+      "[Javascript]" before, code content, "[End Javascript]" after.
+    </div>
+  </div>
+
+  <div class="test-section" data-testid="chat-message-content">
+    <h3>Test 3: Table</h3>
+    <table>
+      <tr><th>Screen Reader</th><th>OS</th><th>Status</th></tr>
+      <tr><td>NVDA</td><td>Windows</td><td>Supported</td></tr>
+      <tr><td>JAWS</td><td>Windows</td><td>Supported</td></tr>
+      <tr><td>VoiceOver</td><td>macOS</td><td>Supported</td></tr>
+      <tr><td>Orca</td><td>Linux</td><td>Supported</td></tr>
+    </table>
+    <div class="expected">
+      <strong>Expected screen reader output:</strong>
+      "[Table, 3 columns]" before the table. Headers announced as column
+      headers with scope. Each row navigable. "[End Table]" after.
+    </div>
+  </div>
+
+  <div class="test-section" data-testid="chat-message-content">
+    <h3>Test 4: Headings</h3>
+    <h2>Major Section</h2>
+    <p>Content under a heading.</p>
+    <h4>Subsection Detail</h4>
+    <p>Content under a subheading.</p>
+    <div class="expected">
+      <strong>Expected screen reader output:</strong>
+      "[Heading] Major Section" for h2. "[Subheading] Subsection Detail" for h4.
+    </div>
+  </div>
+
+  <div class="test-section" data-testid="chat-message-content">
+    <h3>Test 5: Blockquote</h3>
+    <blockquote>
+      The best way to predict the future is to invent it. — Alan Kay
+    </blockquote>
+    <div class="expected">
+      <strong>Expected screen reader output:</strong>
+      "[Quote]" prefix, then the quote text. The blockquote should have
+      role="note".
+    </div>
+  </div>
+
+  <div class="test-section" data-testid="chat-message-content">
+    <h3>Test 6: Lists</h3>
+    <ul>
+      <li>Install Node.js 18 or later</li>
+      <li>Clone the repository</li>
+      <li>Run npm install</li>
+    </ul>
+    <ol>
+      <li>Open the terminal</li>
+      <li>Navigate to the project</li>
+    </ol>
+    <div class="expected">
+      <strong>Expected screen reader output:</strong>
+      "[3 item bulleted list]" before the unordered list.
+      "[2 item numbered list]" before the ordered list.
+    </div>
+  </div>
+
+  <div class="test-section" data-testid="chat-message-content">
+    <h3>Test 7: Horizontal Rule</h3>
+    <p>Section one content.</p>
+    <hr>
+    <p>Section two content.</p>
+    <div class="expected">
+      <strong>Expected screen reader output:</strong>
+      The hr should be announced as "[Separator]" with role="separator".
+    </div>
+  </div>
+
+  <div class="test-section" data-testid="chat-message-content">
+    <h3>Test 8: Image without Alt Text</h3>
+    <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
+    <div class="expected">
+      <strong>Expected screen reader output:</strong>
+      "Image" — the extension should add fallback alt text.
+    </div>
+  </div>
+
+  <div class="test-section" data-testid="chat-message-content">
+    <h3>Test 9: Mixed Content Response</h3>
+    <h2>Installation Guide</h2>
+    <p>Follow these steps to set up the project:</p>
+    <ol>
+      <li>Clone the repo</li>
+      <li>Install dependencies</li>
+      <li>Start the server</li>
+    </ol>
+    <pre><code class="language-python">pip install -r requirements.txt
+python manage.py runserver</code></pre>
+    <blockquote>Make sure Python 3.10+ is installed before proceeding.</blockquote>
+    <table>
+      <tr><th>Command</th><th>Purpose</th></tr>
+      <tr><td>pip install</td><td>Install packages</td></tr>
+      <tr><td>python manage.py</td><td>Run server</td></tr>
+    </table>
+    <div class="expected">
+      <strong>Expected screen reader output:</strong>
+      This tests navigation through a realistic AI response. Every element
+      should be properly announced with structural markers. The entire
+      container should be labeled as "AI response" with role="region".
+    </div>
+  </div>
+
+  <h2>Recording Template</h2>
+  <p>Copy this template to record your test results:</p>
+  <pre><code>Screen Reader: [NVDA / JAWS / VoiceOver / Orca]
+OS: [Windows / macOS / Linux]
+Browser: [Chrome / Firefox / Edge / Safari]
+Date: [YYYY-MM-DD]
+
+Test 1 (Python code block):
+  Expected: [Python] ... [End Python]
+  Actual:
+  Pass/Fail:
+
+Test 2 (JavaScript code block):
+  Expected: [Javascript] ... [End Javascript]
+  Actual:
+  Pass/Fail:
+
+Test 3 (Table):
+  Expected: [Table, 3 columns] ... [End Table]
+  Actual:
+  Pass/Fail:
+
+Test 4 (Headings):
+  Expected: [Heading] and [Subheading] prefixes
+  Actual:
+  Pass/Fail:
+
+Test 5 (Blockquote):
+  Expected: [Quote] prefix
+  Actual:
+  Pass/Fail:
+
+Test 6 (Lists):
+  Expected: [3 item bulleted list] and [2 item numbered list]
+  Actual:
+  Pass/Fail:
+
+Test 7 (Horizontal Rule):
+  Expected: [Separator]
+  Actual:
+  Pass/Fail:
+
+Test 8 (Image):
+  Expected: "Image" alt text
+  Actual:
+  Pass/Fail:
+
+Test 9 (Mixed content):
+  Expected: All elements properly annotated in sequence
+  Actual:
+  Pass/Fail:
+
+Notes / issues:
+</code></pre>
+
+  <script>
+    /* Inject chat-a11y.js if loaded via extension, or manually paste it here */
+  </script>
+</body>
+</html>

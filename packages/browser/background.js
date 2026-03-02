@@ -5,7 +5,7 @@
  * messages from the popup to query the content script status.
  */
 
-var LOG_PREFIX = "[claude-accessible:bg]";
+const LOG_PREFIX = "[claude-accessible:bg]";
 
 // ---------------------------------------------------------------------------
 // Extension lifecycle events

@@ -32,6 +32,7 @@
     "bin/",
     "media/",
     "LICENSE",
+    "README.md",
     "launch-claude-a11y.js",
     "patch-claude-app.js"
   ],

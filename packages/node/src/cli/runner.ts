@@ -19,9 +19,19 @@ import {
 import type { ParsedEvent, ParsedResultEvent } from "../core/index.js";
 
 let passthroughMode = false;
+let quietMode = false;
+let srVerboseMode = false;
 
 export function setPassthroughMode(enabled: boolean): void {
   passthroughMode = enabled;
+}
+
+export function setQuietMode(enabled: boolean): void {
+  quietMode = enabled;
+}
+
+export function setSrVerboseMode(enabled: boolean): void {
+  srVerboseMode = enabled;
 }
 
 export interface RunResult {
@@ -227,6 +237,7 @@ export async function runStreaming(args: string[]): Promise<RunResult> {
 
   function resetHeartbeat(): void {
     if (heartbeatTimer) clearInterval(heartbeatTimer);
+    if (quietMode) return;
     heartbeatTimer = setInterval(() => {
       process.stderr.write("[still responding...]\n");
     }, HEARTBEAT_MS);
@@ -279,7 +290,7 @@ export async function runStreaming(args: string[]): Promise<RunResult> {
       }
 
       case "tool_use":
-        if (!suppressAnnouncements) {
+        if (!suppressAnnouncements && !quietMode) {
           writeAnnouncement(announceToolUse(event));
         }
         break;
@@ -311,9 +322,10 @@ export async function runStreaming(args: string[]): Promise<RunResult> {
   process.on("SIGINT", sigintHandler);
 
   return new Promise<RunResult>((resolve) => {
-    // Start heartbeat after spawn succeeds (inside the promise, not before)
-    process.stderr.write("Responding...\n");
-    resetHeartbeat();
+    if (!quietMode) {
+      process.stderr.write("Responding...\n");
+      resetHeartbeat();
+    }
 
     child.stdout?.on("data", (chunk: Buffer) => {
       const events = streamParser.feed(chunk.toString("utf-8"));

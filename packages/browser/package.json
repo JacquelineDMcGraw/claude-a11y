@@ -11,9 +11,12 @@
     "directory": "packages/browser"
   },
   "scripts": {
-    "test": "vitest run"
+    "test": "vitest run",
+    "lint": "eslint chat-a11y.js popup.js content.js background.js phrasing.js"
   },
   "devDependencies": {
+    "axe-core": "^4.11.1",
+    "eslint": "^10.0.2",
     "jsdom": "^24.0.0",
     "vitest": "^4.0.18"
   },
