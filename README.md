@@ -1,237 +1,146 @@
-# claude-accessible
+# claude-a11y
 
-**A screen-reader-friendly interface for Claude Code that translates visual formatting into speech-friendly output.**
+Screen reader accessibility for AI chat interfaces.
 
-Makes [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview) fully usable with NVDA, JAWS, VoiceOver, and Orca — and more accessible for anyone who processes syntax differently.
+## The problem
 
-![npm version](https://img.shields.io/npm/v/claude-accessible)
-![license](https://img.shields.io/npm/l/claude-accessible)
-![node](https://img.shields.io/node/v/claude-accessible)
+AI chat interfaces are unusable with screen readers. The issues are specific and pervasive:
 
----
+- Code blocks render as triple backticks. A screen reader announces "backtick backtick backtick python print open paren quote hello quote close paren backtick backtick backtick" instead of telling the user they are looking at a Python code block.
+- Markdown formatting is read literally. Bold text becomes "star star important star star." Headings become "hash hash Section Title." Links become "bracket text bracket paren URL paren."
+- Chat responses lack ARIA landmarks. There is no way to navigate between messages, code blocks, or sections using screen reader shortcuts.
+- Streaming responses break live regions. Content arrives in fragments that overwhelm or confuse screen reader buffers.
+- Terminal output is worse. ANSI escape codes, spinner animations, and cursor repositioning from TUI frameworks cause screen readers to freeze, repeat content, or lose their place entirely.
+- Tables built from pipes and dashes are announced character by character instead of as structured data.
 
-## The Story Behind This
+These are not edge cases. They are the default experience for blind and low-vision developers using AI coding tools.
 
-I have Ehlers-Danlos Syndrome, dyscalculia, and ADHD. I understand technology deeply — I can architect systems, reason about problems, and think in abstractions — but raw syntax has always been a wall. Nested brackets, semicolons in the wrong place, the visual noise of code formatting — my brain processes these differently, and for a long time, that meant coding was something I understood but couldn't fully do on my own.
+## What this project does
 
-AI changed that for me. Tools like Claude Code gave me the ability to turn my understanding into real, working projects. It bridged the gap between knowing *what* to build and being able to *actually build it*.
+claude-a11y transforms AI chat output into screen-reader-friendly markup. It works at three layers: in the browser, in the editor, and in the terminal. No visual changes are made. Sighted users see the same interface. Screen reader users hear structured, navigable output.
 
-But when I looked at how Claude Code works for blind and low-vision developers, I realized they were hitting an even harder version of the same wall. Screen readers would choke on the spinning animations, garble the ANSI color codes, and — worst of all — read code blocks as "backtick backtick backtick python" instead of communicating the actual structure of the response.
+## Packages
 
-The same tool that opened a door for me was keeping it shut for others.
+This is a monorepo with four packages:
 
-**claude-accessible** is my attempt to open that door wider. It's a prototype, a starting point, and an invitation. If AI-assisted coding can work for someone with dyscalculia who struggles to parse syntax visually, it should absolutely work for someone who can't see the syntax at all.
+- **packages/chrome-extension** -- Browser extension for claude.ai. Runs a MutationObserver that transforms rendered markdown in-place, adding ARIA roles, landmarks, and screen-reader-only announcements. Works with Chrome, Edge, and Brave.
 
-This tool is useful for blind and low-vision developers who need screen reader compatibility, but it's also useful for anyone who benefits from cleaner, more structured output — people with cognitive processing differences, learning disabilities, or anyone who just finds raw markdown noisy when they're trying to think.
+- **packages/vscode-extension** -- Extension for VS Code and Cursor. Transforms AI chat responses from Copilot, Claude, and other chat participants into speech-friendly output. Provides a dedicated accessible output panel, configurable verbosity levels, and keyboard shortcuts for common actions.
 
----
+- **packages/cli** -- Terminal wrapper for Claude Code. Strips ANSI escape codes and spinner artifacts, parses markdown responses into an AST, and renders them as clean speech-friendly text. Works with any terminal and any screen reader.
 
-## What Problem This Solves
+- **packages/core** -- Shared library. Contains the markdown-to-speech formatter, ANSI sanitizer, and announcement utilities used by the other packages.
 
-Claude Code's interactive TUI uses ink (React for terminals) which rewrites lines, animates spinners, and emits ANSI escape codes. Screen readers can't handle this — they freeze, garble output, or lose track entirely.
+## Quick start
 
-But even in Claude Code's headless mode (`claude -p`), which outputs clean text, there's a deeper problem: **markdown formatting is visual, and screen readers read it literally.**
+### Chrome extension
 
-A sighted user sees a nicely highlighted Python code block. A screen reader user hears:
+Clone the repository, open chrome://extensions, enable Developer mode, and load the packages/chrome-extension directory as an unpacked extension. Navigate to claude.ai.
 
-> "backtick backtick backtick python print open paren quote Hello World quote close paren backtick backtick backtick"
+### VS Code / Cursor extension
 
-**claude-accessible** solves both problems:
+```
+cd packages/vscode-extension
+npm run compile
+```
 
-1. **Strips all ANSI/TUI artifacts** — no spinners, no cursor movement, no escape codes
-2. **Translates markdown into speech-friendly structure** — using a proper markdown AST parser (remark) to convert visual formatting cues into audio-friendly announcements
+Install the resulting .vsix file through the Extensions view, or run it in the Extension Development Host with F5.
 
-The same response becomes:
+### CLI
 
-> "Python. print open paren quote Hello World quote close paren. End Python."
-
-Headings, bold, inline code, lists, tables, links — all transformed from visual syntax into clean structural cues that make sense when read aloud.
-
----
-
-## Installation
-
-```bash
+```
 npm install -g claude-accessible
-```
-
-**Requirements:**
-- Node.js 18 or later
-- [Claude Code CLI](https://docs.anthropic.com/en/docs/claude-code/overview) installed and authenticated
-
-## Quick Start
-
-```bash
-# Interactive coding session
-claude-sr
-
-# Quick question
-claude-sr "explain this project"
-
-# Continue last conversation
-claude-sr -c "now add tests"
-
-# Piped input
-echo "fix lint errors" | claude-sr
-
-# Use specific model
-claude-sr --model opus "review this PR"
-```
-
-## Try It With Speech
-
-The fastest way to hear the difference on macOS:
-
-```bash
-# Pipes claude-sr output through macOS text-to-speech
-npm run test:speech
-
-# Or manually with any prompt
-./bin/test-with-speech.sh --say "explain how to use git branches"
-
-# Or start VoiceOver and run normally
-# Press Cmd+F5 to toggle VoiceOver, then:
 claude-sr "explain this project"
 ```
 
-On other platforms:
-- **Windows**: Start [NVDA](https://www.nvaccess.org/download/) (free, open source), then run `claude-sr`
-- **Linux**: Press Super+Alt+S to toggle Orca (built into GNOME), then run `claude-sr`
+Requires Node.js 18 or later and Claude Code CLI installed.
 
-## How the Speech Formatting Works
-
-claude-accessible parses Claude's markdown output into an abstract syntax tree using [remark](https://remark.js.org/), then renders it as speech-friendly plain text:
-
-| Markdown | What a screen reader used to say | What it says now |
-|---|---|---|
-| `` ```python `` | "backtick backtick backtick python" | "Python" |
-| `` ``` `` (closing) | "backtick backtick backtick" | "End Python" |
-| `## Heading` | "hash hash Heading" | "Heading. Heading" |
-| `**bold text**` | "star star bold text star star" | "bold text" |
-| `` `code` `` | "backtick code backtick" | "code" |
-| `- list item` | "dash list item" | "Bullet: list item" |
-| `> quote` | "greater than quote" | "Quote. quote" |
-| `---` | "dash dash dash" | "Separator" |
-| `[text](url)` | "bracket text bracket paren url paren" | "text, link: url" |
-| Tables | Pipes and dashes | "Table, 2 columns. Header: Name, Age. Row 1: Name: Alice, Age: 30" |
-
-## REPL Mode
-
-Launch `claude-sr` with no arguments for an interactive session:
+### Core library
 
 ```
-$ claude-sr
-Claude Code (Screen Reader Mode)
-Type a message and press Enter. Type /help for commands, /exit to quit.
-
-> explain the main entry point
-Thinking...
-[Tool] Reading file: src/index.ts
-The main entry point is src/index.ts. It sets up an Express server
-on port 3000 with three routes...
-[Done] Response complete. (2 turns, $0.0037 cost)
-
-> /exit
-Goodbye.
+npm install @claude-accessible/core
 ```
 
-- Session context maintained across turns
-- Tool usage announced on stderr
-- stdout contains only clean response text — pipe it anywhere
+Import `speechFormat` to transform markdown strings into screen-reader-friendly plain text in your own tools.
 
-## Commands
+## How it works
 
-| Command | Description |
-|---------|-------------|
-| `/help` | Show available commands |
-| `/new` | Start a new session |
-| `/session` | Show current session ID |
-| `/cost` | Show accumulated cost |
-| `/version` | Show version info |
-| `/compact` | Compact conversation context |
-| `/clear` | Clear screen |
-| `/exit` | Exit (also: `/quit`, Ctrl+D) |
+The browser and editor extensions use the same approach:
 
-## Flags
+1. A MutationObserver watches the DOM for new or changed chat messages.
+2. When a message appears, the extension walks its rendered HTML elements: code blocks, headings, tables, blockquotes, inline code, and links.
+3. For each element, it adds ARIA attributes in-place. Code blocks get `role="region"` and an `aria-label` like "Python code block." Tables get `role="table"` with proper column headers. Headings get screen-reader-only prefix spans.
+4. Screen-reader-only spans are inserted before and after structural elements to announce boundaries. These spans use the standard visually-hidden CSS pattern (1px clipped box) so they are invisible to sighted users but read by assistive technology.
+5. An ARIA live region announces activity like "Response complete" without interrupting the current reading position.
 
-All Claude Code CLI flags are passed through:
+The CLI takes a different path. It spawns Claude Code in headless mode with `NO_COLOR=1` and `TERM=dumb` to suppress visual formatting, then parses the markdown response into an abstract syntax tree using remark. It walks the AST and renders each node as plain text with structural cues: "[Python]" before a code block, "[End Python]" after it, "Heading:" before a heading, "Bullet:" before list items.
 
-| Flag | Description |
-|------|-------------|
-| `-m, --model <model>` | Set model (sonnet, opus, haiku) |
-| `-c, --continue` | Continue most recent conversation |
-| `-r, --resume <id>` | Resume specific session |
-| `--allowedTools <tools>` | Tools to allow without prompting |
-| `--permission-mode <mode>` | Permission mode |
-| `--system-prompt <text>` | Replace system prompt |
-| `--max-turns <n>` | Limit agentic turns |
-| `--verbose` | Enable verbose output |
-| `--dangerously-skip-permissions` | Skip all permission prompts |
+Nothing changes visually. The DOM looks the same. Only the accessibility tree is different.
 
-All other claude flags work too — they're forwarded automatically.
+## What screen readers hear
 
-## How It Works Under the Hood
+Without claude-a11y, a screen reader announces a Python code block as:
 
-1. Spawns `claude -p` with `NO_COLOR=1` and `TERM=dumb` to suppress visual formatting at the source
-2. Parses stream-json output to extract text content and tool activity
-3. Strips any remaining ANSI escape codes (defense in depth)
-4. **Parses the response markdown into an AST** using unified/remark
-5. **Walks the syntax tree** and renders each node as speech-friendly text
-6. Writes clean output to stdout, tool announcements to stderr
-7. Maintains session context across turns via `--resume`
+"backtick backtick backtick python def hello colon print open paren quote hi quote close paren backtick backtick backtick"
 
-## Environment Variables
+With claude-a11y, the same block is announced as:
 
-| Variable | Description |
-|----------|-------------|
-| `CLAUDE_SR_PROMPT` | Custom prompt character (default: `"> "`) |
-| `CLAUDE_SR_ANNOUNCE` | Set to `"0"` to suppress tool announcements |
+"Python code block. def hello colon print open paren quote hi quote close paren. End Python."
 
-## Known Limitations
+Without claude-a11y, a markdown heading is announced as:
 
-- **No visual diffs** — Claude Code's interactive mode shows inline diffs. Here, you see tool announcements and can review changes with `git diff`.
-- **No TUI features** — No file picker, no scrollable output, no syntax highlighting. By design.
-- **Buffered output** — Responses are formatted after completion rather than streamed word-by-word, so there's a brief pause before output appears.
-- **Permission prompts** — When Claude needs tool permissions, prompts are forwarded via stdin.
+"hash hash Installation"
 
-## This Is a Prototype
+With claude-a11y:
 
-This project is a working proof of concept and a starting point — not a finished product. It demonstrates that the gap between Claude Code and screen reader users is solvable, and that the same approach helps anyone who processes syntax differently.
+"Heading. Installation."
 
-What would make this better:
-- **Testing with real screen reader users** across NVDA, JAWS, VoiceOver, and Orca
-- **Feedback on the speech formatting** — are the cues right? Too verbose? Not enough?
-- **Windows testing** — especially NVDA + Windows Terminal
-- **Streaming speech formatting** — right now we buffer the full response; streaming would feel more responsive
-- **Localization** — announcements are English-only currently
-- **Upstream integration** — ideally, Claude Code itself would offer an accessible mode
+Without claude-a11y, a markdown link is announced as:
 
-If you use a screen reader, have a cognitive processing difference, or just care about this stuff — your feedback would mean everything. File an issue, open a PR, or just tell me what works and what doesn't.
+"bracket documentation bracket open paren https colon slash slash docs dot example dot com close paren"
+
+With claude-a11y:
+
+"documentation, link: docs.example.com"
+
+Without claude-a11y, a table built from pipes is announced as a stream of pipe characters and dashes. With claude-a11y, it is announced as:
+
+"Table: 3 rows, 2 columns. Column header: Name. Column header: Role. Row 1: Name: Alice. Role: Engineer."
+
+## Supported platforms
+
+### Chrome extension
+- Chrome, Edge, Brave, and other Chromium-based browsers
+- Works on claude.ai
+
+### VS Code / Cursor extension
+- VS Code 1.93 or later
+- Cursor
+- Compatible with NVDA, JAWS, VoiceOver, and Orca
+
+### CLI
+- Any terminal on macOS, Windows, or Linux
+- Any screen reader: VoiceOver, NVDA, JAWS, Orca
+- Requires Node.js 18 or later
 
 ## Contributing
 
-```bash
+```
 git clone https://github.com/JacquelineDMcGraw/claude-a11y.git
 cd claude-a11y
 npm install
 npm run build
-npm test          # 149 tests
-npm run bench     # Performance benchmarks
+npm test
 ```
 
-See [TESTING-WITH-SCREEN-READERS.md](./TESTING-WITH-SCREEN-READERS.md) for the manual screen reader testing protocol.
+If you use a screen reader, feedback on the announcement phrasing, verbosity, and navigation experience is especially valuable. File an issue or open a pull request.
 
-## Related Issues
-
-- [anthropics/claude-code#11002](https://github.com/anthropics/claude-code/issues/11002) — Screen reader compatibility request
-- [anthropics/claude-code#15509](https://github.com/anthropics/claude-code/issues/15509) — Accessibility improvements
+See the repository wiki for the manual screen reader testing protocol.
 
 ## License
 
-MIT — see [LICENSE](./LICENSE)
+MIT. See the LICENSE file for details.
 
----
+## Author
 
-Built by [Jacqueline McGraw](https://github.com/JacquelineDMcGraw) (Jackie's Jawn).
-
-AI made coding possible for me. This project is about making sure it's possible for everyone.
+Jacqueline McGraw -- https://github.com/JacquelineDMcGraw

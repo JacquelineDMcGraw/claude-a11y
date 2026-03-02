@@ -3,4 +3,5 @@ dist/
 *.tsbuildinfo
 benchmark-results.txt
 *.tgz
+*.vsix
 .DS_Store

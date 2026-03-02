@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude Accessible</title>
+  <style>
+    /* ------------------------------------------------------------------ */
+    /* High contrast, accessible popup styles                             */
+    /* ------------------------------------------------------------------ */
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        Helvetica, Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #1a1a1a;
+      background: #ffffff;
+      width: 320px;
+      padding: 16px;
+    }
+
+    /* Focus styles — visible and high contrast */
+    :focus {
+      outline: 3px solid #1a73e8;
+      outline-offset: 2px;
+    }
+
+    :focus:not(:focus-visible) {
+      outline: none;
+    }
+
+    :focus-visible {
+      outline: 3px solid #1a73e8;
+      outline-offset: 2px;
+    }
+
+    /* ---- Header ---- */
+    header {
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #e0e0e0;
+    }
+
+    h1 {
+      font-size: 18px;
+      font-weight: 700;
+      color: #1a1a1a;
+    }
+
+    .subtitle {
+      font-size: 12px;
+      color: #555555;
+      margin-top: 2px;
+    }
+
+    /* ---- Status section ---- */
+    .status-section {
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #333333;
+      margin-bottom: 8px;
+    }
+
+    .status-indicator {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-weight: 600;
+    }
+
+    .status-indicator[data-status="active"] {
+      background: #e6f4ea;
+      color: #1e7e34;
+      border: 1px solid #a8dab5;
+    }
+
+    .status-indicator[data-status="inactive"] {
+      background: #fce8e6;
+      color: #c5221f;
+      border: 1px solid #f5c6c2;
+    }
+
+    .status-indicator[data-status="loading"] {
+      background: #e8f0fe;
+      color: #1a73e8;
+      border: 1px solid #aecbfa;
+    }
+
+    .status-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .status-indicator[data-status="active"] .status-dot {
+      background: #1e7e34;
+    }
+
+    .status-indicator[data-status="inactive"] .status-dot {
+      background: #c5221f;
+    }
+
+    .status-indicator[data-status="loading"] .status-dot {
+      background: #1a73e8;
+    }
+
+    /* ---- Stats ---- */
+    .stats-section {
+      margin-bottom: 16px;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .stat-label {
+      color: #555555;
+      font-size: 13px;
+    }
+
+    .stat-value {
+      font-weight: 600;
+      color: #1a1a1a;
+      font-size: 13px;
+    }
+
+    /* ---- Actions ---- */
+    .actions-section {
+      margin-bottom: 16px;
+    }
+
+    button {
+      display: block;
+      width: 100%;
+      padding: 10px 16px;
+      font-size: 14px;
+      font-weight: 600;
+      color: #ffffff;
+      background: #1a73e8;
+      border: 2px solid #1a73e8;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s;
+    }
+
+    button:hover {
+      background: #1557b0;
+      border-color: #1557b0;
+    }
+
+    button:active {
+      background: #0d47a1;
+      border-color: #0d47a1;
+    }
+
+    button:disabled {
+      background: #cccccc;
+      border-color: #cccccc;
+      color: #666666;
+      cursor: not-allowed;
+    }
+
+    .btn-feedback {
+      font-size: 12px;
+      margin-top: 4px;
+      min-height: 18px;
+      color: #1e7e34;
+      font-weight: 600;
+    }
+
+    /* ---- Footer ---- */
+    footer {
+      padding-top: 12px;
+      border-top: 2px solid #e0e0e0;
+      text-align: center;
+    }
+
+    footer a {
+      color: #1a73e8;
+      text-decoration: underline;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    footer a:hover {
+      color: #0d47a1;
+    }
+
+    footer a:visited {
+      color: #7b1fa2;
+    }
+
+    .version {
+      font-size: 11px;
+      color: #888888;
+      margin-top: 4px;
+    }
+
+    /* ---- Screen reader only ---- */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+  </style>
+</head>
+<body>
+  <header role="banner">
+    <h1>Claude Accessible</h1>
+    <p class="subtitle">Screen reader accessibility for Claude AI</p>
+  </header>
+
+  <main role="main">
+    <!-- Status -->
+    <section class="status-section" aria-labelledby="status-heading">
+      <h2 id="status-heading">Status</h2>
+      <div
+        id="status-indicator"
+        class="status-indicator"
+        data-status="loading"
+        role="status"
+        aria-live="polite"
+      >
+        <span class="status-dot" aria-hidden="true"></span>
+        <span id="status-text">Checking...</span>
+      </div>
+    </section>
+
+    <!-- Stats -->
+    <section class="stats-section" aria-labelledby="stats-heading">
+      <h2 id="stats-heading">Statistics</h2>
+      <div class="stat-row">
+        <span class="stat-label">Elements transformed</span>
+        <span id="stat-transform-count" class="stat-value" aria-live="polite">--</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Observer</span>
+        <span id="stat-observer" class="stat-value" aria-live="polite">--</span>
+      </div>
+      <div class="stat-row">
+        <span class="stat-label">Live region</span>
+        <span id="stat-live-region" class="stat-value" aria-live="polite">--</span>
+      </div>
+    </section>
+
+    <!-- Actions -->
+    <section class="actions-section" aria-labelledby="actions-heading">
+      <h2 id="actions-heading">Actions</h2>
+      <button
+        id="rescan-btn"
+        type="button"
+        aria-describedby="rescan-feedback"
+      >
+        Force Rescan
+      </button>
+      <p id="rescan-feedback" class="btn-feedback" aria-live="polite" role="status"></p>
+    </section>
+  </main>
+
+  <footer role="contentinfo">
+    <a
+      href="https://github.com/JacquelineDMcGraw/claude-a11y"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      View on GitHub
+    </a>
+    <p class="version" id="version-text"></p>
+  </footer>
+
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,34 @@
+{
+  "manifest_version": 3,
+  "name": "Claude Accessible",
+  "version": "1.0.0",
+  "description": "Screen reader accessibility for Claude AI — adds ARIA landmarks, code block announcements, and semantic markup to chat responses",
+  "author": "Jacqueline McGraw",
+  "homepage_url": "https://github.com/JacquelineDMcGraw/claude-a11y",
+
+  "permissions": ["activeTab", "scripting"],
+
+  "content_scripts": [
+    {
+      "matches": ["*://claude.ai/*"],
+      "js": ["content.js"],
+      "run_at": "document_idle"
+    }
+  ],
+
+  "background": {
+    "service_worker": "background.js"
+  },
+
+  "action": {
+    "default_popup": "popup.html",
+    "default_title": "Claude Accessible"
+  },
+
+  "web_accessible_resources": [
+    {
+      "resources": ["chat-a11y.js"],
+      "matches": ["*://claude.ai/*"]
+    }
+  ]
+}

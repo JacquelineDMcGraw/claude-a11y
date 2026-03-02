@@ -11,7 +11,8 @@
   "workspaces": [
     "packages/core",
     "packages/cli",
-    "packages/vscode-extension"
+    "packages/vscode-extension",
+    "packages/chrome-extension"
   ],
   "scripts": {
     "build": "npm run build -w packages/core && npm run build -w packages/cli",
