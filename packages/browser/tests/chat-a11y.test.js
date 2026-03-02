@@ -177,7 +177,7 @@ describe("chat-a11y.js", function () {
   // -------------------------------------------------------------------------
 
   describe("table transforms", function () {
-    it("adds role=table and announces dimensions", function () {
+    it("adds role=table, aria-label, tabindex, and announces dimensions", function () {
       document.body.innerHTML = [
         "<div>",
         "  <table>",
@@ -190,6 +190,8 @@ describe("chat-a11y.js", function () {
 
       var table = document.querySelector("table");
       expect(table.getAttribute("role")).toBe("table");
+      expect(table.getAttribute("tabindex")).toBe("0");
+      expect(table.getAttribute("aria-label")).toBe("[Table, 2 columns]");
 
       var srSpans = document.querySelectorAll(".ca11y-sr-only");
       var texts = [];
@@ -241,10 +243,18 @@ describe("chat-a11y.js", function () {
   // -------------------------------------------------------------------------
 
   describe("list transforms", function () {
-    it("announces bulleted list with item count", function () {
+    it("announces bulleted list with item count and adds role=list", function () {
       document.body.innerHTML =
         "<div><ul><li>One</li><li>Two</li><li>Three</li></ul></div>";
       window.__ca11yScan();
+
+      var ul = document.querySelector("ul");
+      expect(ul.getAttribute("role")).toBe("list");
+
+      var lis = document.querySelectorAll("li");
+      for (var j = 0; j < lis.length; j++) {
+        expect(lis[j].getAttribute("role")).toBe("listitem");
+      }
 
       var srSpans = document.querySelectorAll(".ca11y-sr-only");
       var texts = [];
@@ -254,10 +264,18 @@ describe("chat-a11y.js", function () {
       expect(texts).toContain("[3 item bulleted list]");
     });
 
-    it("announces numbered list with item count", function () {
+    it("announces numbered list with item count and adds role=list", function () {
       document.body.innerHTML =
         "<div><ol><li>First</li><li>Second</li></ol></div>";
       window.__ca11yScan();
+
+      var ol = document.querySelector("ol");
+      expect(ol.getAttribute("role")).toBe("list");
+
+      var lis = document.querySelectorAll("li");
+      for (var j = 0; j < lis.length; j++) {
+        expect(lis[j].getAttribute("role")).toBe("listitem");
+      }
 
       var srSpans = document.querySelectorAll(".ca11y-sr-only");
       var texts = [];
