@@ -14,19 +14,16 @@ Requires Node.js 18 or later.
 
 ## Project structure
 
-This is a monorepo with four packages:
+This is a monorepo with two packages:
 
-- packages/core -- Shared library. Build this first.
-- packages/cli -- Terminal wrapper (claude-sr). Depends on core.
-- packages/vscode-extension -- VS Code and Cursor extension. Depends on core.
-- packages/chrome-extension -- Browser extension. No build step. Load as unpacked in Chrome.
+- packages/browser -- Chrome extension, shared phrasing config, and DOM injection script. No build step. Load as unpacked in Chrome. Has 29 tests.
+- packages/node -- Node.js library, CLI wrapper (claude-sr), and VS Code extension. Contains the speech formatter, sanitizer, and all Node-based tooling. Has 193 tests.
 
-Build order matters. Core must build before CLI or the VS Code extension:
+Build the node package (which includes the core library, CLI, and VS Code extension):
 
 ```
-npm run build -w packages/core
-npm run build -w packages/cli
-npm run compile -w packages/vscode-extension
+npm run build -w packages/node
+npm run compile -w packages/node
 ```
 
 Or build everything at once:
@@ -41,7 +38,7 @@ npm run build:all
 npm test
 ```
 
-This runs the core and CLI test suites. The Chrome extension and VS Code extension do not have automated test suites yet.
+This runs all test suites across both packages: browser (29 tests) and node (193 tests, covering core, CLI, and VS Code extension).
 
 ## Screen reader testing
 

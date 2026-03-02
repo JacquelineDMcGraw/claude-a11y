@@ -1,0 +1,16 @@
+# npm uses this file INSTEAD of .gitignore (not in addition to)
+# so we must list everything to exclude here
+src/
+tests/
+.vscode/
+tsconfig*.json
+tsconfig.core.tsbuildinfo
+tsconfig.cli.tsbuildinfo
+esbuild.mjs
+vitest.config.ts
+.vscodeignore
+*.vsix
+media/
+launch-claude-a11y.js
+patch-claude-app.js
+node_modules/

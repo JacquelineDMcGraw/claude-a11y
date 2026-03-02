@@ -1,0 +1,20 @@
+{
+  "name": "@claude-accessible/browser",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Browser-side accessibility transforms for AI chat interfaces (Chrome extension + VS Code webview)",
+  "author": "Jacqueline McGraw (Jackie's Jawn)",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/JacquelineDMcGraw/claude-a11y",
+    "directory": "packages/browser"
+  },
+  "scripts": {
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "vitest": "^1.6.0",
+    "jsdom": "^24.0.0"
+  }
+}

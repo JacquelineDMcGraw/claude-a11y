@@ -1,0 +1,76 @@
+name: Publish
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  publish-npm:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build -w packages/node
+      - run: npm test --workspaces --if-present
+
+      - name: Publish to npm
+        run: npm publish -w packages/node --provenance --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+  publish-vsix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - run: npm ci
+      - run: npm run build -w packages/node
+      - run: npm run compile -w packages/node
+
+      - name: Package VS Code extension
+        working-directory: packages/node
+        run: npx @vscode/vsce package --no-dependencies --out claude-accessible.vsix
+
+      - name: Upload vsix to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: packages/node/claude-accessible.vsix
+
+      - name: Upload vsix as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: claude-accessible-vsix
+          path: packages/node/claude-accessible.vsix
+
+  publish-chrome-zip:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Create Chrome extension zip
+        working-directory: packages/browser
+        run: zip -r ../../claude-accessible-chrome.zip . -x "tests/*" "vitest.config.js" "node_modules/*" ".DS_Store"
+
+      - name: Upload Chrome zip to GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: claude-accessible-chrome.zip
+
+      - name: Upload Chrome zip as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: chrome-extension-zip
+          path: claude-accessible-chrome.zip

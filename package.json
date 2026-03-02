@@ -9,15 +9,13 @@
     "url": "https://github.com/JacquelineDMcGraw/claude-a11y"
   },
   "workspaces": [
-    "packages/core",
-    "packages/cli",
-    "packages/vscode-extension",
-    "packages/chrome-extension"
+    "packages/browser",
+    "packages/node"
   ],
   "scripts": {
-    "build": "npm run build -w packages/core && npm run build -w packages/cli",
-    "build:all": "npm run build -w packages/core && npm run build -w packages/cli && npm run compile -w packages/vscode-extension",
-    "test": "npm test -w packages/core && npm test -w packages/cli",
+    "build": "npm run build -w packages/node",
+    "build:all": "npm run build -w packages/node && npm run compile -w packages/node",
+    "test": "npm test --workspaces --if-present",
     "test:all": "npm test --workspaces --if-present",
     "lint": "npm run lint --workspaces --if-present"
   },

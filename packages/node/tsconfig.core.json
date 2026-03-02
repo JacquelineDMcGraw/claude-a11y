@@ -1,0 +1,17 @@
+{
+  "compilerOptions": {
+    "target": "ES2022",
+    "module": "Node16",
+    "moduleResolution": "Node16",
+    "outDir": "./dist/core",
+    "rootDir": "./src/core",
+    "strict": true,
+    "esModuleInterop": true,
+    "declaration": true,
+    "sourceMap": true,
+    "skipLibCheck": true,
+    "composite": true
+  },
+  "include": ["src/core/**/*"],
+  "exclude": ["node_modules", "dist", "tests"]
+}

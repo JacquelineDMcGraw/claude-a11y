@@ -23,29 +23,20 @@ jobs:
 
       - run: npm ci
 
-      - name: Build core
-        run: npm run build -w packages/core
+      - name: Build node package
+        run: npm run build -w packages/node
 
-      - name: Build CLI
-        run: npm run build -w packages/cli
+      - name: Build VS Code extension
+        run: npm run compile -w packages/node
 
-      - name: Build extension
-        run: npm run compile -w packages/vscode-extension
+      - name: Test node package
+        run: npm test -w packages/node
 
-      - name: Test core
-        run: npm test -w packages/core
+      - name: Test browser package
+        run: npm test -w packages/browser
 
-      - name: Test CLI
-        run: npm test -w packages/cli
-
-      - name: Test extension
-        run: npm test -w packages/vscode-extension
-
-      - name: Test chrome extension
-        run: npm test -w packages/chrome-extension
-
-      - name: Verify chat-a11y.js copies in sync
-        run: diff packages/chrome-extension/chat-a11y.js packages/vscode-extension/media/chat-a11y.js
+      - name: Verify chat-a11y.js synced to node media
+        run: diff packages/browser/chat-a11y.js packages/node/media/chat-a11y.js
 
   package-size:
     runs-on: ubuntu-latest
@@ -61,10 +52,21 @@ jobs:
         run: npm run build:all
 
       - name: CLI package size
-        working-directory: packages/cli
+        working-directory: packages/node
         run: npm pack --dry-run 2>&1
 
       - name: Extension bundle size
         run: |
           echo "Extension bundle:"
-          ls -lh packages/vscode-extension/dist/extension.js 2>/dev/null || echo "Not built"
+          ls -lh packages/node/dist/extension.js 2>/dev/null || echo "Not built"
+
+      - name: Package VS Code extension (.vsix)
+        working-directory: packages/node
+        run: npx @vscode/vsce package --no-dependencies --out claude-accessible.vsix 2>&1
+
+      - name: Upload .vsix artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: claude-accessible-vsix
+          path: packages/node/claude-accessible.vsix
+          if-no-files-found: warn

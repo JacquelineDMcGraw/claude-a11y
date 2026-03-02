@@ -2,19 +2,18 @@
 
 ## Overview
 
-claude-a11y makes AI chat interfaces accessible to screen readers. It transforms rendered markdown into structured, navigable output without changing visual appearance. Only the accessibility tree is modified.
+claude-a11y formats AI chat responses for screen readers. It transforms rendered markdown into structured, navigable output without changing visual appearance. Only the accessibility tree is modified.
 
-The project uses three injection vectors to cover the surfaces where developers interact with AI:
+The project is organized into two packages:
 
-- Browser extension (Chrome, Edge, Brave) -- DOM transformation on claude.ai via MutationObserver
-- Editor extension (VS Code, Cursor) -- chat participant API, webview panel, and workbench.html DOM injection
-- CLI wrapper (claude-sr) -- subprocess spawning with remark AST-to-speech rendering
+- **packages/browser** -- Self-contained IIFE (`chat-a11y.js`) for DOM transformation, plus the shared announcement phrasing (`phrasing.js`). Used by the Chrome extension and injected into VS Code/Cursor webviews.
+- **packages/node** -- Node.js library and tools. Contains the speech formatter (remark AST), ANSI sanitizer, stream parser, CLI wrapper (claude-sr), and VS Code extension source. Imports phrasing from the browser package at build time.
 
-All three share a core library (`@claude-accessible/core`) that provides ANSI sanitization, markdown-to-speech formatting, stream parsing, and tool activity announcements.
+Both packages use the same announcement strings defined in `packages/browser/phrasing.js`, the single source of truth.
 
 ## Core transformation engine: chat-a11y.js
 
-`packages/chrome-extension/chat-a11y.js` is a self-contained IIFE that runs in the main world of any page containing AI chat output. It is used by the Chrome extension, the Cursor workbench.html injection, and manual Claude Desktop console injection.
+`packages/browser/chat-a11y.js` is a self-contained IIFE that runs in the main world of any page containing AI chat output. It is used by the Chrome extension, the Cursor workbench.html injection, and manual Claude Desktop console injection.
 
 ### MutationObserver pattern
 
@@ -40,13 +39,17 @@ The observer triggers a debounced `scanAll()` at 300ms. In addition, aggressive 
 
 ### Selector strategy
 
-Chat message containers are matched by a union of selectors across apps:
+Chat message containers are matched by a union of selectors (versioned via `SELECTOR_VERSION`) across apps:
 
-- claude.ai / Claude Desktop: `[data-testid="chat-message-content"]`, `[class*="font-claude"]`, `.prose`, `[data-testid="conversation-turn"]`
-- Cursor: `[class*="agentTurn"]`, `[class*="markdown"]`, `[class*="chat-response"]`, `[class*="assistantMessage"]`
-- VS Code: `.interactive-result-editor-wrapper`, `.chat-tree-container`, `.rendered-markdown`
+- claude.ai / Claude Desktop: `[data-testid="chat-message-content"]`, `[data-testid="conversation-turn"]`, `.prose`
+- Cursor: `[class*="agentTurn"]`, `[class*="chat-message"]`
+- VS Code: `.interactive-result-editor-wrapper`, `.chat-tree-container`, `.rendered-markdown`, `.markdown-body`
 
-A catch-all pass scans for bare `pre`, `table`, `blockquote`, and heading elements regardless of container.
+A catch-all pass scans for bare `pre`, `table`, `blockquote`, and heading elements regardless of container. When no selectors match, a heuristic fallback activates and announces the degraded state via the ARIA live region.
+
+### Input-side accessibility
+
+`transformInputArea()` finds the chat input field and adds `aria-label="Message input"` if missing. `observeGenerationStatus()` watches for the appearance/disappearance of stop buttons to announce "Generating response..." and "Response complete." `addResponseNavigation()` registers Alt+ArrowUp/Alt+ArrowDown keyboard shortcuts to jump between response regions, announcing the position. `labelResponses()` adds sequential numbering to response regions. `readConversationTitle()` reads the conversation title and applies it as an `aria-label` on the main chat container.
 
 ## Chrome extension architecture
 
@@ -68,35 +71,31 @@ The popup (`popup.js`) sends messages to the background service worker (`backgro
 
 The extension registers an `@accessible` chat participant via `vscode.chat.createChatParticipant()`. When a user types `@accessible explain this code`, the handler selects a backend (Language Model API or Claude CLI subprocess), streams the response, buffers text at paragraph boundaries using `ParagraphBuffer`, formats each paragraph through `formatForSpeech()`, and writes it to the `ChatResponseStream`. The participant API is guarded: if `vscode.chat` is undefined (as in Cursor), registration is silently skipped.
 
-### WebviewViewProvider with ARIA-annotated HTML
-
-`AccessiblePanelProvider` implements `vscode.WebviewViewProvider`. It renders a full chat interface as semantic HTML: a `main` element with `role="log"` and `aria-live="polite"` contains `article` elements for each message. Code blocks are wrapped in `role="region"` divs with `aria-label`. The HTML includes a labeled textarea for input, an announcer div with `aria-live="assertive"`, and screen-reader-only navigation hints. CSP headers include the webview's `cspSource` and a nonce for inline styles.
-
 ### Cursor DOM injection via workbench.html patching
 
-`packages/vscode-extension/src/inject/patcher.ts` locates Cursor's `workbench.html` by searching known paths under `vscode.env.appRoot` (electron-sandbox, electron-browser, and desktop variants). The `install()` function copies `chat-a11y.js` alongside the HTML file, appends a `<script>` tag between `<!-- claude-accessible-start -->` and `<!-- claude-accessible-end -->` markers before `</html>`, adds the `claudeAccessible` policy name to the Trusted Types CSP directive, and creates a backup of the original file. Uninstall restores from backup or strips the markers.
+`packages/node/src/vscode/inject/patcher.ts` locates Cursor's `workbench.html` by searching known paths under `vscode.env.appRoot` (electron-sandbox, electron-browser, and desktop variants). The `install()` function copies `chat-a11y.js` alongside the HTML file, appends a `<script>` tag between `<!-- claude-accessible-start -->` and `<!-- claude-accessible-end -->` markers before `</html>`, adds the `claudeAccessible` policy name to the Trusted Types CSP directive, and creates a backup of the original file. Uninstall restores from backup or strips the markers.
 
 ### esbuild bundling
 
-The remark ecosystem (unified, remark-parse, remark-gfm) is ESM-only. The extension must produce a single CJS bundle for VS Code's Node.js runtime. `esbuild.mjs` bundles the extension entry point with `format: "cjs"`, `platform: "node"`, and `mainFields: ["module", "main"]` with `conditions: ["import", "node"]` to resolve ESM packages. Only `vscode` is external.
+The remark ecosystem (unified, remark-parse, remark-gfm) is ESM-only. The extension must produce a single CJS bundle for VS Code's Node.js runtime. `esbuild.mjs` bundles the extension entry point with `format: "cjs"`, `platform: "node"`, and `mainFields: ["module", "main"]` with `conditions: ["import", "node"]` to resolve ESM packages. Only `vscode` is external. The esbuild step also copies `chat-a11y.js` from the browser package into `media/` for the patcher.
 
 ## CLI architecture
 
 ### Subprocess spawning with environment variable sanitization
 
-`packages/cli/src/runner.ts` spawns the `claude` binary as a child process. The environment is copied from `process.env` with three overrides: `NO_COLOR=1`, `FORCE_COLOR=0`, and `TERM=dumb`. These suppress ANSI color output at the source. stdio is set to `["pipe", "pipe", "pipe"]` for full stream control.
+`packages/node/src/cli/runner.ts` spawns the `claude` binary as a child process. The environment is copied from `process.env` with three overrides: `NO_COLOR=1`, `FORCE_COLOR=0`, and `TERM=dumb`. These suppress ANSI color output at the source. stdio is set to `["pipe", "pipe", "pipe"]` for full stream control.
 
 ### Stream parser for Claude's streaming JSON format
 
-`createStreamParser()` in `@claude-accessible/core` implements line-buffered NDJSON parsing. Each line from `claude -p --output-format stream-json --verbose` is parsed into typed events: `init` (session ID), `text`/`text_delta` (response content), `tool_use` (tool activity), `tool_result`, and `result` (cost, turns, errors). The parser handles chunks that split across line boundaries by maintaining an internal line buffer.
+`createStreamParser()` in `packages/node/src/core/stream-parser.ts` implements line-buffered NDJSON parsing. Each line from `claude -p --output-format stream-json --verbose` is parsed into typed events: `init` (session ID), `text`/`text_delta` (response content), `tool_use` (tool activity), `tool_result`, and `result` (cost, turns, errors). The parser handles chunks that split across line boundaries by maintaining an internal line buffer.
 
 ### remark AST to speech text pipeline
 
-`initFormatter()` dynamically imports unified, remark-parse, and remark-gfm, then caches the processor. `formatForSpeech()` parses markdown into an mdast AST and walks it with `renderNode()`. Each node type maps to a speech-friendly representation: code fences become `[Python]` / `[End Python]`, headings become `[Heading] text`, list items become `Bullet: text` or numbered prefixes, tables become `[Table, N columns]` with labeled rows, and inline formatting (bold, italic) is silently stripped to its text content.
+When bundled via esbuild, the remark processor is created synchronously at module load (`buildProcessor()`). For unbundled use (tests, direct Node.js), `initFormatter()` falls back to dynamic import. `formatForSpeech()` parses markdown into an mdast AST and walks it with `renderNode()`. Each node type maps to a speech-friendly representation: code fences become `[Python]` / `[End Python]`, headings become `[Heading] text`, list items become `Bullet: text` or numbered prefixes, tables become `[Table, N columns]` with labeled rows, and inline formatting (bold, italic) is silently stripped to its text content.
 
 ### REPL with readline over stderr
 
-`packages/cli/src/repl.ts` creates a `readline.Interface` with `output: process.stderr`. This keeps the prompt, tool announcements, and thinking indicators on stderr while stdout contains only Claude's sanitized response text. Piping `claude-sr "question" > output.txt` captures a clean response. The REPL maintains session state (session ID, accumulated cost, turn count) and passes `--resume` on subsequent turns.
+`packages/node/src/cli/repl.ts` creates a `readline.Interface` with `output: process.stderr`. This keeps the prompt, tool announcements, and thinking indicators on stderr while stdout contains only Claude's sanitized response text. Piping `claude-sr "question" > output.txt` captures a clean response. The REPL maintains session state (session ID, accumulated cost, turn count) and passes `--resume` on subsequent turns.
 
 ## Claude Desktop app: security analysis
 
@@ -147,7 +146,7 @@ Any of these would allow screen reader users to have accessible chat output with
 
 ### Module dependency graph
 
-The core library (`packages/core/src/`) exports five modules through a barrel `index.ts`:
+The core library (`packages/node/src/core/`) exports five modules through a barrel `index.ts`:
 
 - `sanitizer.ts`: ANSI escape code stripping. No dependencies. Exports `sanitize()` for complete strings and `createChunkSanitizer()` for streaming chunks with partial-sequence buffering.
 - `speech-formatter.ts`: Markdown-to-speech rendering. Depends on unified, remark-parse, and remark-gfm (dynamically imported). Exports `initFormatter()` and `formatForSpeech()`.

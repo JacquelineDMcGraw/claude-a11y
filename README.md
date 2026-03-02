@@ -1,6 +1,6 @@
 # claude-a11y
 
-Screen reader accessibility for AI chat interfaces.
+Screen reader formatting for AI chat responses.
 
 ## Why I built this
 
@@ -10,7 +10,9 @@ EDS also causes vision problems with extended screen time. I already needed outp
 
 Spinning animations read as streams of meaningless characters. ANSI color codes garbled the output. Code blocks were announced as "backtick backtick backtick python" with no indication of structure. A user with low vision trying to use Claude Code would be getting a broken experience.
 
-claude-a11y is a screen-reader-friendly interface for Claude Code. It strips the decorative output, structures responses for assistive technology, and presents code in a way that actually communicates what the code is. It started from my own needs -- vision fatigue, syntax processing, cleaner output -- but the harder problem was screen readers. The result is useful for anyone: blind and low-vision developers, people with cognitive processing differences, or anyone who prefers to read without fighting through formatting.
+claude-a11y formats AI chat responses for screen readers. It strips decorative output, structures responses for assistive technology, and presents code in a way that actually communicates what the code is. It started from my own needs -- vision fatigue, syntax processing, cleaner output -- but the harder problem was screen readers. The result is useful for anyone: blind and low-vision developers, people with cognitive processing differences, or anyone who prefers to read without fighting through formatting.
+
+Note: This project focuses on making AI responses readable and navigable. It does not solve every aspect of the full chat workflow -- input fields, settings panels, and some sidebar navigation on claude.ai are not yet addressed. What it does address, it addresses well.
 
 Other developers have been asking for these fixes too. The issues filed at https://github.com/anthropics/claude-code/issues/11002 (requesting a screen reader mode for NVDA and JAWS) and https://github.com/anthropics/claude-code/issues/15509 (requesting a no-ANSI flag for screen reader compatibility) describe the same problems this project addresses. This tool exists because those problems have not been solved upstream yet.
 
@@ -33,26 +35,22 @@ claude-a11y transforms AI chat output into screen-reader-friendly markup. It wor
 
 ## Packages
 
-This is a monorepo with four packages:
+This is a monorepo with two packages:
 
-- **packages/chrome-extension** -- Browser extension for claude.ai. Runs a MutationObserver that transforms rendered markdown in-place, adding ARIA roles, landmarks, and screen-reader-only announcements. Works with Chrome, Edge, and Brave.
+- **packages/browser** -- Browser extension for claude.ai and DOM injection script for VS Code/Cursor. Runs a MutationObserver that transforms rendered markdown in-place, adding ARIA roles, landmarks, screen-reader-only announcements, keyboard navigation between responses (Alt+Up/Down), and generation status announcements. Also includes the shared announcement phrasing used by both packages. Works with Chrome, Edge, and Brave.
 
-- **packages/vscode-extension** -- Extension for VS Code and Cursor. Transforms AI chat responses from Copilot, Claude, and other chat participants into speech-friendly output. Provides a dedicated accessible output panel, configurable verbosity levels, and keyboard shortcuts for common actions.
-
-- **packages/cli** -- Terminal wrapper for Claude Code. Strips ANSI escape codes and spinner artifacts, parses markdown responses into an AST, and renders them as clean speech-friendly text. Works with any terminal and any screen reader.
-
-- **packages/core** -- Shared library. Contains the markdown-to-speech formatter, ANSI sanitizer, and announcement utilities used by the other packages.
+- **packages/node** -- Everything that runs in Node.js. Contains the markdown-to-speech formatter, ANSI sanitizer, stream parser, CLI wrapper (claude-sr), and VS Code extension source. The CLI strips ANSI and spinner artifacts, streams responses incrementally with heartbeat status, and supports a --raw flag to bypass formatting. The VS Code extension provides an @accessible chat participant, an output channel, configurable verbosity, and keyboard shortcuts.
 
 ## Quick start
 
 ### Chrome extension
 
-Clone the repository, open chrome://extensions, enable Developer mode, and load the packages/chrome-extension directory as an unpacked extension. Navigate to claude.ai.
+Clone the repository, open chrome://extensions, enable Developer mode, and load the packages/browser directory as an unpacked extension. Navigate to claude.ai.
 
 ### VS Code / Cursor extension
 
 ```
-cd packages/vscode-extension
+cd packages/node
 npm run compile
 ```
 
@@ -65,19 +63,17 @@ git clone https://github.com/JacquelineDMcGraw/claude-a11y.git
 cd claude-a11y
 npm install
 npm run build
-npm link -w packages/cli
+npm link -w packages/node
 claude-sr "explain this project"
 ```
 
-Requires Node.js 18 or later and Claude Code CLI installed. npm packages are not yet published to the registry.
+Requires Node.js 18 or later and Claude Code CLI installed.
 
-### Core library
+Use --raw to bypass speech formatting and get sanitized plaintext output:
 
 ```
-npm run build -w packages/core
+claude-sr --raw "explain this function"
 ```
-
-Import from `@claude-accessible/core` within the monorepo. The package is not yet published to npm independently.
 
 ## How it works
 
