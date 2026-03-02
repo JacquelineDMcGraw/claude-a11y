@@ -4,15 +4,22 @@ Screen reader formatting for AI chat responses.
 
 ## Contents
 
+**Background**
 - [Why I built this](#why-i-built-this)
 - [The problem](#the-problem)
+
+**Overview**
 - [What this project does](#what-this-project-does)
+- [What screen readers hear](#what-screen-readers-hear)
+- [How it works](#how-it-works)
+
+**Getting started**
 - [Packages](#packages)
 - [Quick start](#quick-start)
-- [How it works](#how-it-works)
-- [What screen readers hear](#what-screen-readers-hear)
 - [Supported platforms](#supported-platforms)
 - [Claude Desktop](#claude-desktop)
+
+**Community**
 - [Contributing](#contributing)
 - [License](#license)
 - [Author](#author)
