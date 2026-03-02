@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "Claude Accessible",
   "version": "1.0.0",
-  "description": "Formats Claude AI chat responses for screen readers — adds ARIA landmarks, code block announcements, keyboard navigation, and generation status to chat responses",
+  "description": "Formats Claude AI chat responses for screen readers with ARIA landmarks, code block labels, and keyboard navigation.",
   "author": "Jacqueline McGraw",
   "homepage_url": "https://github.com/JacquelineDMcGraw/claude-a11y",
 
@@ -33,7 +33,7 @@
 
   "web_accessible_resources": [
     {
-      "resources": ["chat-a11y.js"],
+      "resources": ["phrasing.js", "chat-a11y.js"],
       "matches": ["*://claude.ai/*"]
     }
   ]

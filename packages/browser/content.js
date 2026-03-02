@@ -6,31 +6,32 @@
  * needs to run in the MAIN world so it can set window.__claudeA11yInjected,
  * window.__ca11yScan, etc.
  *
- * Technique: create a <script> element with the full source of chat-a11y.js
- * as its textContent, append it to <html>, then immediately remove it.
- * The code executes synchronously in the main world before removal.
+ * Technique: create a <script> element with src pointing to the
+ * web_accessible_resource URL. This avoids CSP inline-script blocks.
  */
 (function () {
   "use strict";
 
-  // Fetch the bundled chat-a11y.js source from the extension package
-  var scriptURL = chrome.runtime.getURL("chat-a11y.js");
+  var phrasingURL = chrome.runtime.getURL("phrasing.js");
+  var chatURL = chrome.runtime.getURL("chat-a11y.js");
 
-  fetch(scriptURL)
-    .then(function (response) {
-      if (!response.ok) {
-        throw new Error("Failed to load chat-a11y.js: " + response.status);
-      }
-      return response.text();
-    })
-    .then(function (source) {
-      var script = document.createElement("script");
-      script.textContent = source;
-      document.documentElement.appendChild(script);
-      script.remove();
+  var phrasing = document.createElement("script");
+  phrasing.src = phrasingURL;
+  phrasing.onload = function () {
+    phrasing.remove();
+    var main = document.createElement("script");
+    main.src = chatURL;
+    main.onload = function () {
       console.log("[claude-accessible] Injected chat-a11y.js into main world.");
-    })
-    .catch(function (err) {
-      console.error("[claude-accessible] Injection failed:", err);
-    });
+      main.remove();
+    };
+    main.onerror = function () {
+      console.error("[claude-accessible] Failed to load chat-a11y.js");
+    };
+    (document.head || document.documentElement).appendChild(main);
+  };
+  phrasing.onerror = function () {
+    console.error("[claude-accessible] Failed to load phrasing.js");
+  };
+  (document.head || document.documentElement).appendChild(phrasing);
 })();
