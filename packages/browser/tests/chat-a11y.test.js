@@ -105,13 +105,14 @@ describe("chat-a11y.js", function () {
       expect(pre.getAttribute("aria-label")).toBe("Python code block");
     });
 
-    it("does NOT add role=region to code blocks (avoids landmark pollution)", function () {
+    it("adds role=region and tabindex to code blocks", function () {
       document.body.innerHTML =
         '<pre><code class="language-javascript">var x = 1;</code></pre>';
       window.__ca11yScan();
 
       var pre = document.querySelector("pre");
-      expect(pre.getAttribute("role")).toBeNull();
+      expect(pre.getAttribute("role")).toBe("region");
+      expect(pre.getAttribute("tabindex")).toBe("0");
     });
 
     it("defaults to 'Code' when no language class is present", function () {
@@ -176,7 +177,7 @@ describe("chat-a11y.js", function () {
   // -------------------------------------------------------------------------
 
   describe("table transforms", function () {
-    it("adds role=table and announces dimensions", function () {
+    it("adds role=table, aria-label, tabindex, and announces dimensions", function () {
       document.body.innerHTML = [
         "<div>",
         "  <table>",
@@ -189,6 +190,8 @@ describe("chat-a11y.js", function () {
 
       var table = document.querySelector("table");
       expect(table.getAttribute("role")).toBe("table");
+      expect(table.getAttribute("tabindex")).toBe("0");
+      expect(table.getAttribute("aria-label")).toBe("Table, 2 columns");
 
       var srSpans = document.querySelectorAll(".ca11y-sr-only");
       var texts = [];
@@ -240,10 +243,18 @@ describe("chat-a11y.js", function () {
   // -------------------------------------------------------------------------
 
   describe("list transforms", function () {
-    it("announces bulleted list with item count", function () {
+    it("announces bulleted list with item count and adds role=list", function () {
       document.body.innerHTML =
         "<div><ul><li>One</li><li>Two</li><li>Three</li></ul></div>";
       window.__ca11yScan();
+
+      var ul = document.querySelector("ul");
+      expect(ul.getAttribute("role")).toBe("list");
+
+      var lis = document.querySelectorAll("li");
+      for (var j = 0; j < lis.length; j++) {
+        expect(lis[j].getAttribute("role")).toBe("listitem");
+      }
 
       var srSpans = document.querySelectorAll(".ca11y-sr-only");
       var texts = [];
@@ -253,10 +264,18 @@ describe("chat-a11y.js", function () {
       expect(texts).toContain("[3 item bulleted list]");
     });
 
-    it("announces numbered list with item count", function () {
+    it("announces numbered list with item count and adds role=list", function () {
       document.body.innerHTML =
         "<div><ol><li>First</li><li>Second</li></ol></div>";
       window.__ca11yScan();
+
+      var ol = document.querySelector("ol");
+      expect(ol.getAttribute("role")).toBe("list");
+
+      var lis = document.querySelectorAll("li");
+      for (var j = 0; j < lis.length; j++) {
+        expect(lis[j].getAttribute("role")).toBe("listitem");
+      }
 
       var srSpans = document.querySelectorAll(".ca11y-sr-only");
       var texts = [];

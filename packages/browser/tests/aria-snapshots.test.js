@@ -72,7 +72,8 @@ describe("ARIA snapshot: screen reader output expectations", function () {
 
     var pre = document.querySelector("pre");
     expect(pre.getAttribute("aria-label")).toBe("Python code block");
-    expect(pre.getAttribute("role")).toBeNull();
+    expect(pre.getAttribute("role")).toBe("region");
+    expect(pre.getAttribute("tabindex")).toBe("0");
 
     var srSpans = pre.querySelectorAll(".ca11y-sr-only");
     expect(srSpans.length).toBe(2);
@@ -98,14 +99,15 @@ describe("ARIA snapshot: screen reader output expectations", function () {
     expect(srSpans[1].textContent).toBe("[End Code]");
   });
 
-  it("inline code: role=text with aria-label matching content", function () {
+  it("inline code: no role or aria-label (native semantics preserved)", function () {
     document.body.innerHTML =
       '<div data-testid="chat-message-content"><p><code>npm install</code></p></div>';
     window.__ca11yScan();
 
     var code = document.querySelector("code");
-    expect(code.getAttribute("role")).toBe("text");
-    expect(code.getAttribute("aria-label")).toBe("npm install");
+    expect(code.getAttribute("role")).toBeNull();
+    expect(code.getAttribute("aria-label")).toBeNull();
+    expect(code.dataset.ca11y).toBe("1");
   });
 
   // -------------------------------------------------------------------------
@@ -164,6 +166,8 @@ describe("ARIA snapshot: screen reader output expectations", function () {
 
     var table = document.querySelector("table");
     expect(table.getAttribute("role")).toBe("table");
+    expect(table.getAttribute("tabindex")).toBe("0");
+    expect(table.getAttribute("aria-label")).toBe("Table, 3 columns");
 
     var srSpans = document.querySelectorAll(".ca11y-sr-only");
     var texts = [];
@@ -198,20 +202,30 @@ describe("ARIA snapshot: screen reader output expectations", function () {
   // Lists
   // -------------------------------------------------------------------------
 
-  it("unordered list: announces item count and type", function () {
+  it("unordered list: announces item count, type, and has role=list", function () {
     document.body.innerHTML =
       "<div><ul><li>Alpha</li><li>Beta</li><li>Gamma</li></ul></div>";
     window.__ca11yScan();
+
+    var ul = document.querySelector("ul");
+    expect(ul.getAttribute("role")).toBe("list");
+    var lis = document.querySelectorAll("li");
+    for (var i = 0; i < lis.length; i++) {
+      expect(lis[i].getAttribute("role")).toBe("listitem");
+    }
 
     var sr = document.querySelector(".ca11y-sr-only");
     expect(sr.textContent).toBe("[3 item bulleted list]");
     expect(sr.getAttribute("role")).toBe("note");
   });
 
-  it("ordered list: announces item count and type", function () {
+  it("ordered list: announces item count, type, and has role=list", function () {
     document.body.innerHTML =
       "<div><ol><li>First</li><li>Second</li></ol></div>";
     window.__ca11yScan();
+
+    var ol = document.querySelector("ol");
+    expect(ol.getAttribute("role")).toBe("list");
 
     var sr = document.querySelector(".ca11y-sr-only");
     expect(sr.textContent).toBe("[2 item numbered list]");

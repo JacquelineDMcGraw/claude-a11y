@@ -12,6 +12,12 @@
 - axe-core automated WCAG compliance tests
 - ARIA snapshot tests for programmatic screen reader output verification
 - Manual screen reader validation page (packages/browser/tests/sr-validation.html)
+- Systematic ARIA hardening: code blocks, tables, and lists now have proper roles, labels, and keyboard focus
+- Tables: aria-label, tabindex=0, row vs column header detection
+- Lists: role=list and role=listitem to preserve semantics in Safari
+- Inline code: removed non-standard role=text that caused double-announcement
+- Input area: aria-multiline=true for multi-line chat input
+- Response containers: aria-busy during generation, aria-current during keyboard navigation
 
 ### Node library and CLI (packages/node)
 

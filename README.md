@@ -4,15 +4,15 @@ Screen reader formatting for AI chat responses.
 
 ## Why I built this
 
-I have Ehlers-Danlos Syndrome, dyscalculia, and ADHD. I can architect systems and reason about abstractions, but raw syntax -- nested brackets, semicolons, strings of letters mixed with numbers, formatting noise -- has always been a wall in regards to comprehension. AI coding tools bridged that gap for me and let me turn what I understood into working software with less struggle than I previously had. The difference between users of these AI tools is not just their allotted tokens, it is the allocated spoons it takes to use them.
+I have Ehlers-Danlos Syndrome, dyscalculia, and ADHD. I can architect systems and reason about abstractions, but raw syntax– nested brackets, semicolons, strings of letters mixed with numbers, formatting noise– has always been a wall in regards to comprehension. AI coding tools bridged that gap for me and let me turn what I understood into working software with less struggle than I previously had. The difference between users of these AI tools is not just their allotted tokens, it is the allocated spoons it takes to use them.
 
 EDS also causes vision problems with extended screen time. I already needed output I could process without straining through dense visual formatting. Then I tried using Claude Code with a screen reader.
 
 Spinning animations read as streams of meaningless characters. ANSI color codes garbled the output. Code blocks were announced as "backtick backtick backtick python" with no indication of structure. A user with low vision trying to use Claude Code would be getting a broken experience.
 
-claude-a11y formats AI chat responses for screen readers. It strips decorative output, structures responses for assistive technology, and presents code in a way that actually communicates what the code is. It started from my own needs -- vision fatigue, syntax processing, cleaner output -- but the harder problem was screen readers. The result is useful for anyone: blind and low-vision developers, people with cognitive processing differences, or anyone who prefers to read without fighting through formatting.
+claude-a11y formats AI chat responses for screen readers. It strips decorative output, structures responses for assistive technology, and presents code in a way that actually communicates what the code is. It started from my own needs– vision fatigue, syntax processing, cleaner output– but the harder problem was screen readers. The result is useful for anyone: blind and low-vision developers, people with cognitive processing differences, or anyone who prefers to read without fighting through formatting.
 
-Note: This project focuses on making AI responses readable and navigable. It does not solve every aspect of the full chat workflow -- input fields, settings panels, and some sidebar navigation on claude.ai are not yet addressed. What it does address, it addresses well.
+Note: This project focuses on making AI responses readable and navigable. It does not solve every aspect of the full chat workflow– input fields, settings panels, and some sidebar navigation on claude.ai are not yet addressed. What it does address, it addresses well.
 
 Other developers have been asking for these fixes too. The issues filed at https://github.com/anthropics/claude-code/issues/11002 (requesting a screen reader mode for NVDA and JAWS) and https://github.com/anthropics/claude-code/issues/15509 (requesting a no-ANSI flag for screen reader compatibility) describe the same problems this project addresses. This tool exists because those problems have not been solved upstream yet.
 

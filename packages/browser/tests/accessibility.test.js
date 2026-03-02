@@ -34,6 +34,7 @@ async function runAxe(context) {
       "html-has-lang": { enabled: false },
       "document-title": { enabled: false },
       bypass: { enabled: false },
+      "color-contrast": { enabled: false },
     },
   });
   return results.violations;

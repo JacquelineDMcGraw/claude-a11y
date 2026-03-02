@@ -228,7 +228,9 @@
         }
       }
 
+      pre.setAttribute("role", "region");
       pre.setAttribute("aria-label", lang + " code block");
+      pre.setAttribute("tabindex", "0");
 
       try {
         var startText = tpl(config.codeBlockStart, { lang: lang });
@@ -249,8 +251,8 @@
       code.dataset.ca11y = "1";
       transformCount++;
 
-      code.setAttribute("role", "text");
-      code.setAttribute("aria-label", code.textContent);
+      code.removeAttribute("role");
+      code.removeAttribute("aria-label");
     }
   }
 
@@ -282,6 +284,7 @@
       transformCount++;
 
       table.setAttribute("role", "table");
+      table.setAttribute("tabindex", "0");
 
       var rows = table.querySelectorAll("tr");
       var cols = table.querySelector("tr")
@@ -290,13 +293,17 @@
 
       try {
         var annText = tpl(config.tableStart, { rows: rows.length, cols: cols });
+        table.setAttribute("aria-label", "Table, " + cols + " columns");
         var ann = createSrSpan(annText, "note");
         table.parentNode.insertBefore(ann, table);
 
+        var headerRow = table.querySelector("thead tr, tr:first-child");
+        var headerCells = headerRow ? Array.prototype.slice.call(headerRow.children) : [];
         var ths = table.querySelectorAll("th");
         for (var j = 0; j < ths.length; j++) {
-          ths[j].setAttribute("role", "columnheader");
-          ths[j].setAttribute("scope", "col");
+          var isInHeaderRow = headerCells.indexOf(ths[j]) !== -1;
+          ths[j].setAttribute("role", isInHeaderRow ? "columnheader" : "rowheader");
+          ths[j].setAttribute("scope", isInHeaderRow ? "col" : "row");
         }
 
         var endAnn = createSrSpan(config.tableEnd, "note");
@@ -372,7 +379,11 @@
       list.dataset.ca11y = "1";
       transformCount++;
 
+      list.setAttribute("role", "list");
       var items = list.querySelectorAll(":scope > li");
+      for (var j = 0; j < items.length; j++) {
+        items[j].setAttribute("role", "listitem");
+      }
       var type = list.tagName === "OL" ? "numbered" : "bulleted";
 
       try {
@@ -935,6 +946,7 @@
           if (!input.getAttribute("role") && input.tagName !== "TEXTAREA") {
             input.setAttribute("role", "textbox");
           }
+          input.setAttribute("aria-multiline", "true");
           inputTransformed = true;
           return;
         }
@@ -966,9 +978,16 @@
       if (found && !isGenerating) {
         isGenerating = true;
         statusChecked = true;
+        var allResponses = document.querySelectorAll("[data-ca11y-msg]");
+        var lastResponse = allResponses.length ? allResponses[allResponses.length - 1] : null;
+        if (lastResponse) lastResponse.setAttribute("aria-busy", "true");
         announce(phrasing.generatingStatus || "Generating response...");
       } else if (!found && isGenerating) {
         isGenerating = false;
+        var busyEls = document.querySelectorAll("[data-ca11y-msg][aria-busy]");
+        for (var b = 0; b < busyEls.length; b++) {
+          busyEls[b].setAttribute("aria-busy", "false");
+        }
         announce(phrasing.responseComplete || "Response complete.");
       }
     });
@@ -1022,6 +1041,10 @@
 
       var target = regions[nextIndex];
       if (target) {
+        for (var c = 0; c < regions.length; c++) {
+          regions[c].removeAttribute("aria-current");
+        }
+        target.setAttribute("aria-current", "true");
         target.setAttribute("tabindex", "-1");
         target.focus();
         announce("Response " + (nextIndex + 1) + " of " + regions.length);

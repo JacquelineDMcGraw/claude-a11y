@@ -21,7 +21,7 @@ A MutationObserver watches `document.documentElement` for `childList`, `subtree`
 
 ### Element transformation pipeline
 
-Each element is tagged with `data-ca11y="1"` after transformation to prevent double-processing. The pipeline runs these transforms in order: code blocks (`aria-label` announcing the language — no `role="region"` to avoid landmark pollution), inline code, headings (sr-only prefix spans), tables (`role="table"` with column headers), blockquotes (`role="note"`), horizontal rules (`role="separator"`), images (fallback alt text), links (fallback text content), lists (item count announcements), and chat message containers (`role="region"` with `aria-label="AI response"` — the only landmark added).
+Each element is tagged with `data-ca11y="1"` after transformation to prevent double-processing. The pipeline runs these transforms in order: code blocks (`role="region"`, `aria-label` announcing the language, `tabindex="0"` for keyboard focus), inline code (native semantics preserved, no ARIA overrides), headings (sr-only prefix spans), tables (`role="table"`, `aria-label`, `tabindex="0"`, column/row header detection via `scope` and `role`), blockquotes (`role="note"`), horizontal rules (`role="separator"`), images (fallback alt text), links (fallback text content), lists (`role="list"` on container, `role="listitem"` on children to preserve semantics when CSS strips them, plus item count announcements), and chat message containers (`role="region"` with `aria-label="AI response"`).
 
 Screen-reader-only spans use the standard visually-hidden CSS pattern: 1px clipped box with `overflow: hidden` and `user-select: none` to prevent clipboard pollution when copying code. These are invisible to sighted users but read by assistive technology.
 
@@ -51,7 +51,7 @@ A catch-all pass scans for bare `pre`, `table`, `blockquote`, and heading elemen
 
 ### Input-side accessibility
 
-`transformInputArea()` finds the chat input field and adds `aria-label="Message input"` if missing. `observeGenerationStatus()` watches for the appearance/disappearance of stop buttons to announce "Generating response..." and "Response complete." `addResponseNavigation()` registers Alt+ArrowUp/Alt+ArrowDown keyboard shortcuts to jump between response regions, announcing the position. `labelResponses()` adds sequential numbering to response regions. `readConversationTitle()` reads the conversation title and applies it as an `aria-label` on the main chat container.
+`transformInputArea()` finds the chat input field, adds `aria-label="Message input"` if missing, and sets `aria-multiline="true"` for multi-line input fields. `observeGenerationStatus()` watches for the appearance/disappearance of stop buttons to announce "Generating response..." and "Response complete", and also sets `aria-busy="true"` on the active response container during generation so screen readers can defer reading until content is stable. `addResponseNavigation()` registers Alt+ArrowUp/Alt+ArrowDown keyboard shortcuts to jump between response regions, announcing the position and setting `aria-current="true"` on the focused response. `labelResponses()` adds sequential numbering to response regions. `readConversationTitle()` reads the conversation title and applies it as an `aria-label` on the main chat container.
 
 ## Chrome extension architecture
 
