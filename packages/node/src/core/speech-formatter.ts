@@ -145,7 +145,7 @@ export async function initFormatter(): Promise<void> {
  * Works synchronously when bundled via esbuild (processor created at module load).
  * For unbundled use, call initFormatter() once before first use.
  */
-export function formatForSpeech(text: string, options?: Partial<Record<string, string>>): string {
+export function formatForSpeech(text: string, options?: Partial<SpeechFormatOptions>): string {
   if (!cachedProcessor) {
     return text;
   }

@@ -128,8 +128,6 @@ async function runTurn(
   // Add session management
   if (state.sessionId) {
     args.push("--resume", state.sessionId);
-  } else {
-    args.push("--continue");
   }
 
   // Add the prompt

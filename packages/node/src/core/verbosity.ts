@@ -29,7 +29,7 @@ export function createVerbosityFilter(level: VerbosityLevel): VerbosityFilter {
         case "normal":
           return speechText;
         case "detailed":
-          return enrichDetailed(speechText, text);
+          return enrichDetailed(speechText);
       }
     },
   };
@@ -63,7 +63,7 @@ function stripToMinimal(speechText: string): string {
 
 // --- Detailed: add line counts, character counts, richer descriptions ---
 
-function enrichDetailed(speechText: string, originalText: string): string {
+function enrichDetailed(speechText: string): string {
   const lines = speechText.split("\n");
   const result: string[] = [];
 

@@ -127,16 +127,10 @@ export interface ParsedResultEvent {
   durationMs?: number;
 }
 
-export interface ParsedErrorEvent {
-  type: "error";
-  message: string;
-}
-
 export type ParsedEvent =
   | ParsedInitEvent
   | ParsedTextEvent
   | ParsedTextDeltaEvent
   | ParsedToolUseEvent
   | ParsedToolResultEvent
-  | ParsedResultEvent
-  | ParsedErrorEvent;
+  | ParsedResultEvent;

@@ -34,9 +34,6 @@ const ANSI_ALL_RE = new RegExp(
   "g"
 );
 
-// Keep individual regexes available for the chunk sanitizer's partial-sequence detection
-const CSI_RE = /(?:\x1B\x5B|\x9B)[0-9;?]*[0-9A-Za-z@-~]/g;
-const OSC_RE = /(?:\x1B\x5D|\x9D)[^\x07\x1B]*(?:\x07|\x1B\\)/g;
 
 // Backspace overwrite sequences: a printable char followed by backspace
 // Apply repeatedly until stable (nested overwrites)

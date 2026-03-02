@@ -256,13 +256,14 @@ export async function runStreaming(args: string[]): Promise<RunResult> {
     resetHeartbeat();
 
     paragraphBuffer += text;
+
+    const fenceCount = (paragraphBuffer.match(/```/g) || []).length;
+    if (fenceCount % 2 !== 0) return;
+
     const parts = paragraphBuffer.split(/\n\n/);
     if (parts.length <= 1) return;
 
     const incomplete = parts.pop()!;
-    const fenceCount = (paragraphBuffer.match(/```/g) || []).length;
-    if (fenceCount % 2 !== 0) return;
-
     for (const para of parts) {
       if (para.trim()) {
         const formatted = passthroughMode ? para : formatForSpeech(para);

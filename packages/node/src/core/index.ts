@@ -45,6 +45,5 @@ export type {
   ParsedToolUseEvent,
   ParsedToolResultEvent,
   ParsedResultEvent,
-  ParsedErrorEvent,
   ParsedEvent,
 } from "./types.js";

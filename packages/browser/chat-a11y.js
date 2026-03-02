@@ -34,7 +34,6 @@
 
   var defaultConfig = {
     enabled: true,
-    verbosity: "normal",
     showRawToggle: true,
     codeBlockStart: phrasing.codeBlockStart || "[{lang}]",
     codeBlockEnd: phrasing.codeBlockEnd || "[End {lang}]",
@@ -44,15 +43,8 @@
     quotePrefix: phrasing.quotePrefix || "[Quote]",
     tableStart: phrasing.tableStart || "[Table, {cols} columns]",
     tableEnd: phrasing.tableEnd || "[End Table]",
-    tableHeader: phrasing.tableHeader || "[Header]",
-    tableRow: phrasing.tableRow || "[Row {n}]",
     listAnnouncement: phrasing.listAnnouncement || "[{count} item {type} list]",
-    bulletPrefix: phrasing.bulletPrefix || "Bullet:",
     separatorLabel: phrasing.separator || "[Separator]",
-    imageLabel: phrasing.imageLabel || "[Image: {alt}]",
-    imageLabelNoAlt: phrasing.imageLabelNoAlt || "[Image]",
-    strikethroughStart: phrasing.strikethroughStart || "[Strikethrough]",
-    strikethroughEnd: phrasing.strikethroughEnd || "[End Strikethrough]",
     responseLabel: phrasing.responseLabel || "AI response",
   };
 
@@ -862,10 +854,10 @@
         }, 150);
       });
     } else {
+      scanQueued = false;
       if (!pendingScan) {
         pendingScan = setTimeout(function () {
           pendingScan = null;
-          scanQueued = false;
           scanAll();
         }, 200);
       }
@@ -887,9 +879,9 @@
   // 14. Smart rescan strategy
   // ---------------------------------------------------------------------------
 
-  setTimeout(scanAll, 1000);
-  setTimeout(scanAll, 3000);
-  setTimeout(scanAll, 5000);
+  setTimeout(function () { scanAll(); }, 1000);
+  setTimeout(function () { scanAll(); }, 3000);
+  setTimeout(function () { scanAll(); }, 5000);
   setTimeout(function () {
     scanAll();
     checkSelectorHealth();
@@ -921,7 +913,6 @@
   //     keyboard navigation between turns, conversation title.
   // ---------------------------------------------------------------------------
 
-  var responseCounter = 0;
   var inputTransformed = false;
 
   function transformInputArea() {
@@ -998,6 +989,8 @@
         );
       }
     }, 30000);
+
+    return statusObserver;
   }
 
   function addResponseNavigation() {
@@ -1082,8 +1075,8 @@
     createGlobalToggle();
   };
 
-  // Start generation status observation
-  try { observeGenerationStatus(); } catch (e) { /* non-critical */ }
+  var statusObserverRef = null;
+  try { statusObserverRef = observeGenerationStatus(); } catch (e) { /* non-critical */ }
 
   // Install keyboard navigation
   try { addResponseNavigation(); } catch (e) { /* non-critical */ }
@@ -1122,6 +1115,7 @@
 
   window.__ca11yDisable = function () {
     config.enabled = false;
+    if (statusObserverRef) { statusObserverRef.disconnect(); }
     debugLog(LOG_PREFIX, "Transforms disabled. New content will not be processed.");
   };
 
