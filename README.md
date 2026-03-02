@@ -2,6 +2,25 @@
 
 Screen reader formatting for AI chat responses.
 
+## Contents
+
+- [Why I built this](#why-i-built-this)
+- [The problem](#the-problem)
+- [What this project does](#what-this-project-does)
+- [Packages](#packages)
+- [Quick start](#quick-start)
+- [How it works](#how-it-works)
+- [What screen readers hear](#what-screen-readers-hear)
+- [Supported platforms](#supported-platforms)
+- [Claude Desktop](#claude-desktop)
+- [Contributing](#contributing)
+- [License](#license)
+- [Author](#author)
+
+<p align="center">
+  <img src="assets/logo-title.png" alt="Claude A11y" width="600">
+</p>
+
 ## Why I built this
 
 I have Ehlers-Danlos Syndrome, dyscalculia, and ADHD. I can architect systems and reason about abstractions, but raw syntax– nested brackets, semicolons, strings of letters mixed with numbers, formatting noise– has always been a wall in regards to comprehension. AI coding tools bridged that gap for me and let me turn what I understood into working software with less struggle than I previously had. The difference between users of these AI tools is not just their allotted tokens, it is the allocated spoons it takes to use them.
