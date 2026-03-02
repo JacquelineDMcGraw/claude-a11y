@@ -28,7 +28,7 @@ export class FormatForSpeechAction implements vscode.CodeActionProvider {
       vscode.CodeActionKind.QuickFix
     );
     action.command = {
-      command: "claude-accessible.formatSelection",
+      command: "claude-a11y.formatSelection",
       title: "Format Selection for Screen Reader",
     };
 

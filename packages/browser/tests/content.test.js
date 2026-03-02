@@ -91,7 +91,7 @@ describe("content.js — script injection", function () {
     var phrasing = document.createElement("script");
     phrasing.src = global.chrome.runtime.getURL("phrasing.js");
     phrasing.onerror = function () {
-      console.error("[claude-accessible] Failed to load phrasing.js");
+      console.error("[claude-a11y] Failed to load phrasing.js");
     };
     phrasing.onerror();
 

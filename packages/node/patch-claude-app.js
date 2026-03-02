@@ -23,7 +23,7 @@
  *   3. In the DevTools window, click the Console tab
  *   4. Run: node patch-claude-app.js copy
  *   5. Paste (Cmd+V) into the console and press Enter
- *   6. You should see "[claude-accessible] Chat accessibility layer active."
+ *   6. You should see "[claude-a11y] Chat accessibility layer active."
  */
 
 const fs = require("node:fs");
@@ -35,7 +35,7 @@ const CLAUDE_FRAMEWORK =
   CLAUDE_APP +
   "/Contents/Frameworks/Electron Framework.framework/Versions/A/Electron Framework";
 const CHAT_A11Y_PATH = path.join(__dirname, "media", "chat-a11y.js");
-const LOG_PREFIX = "[claude-accessible]";
+const LOG_PREFIX = "[claude-a11y]";
 
 function log(msg) {
   console.log(`${LOG_PREFIX} ${msg}`);
@@ -178,8 +178,8 @@ function copyToClipboard() {
   log("Now paste (Cmd+V / Ctrl+V) into the DevTools console and press Enter.");
   log("");
   log("You should see:");
-  log('  [claude-accessible] Chat accessibility layer active.');
-  log("  [claude-accessible] TrustedTypes policy created.");
+  log('  [claude-a11y] Chat accessibility layer active.');
+  log("  [claude-a11y] TrustedTypes policy created.");
   log("");
   log("Verify with: __ca11yStats()");
 }

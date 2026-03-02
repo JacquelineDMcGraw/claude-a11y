@@ -22,8 +22,8 @@ import { isInstalled, install, uninstall } from "../../src/vscode/inject/patcher
 
 const mockFs = vi.mocked(fs);
 
-const MARKER_START = "<!-- claude-accessible-start -->";
-const MARKER_END = "<!-- claude-accessible-end -->";
+const MARKER_START = "<!-- claude-a11y-start -->";
+const MARKER_END = "<!-- claude-a11y-end -->";
 
 const WORKBENCH_PATH = path.join(
   "/mock/app",

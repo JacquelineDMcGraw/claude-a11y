@@ -1,5 +1,5 @@
 /**
- * @claude-accessible/core
+ * @claude-a11y/core
  *
  * Shared speech formatting, sanitization, and accessibility transforms.
  * Used by both the CLI tool and the VS Code extension.

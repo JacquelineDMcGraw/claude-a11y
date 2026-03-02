@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Mock claude binary for testing claude-accessible
+// Mock claude binary for testing claude-a11y
 // Outputs stream-json format with ANSI codes that should be stripped
 
 const args = process.argv.slice(2);

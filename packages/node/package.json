@@ -1,5 +1,5 @@
 {
-  "name": "claude-accessible",
+  "name": "claude-a11y",
   "displayName": "Accessible AI Chat",
   "version": "1.1.0",
   "description": "Screen-reader-friendly formatting for AI chat responses. CLI wrapper for Claude Code and VS Code extension with ARIA landmarks, code block announcements, and structural annotations.",
@@ -42,7 +42,7 @@
   },
   "bin": {
     "claude-sr": "bin/claude-sr.js",
-    "claude-accessible": "bin/claude-sr.js"
+    "claude-a11y": "bin/claude-sr.js"
   },
   "main": "./dist/core/index.js",
   "types": "./dist/core/index.d.ts",
@@ -70,7 +70,7 @@
   "contributes": {
     "chatParticipants": [
       {
-        "id": "claude-accessible.accessible",
+        "id": "claude-a11y.accessible",
         "name": "accessible",
         "fullName": "Accessible AI",
         "description": "AI assistant with screen-reader-friendly output. All responses formatted for speech — code blocks, headings, tables, and formatting announced as structural cues.",
@@ -93,50 +93,50 @@
     ],
     "commands": [
       {
-        "command": "claude-accessible.formatSelection",
+        "command": "claude-a11y.formatSelection",
         "title": "Format Selection for Screen Reader",
         "category": "Accessible AI"
       },
       {
-        "command": "claude-accessible.formatClipboard",
+        "command": "claude-a11y.formatClipboard",
         "title": "Format Clipboard for Screen Reader",
         "category": "Accessible AI"
       },
       {
-        "command": "claude-accessible.toggleAutoFormat",
+        "command": "claude-a11y.toggleAutoFormat",
         "title": "Toggle Auto-Format for Screen Reader",
         "category": "Accessible AI"
       },
       {
-        "command": "claude-accessible.readLastResponse",
+        "command": "claude-a11y.readLastResponse",
         "title": "Read Last AI Response",
         "category": "Accessible AI"
       },
       {
-        "command": "claude-accessible.setVerbosity",
+        "command": "claude-a11y.setVerbosity",
         "title": "Set Verbosity Level",
         "category": "Accessible AI"
       },
       {
-        "command": "claude-accessible.enableChatInjection",
+        "command": "claude-a11y.enableChatInjection",
         "title": "Enable Chat Accessibility (patches Cursor renderer)",
         "category": "Accessible AI"
       },
       {
-        "command": "claude-accessible.disableChatInjection",
+        "command": "claude-a11y.disableChatInjection",
         "title": "Disable Chat Accessibility (restore Cursor renderer)",
         "category": "Accessible AI"
       }
     ],
     "keybindings": [
       {
-        "command": "claude-accessible.formatSelection",
+        "command": "claude-a11y.formatSelection",
         "key": "ctrl+shift+alt+f",
         "mac": "cmd+shift+alt+f",
         "when": "editorHasSelection"
       },
       {
-        "command": "claude-accessible.readLastResponse",
+        "command": "claude-a11y.readLastResponse",
         "key": "ctrl+shift+alt+r",
         "mac": "cmd+shift+alt+r"
       }
@@ -144,17 +144,17 @@
     "configuration": {
       "title": "Accessible AI",
       "properties": {
-        "claude-accessible.enabled": {
+        "claude-a11y.enabled": {
           "type": "boolean",
           "default": true,
           "description": "Enable accessible formatting of AI responses."
         },
-        "claude-accessible.autoActivate": {
+        "claude-a11y.autoActivate": {
           "type": "boolean",
           "default": true,
           "description": "Automatically activate when a screen reader is detected."
         },
-        "claude-accessible.verbosity": {
+        "claude-a11y.verbosity": {
           "type": "string",
           "enum": [
             "minimal",
@@ -169,12 +169,12 @@
             "Everything including line counts, table dimensions, and richer descriptions."
           ]
         },
-        "claude-accessible.announceToolUse": {
+        "claude-a11y.announceToolUse": {
           "type": "boolean",
           "default": true,
           "description": "Announce when AI uses tools (reading files, running commands, etc.)."
         },
-        "claude-accessible.announceMode": {
+        "claude-a11y.announceMode": {
           "type": "string",
           "enum": [
             "notification",
@@ -189,7 +189,7 @@
             "Both notifications and output channel."
           ]
         },
-        "claude-accessible.codeBlockAnnouncement": {
+        "claude-a11y.codeBlockAnnouncement": {
           "type": "string",
           "enum": [
             "language",
@@ -204,12 +204,12 @@
             "[Code] ... [End Code] (no language name)"
           ]
         },
-        "claude-accessible.outputToChannel": {
+        "claude-a11y.outputToChannel": {
           "type": "boolean",
           "default": true,
           "description": "Mirror formatted AI responses to the Accessible AI output channel."
         },
-        "claude-accessible.backend": {
+        "claude-a11y.backend": {
           "type": "string",
           "enum": [
             "language-model-api",
@@ -224,7 +224,7 @@
             "Auto-detect: try Language Model API first, fall back to CLI."
           ]
         },
-        "claude-accessible.claudeCliPath": {
+        "claude-a11y.claudeCliPath": {
           "type": "string",
           "default": "",
           "description": "Path to the Claude Code CLI binary (leave empty for auto-detect)."
@@ -235,7 +235,7 @@
     "menus": {
       "editor/context": [
         {
-          "command": "claude-accessible.formatSelection",
+          "command": "claude-a11y.formatSelection",
           "when": "editorHasSelection",
           "group": "1_modification"
         }

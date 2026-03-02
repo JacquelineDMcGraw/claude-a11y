@@ -27,7 +27,7 @@ Screen-reader-only spans use the standard visually-hidden CSS pattern: 1px clipp
 
 ### TrustedTypes policy
 
-Cursor enforces strict Content Security Policy with Trusted Types. The script creates a `claudeAccessible` policy via `window.trustedTypes.createPolicy()` at initialization. If policy creation fails (non-TT environments), it falls back silently.
+Cursor enforces strict Content Security Policy with Trusted Types. The script creates a `claudeA11y` policy via `window.trustedTypes.createPolicy()` at initialization. If policy creation fails (non-TT environments), it falls back silently.
 
 ### ARIA live region
 
@@ -75,7 +75,7 @@ The extension registers an `@accessible` chat participant via `vscode.chat.creat
 
 ### Cursor DOM injection via workbench.html patching
 
-`packages/node/src/vscode/inject/patcher.ts` locates Cursor's `workbench.html` by searching known paths under `vscode.env.appRoot` (electron-sandbox, electron-browser, and desktop variants). The `install()` function copies `chat-a11y.js` alongside the HTML file, appends a `<script>` tag between `<!-- claude-accessible-start -->` and `<!-- claude-accessible-end -->` markers before `</html>`, adds the `claudeAccessible` policy name to the Trusted Types CSP directive, and creates a backup of the original file. Uninstall restores from backup or strips the markers.
+`packages/node/src/vscode/inject/patcher.ts` locates Cursor's `workbench.html` by searching known paths under `vscode.env.appRoot` (electron-sandbox, electron-browser, and desktop variants). The `install()` function copies `chat-a11y.js` alongside the HTML file, appends a `<script>` tag between `<!-- claude-a11y-start -->` and `<!-- claude-a11y-end -->` markers before `</html>`, adds the `claudeA11y` policy name to the Trusted Types CSP directive, and creates a backup of the original file. Uninstall restores from backup or strips the markers.
 
 ### esbuild bundling
 

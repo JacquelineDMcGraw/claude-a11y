@@ -231,7 +231,7 @@ async function main() {
   log("  2. Cmd+V to paste");
   log("  3. Press Enter");
   log("");
-  log("You'll see: [claude-accessible] Chat accessibility layer active.");
+  log("You'll see: [claude-a11y] Chat accessibility layer active.");
   log("Verify: type __ca11yStats() and press Enter.");
   log("");
 

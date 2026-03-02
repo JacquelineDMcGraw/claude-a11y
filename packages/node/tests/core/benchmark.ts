@@ -1,5 +1,5 @@
 /**
- * Performance benchmarks for claude-accessible.
+ * Performance benchmarks for claude-a11y.
  *
  * Verifies that the sanitizer and parser meet performance targets:
  * - Sanitizer throughput: >50 MB/s
@@ -147,7 +147,7 @@ function benchMemoryStreaming(): void {
 }
 
 // Run all benchmarks
-console.log("=== claude-accessible Performance Benchmarks ===\n");
+console.log("=== claude-a11y Performance Benchmarks ===\n");
 benchSanitizer();
 benchStreamParser();
 benchChunkSanitizer();

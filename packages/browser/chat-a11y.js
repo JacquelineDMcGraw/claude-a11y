@@ -17,7 +17,7 @@
   if (window.__claudeA11yInjected) return;
   window.__claudeA11yInjected = true;
 
-  var LOG_PREFIX = "[claude-accessible]";
+  var LOG_PREFIX = "[claude-a11y]";
   var DEBUG = !!(window.__ca11yDebug || (typeof sessionStorage !== "undefined" && sessionStorage.getItem("ca11y-debug")));
 
   function debugLog() {
@@ -63,7 +63,7 @@
   var policy = null;
   try {
     if (window.trustedTypes && window.trustedTypes.createPolicy) {
-      policy = window.trustedTypes.createPolicy("claudeAccessible", {
+      policy = window.trustedTypes.createPolicy("claudeA11y", {
         createHTML: function (s) { return s; },
         createScript: function (s) { return s; },
         createScriptURL: function (s) { return s; },
@@ -770,7 +770,7 @@
         selectorHealthWarning = true;
         if (liveRegion) {
           announce(
-            "Claude Accessible: could not detect chat messages. " +
+            "Claude A11y: could not detect chat messages. " +
             "Selector version " + SELECTOR_VERSION + ". " +
             "The page structure may have changed."
           );
@@ -780,7 +780,7 @@
         fallbackActive = true;
         if (liveRegion) {
           announce(
-            "Claude Accessible: using fallback detection. Some features may not work."
+            "Claude A11y: using fallback detection. Some features may not work."
           );
         }
       }

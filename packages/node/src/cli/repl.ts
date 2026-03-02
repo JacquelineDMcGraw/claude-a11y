@@ -91,7 +91,7 @@ async function handleCommand(
     case "/version": {
       const ownVersion = getOwnVersion();
       const claudeVersion = getClaudeVersion();
-      process.stderr.write(`claude-accessible v${ownVersion}\n`);
+      process.stderr.write(`claude-a11y v${ownVersion}\n`);
       process.stderr.write(`Claude Code: ${claudeVersion}\n`);
       return true;
     }

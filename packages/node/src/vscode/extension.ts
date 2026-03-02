@@ -98,7 +98,7 @@ function registerCommands(context: vscode.ExtensionContext): void {
   // Format Selection for Screen Reader
   context.subscriptions.push(
     vscode.commands.registerCommand(
-      "claude-accessible.formatSelection",
+      "claude-a11y.formatSelection",
       () => {
         const editor = vscode.window.activeTextEditor;
         if (!editor || editor.selection.isEmpty) {
@@ -116,7 +116,7 @@ function registerCommands(context: vscode.ExtensionContext): void {
   // Format Clipboard for Screen Reader
   context.subscriptions.push(
     vscode.commands.registerCommand(
-      "claude-accessible.formatClipboard",
+      "claude-a11y.formatClipboard",
       async () => {
         const text = await vscode.env.clipboard.readText();
         if (!text.trim()) {
@@ -136,7 +136,7 @@ function registerCommands(context: vscode.ExtensionContext): void {
   // Format Chat Response — reads clipboard and opens accessible version in a new tab
   context.subscriptions.push(
     vscode.commands.registerCommand(
-      "claude-accessible.formatChatResponse",
+      "claude-a11y.formatChatResponse",
       async () => {
         const text = await vscode.env.clipboard.readText();
         if (!text.trim()) {
@@ -154,9 +154,9 @@ function registerCommands(context: vscode.ExtensionContext): void {
   // Toggle Auto-Format
   context.subscriptions.push(
     vscode.commands.registerCommand(
-      "claude-accessible.toggleAutoFormat",
+      "claude-a11y.toggleAutoFormat",
       async () => {
-        const config = vscode.workspace.getConfiguration("claude-accessible");
+        const config = vscode.workspace.getConfiguration("claude-a11y");
         const current = config.get("enabled", true);
         await config.update(
           "enabled",
@@ -173,7 +173,7 @@ function registerCommands(context: vscode.ExtensionContext): void {
   // Read Last AI Response
   context.subscriptions.push(
     vscode.commands.registerCommand(
-      "claude-accessible.readLastResponse",
+      "claude-a11y.readLastResponse",
       () => {
         const response = getLastResponse() || getLastChatResponse();
         if (!response) {
@@ -191,7 +191,7 @@ function registerCommands(context: vscode.ExtensionContext): void {
   // Set Verbosity Level
   context.subscriptions.push(
     vscode.commands.registerCommand(
-      "claude-accessible.setVerbosity",
+      "claude-a11y.setVerbosity",
       async () => {
         const items: vscode.QuickPickItem[] = [
           {
@@ -217,7 +217,7 @@ function registerCommands(context: vscode.ExtensionContext): void {
 
         if (picked) {
           const level = picked.label.toLowerCase();
-          const config = vscode.workspace.getConfiguration("claude-accessible");
+          const config = vscode.workspace.getConfiguration("claude-a11y");
           await config.update(
             "verbosity",
             level,
@@ -238,7 +238,7 @@ function registerCommands(context: vscode.ExtensionContext): void {
   // Enable: inject into workbench.html
   context.subscriptions.push(
     vscode.commands.registerCommand(
-      "claude-accessible.enableChatInjection",
+      "claude-a11y.enableChatInjection",
       async () => {
         if (isInjectionInstalled()) {
           vscode.window.showInformationMessage(
@@ -264,7 +264,7 @@ function registerCommands(context: vscode.ExtensionContext): void {
   // Disable: remove injection
   context.subscriptions.push(
     vscode.commands.registerCommand(
-      "claude-accessible.disableChatInjection",
+      "claude-a11y.disableChatInjection",
       async () => {
         const ok = await uninstallInjection();
         if (ok) {
@@ -294,7 +294,7 @@ function registerCommands(context: vscode.ExtensionContext): void {
         .then((choice) => {
           if (choice === "Enable") {
             vscode.commands.executeCommand(
-              "claude-accessible.enableChatInjection"
+              "claude-a11y.enableChatInjection"
             );
           }
         });

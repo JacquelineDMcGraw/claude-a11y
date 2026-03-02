@@ -1,5 +1,5 @@
 /**
- * CLI entry point for claude-accessible (claude-sr).
+ * CLI entry point for claude-a11y (claude-sr).
  *
  * Parses command-line arguments and routes to either one-shot mode or
  * the conversational REPL.
@@ -236,7 +236,7 @@ async function main(): Promise<void> {
 
   // Handle --version
   if (args.version) {
-    process.stdout.write(`claude-accessible v${VERSION}\n`);
+    process.stdout.write(`claude-a11y v${VERSION}\n`);
     process.exit(0);
   }
 
@@ -245,7 +245,7 @@ async function main(): Promise<void> {
     process.stderr.write(
       "[Error] Claude Code CLI not found.\n" +
       "\n" +
-      "claude-accessible requires the Claude Code CLI to be installed and authenticated.\n" +
+      "claude-a11y requires the Claude Code CLI to be installed and authenticated.\n" +
       "Install it from: https://docs.anthropic.com/en/docs/claude-code/overview\n" +
       "\n" +
       "After installing, run: claude login\n"

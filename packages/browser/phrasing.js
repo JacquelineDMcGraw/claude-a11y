@@ -1,5 +1,5 @@
 /**
- * phrasing.js — Canonical announcement strings for claude-accessible.
+ * phrasing.js — Canonical announcement strings for claude-a11y.
  *
  * This is the single source of truth for all screen reader announcement
  * text used by both the browser-side DOM transforms (chat-a11y.js) and

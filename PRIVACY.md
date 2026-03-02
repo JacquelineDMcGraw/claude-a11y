@@ -1,6 +1,6 @@
 # Privacy Policy
 
-**Claude Accessible** (the Chrome extension, VS Code extension, and CLI tool)
+**Claude A11y** (the Chrome extension, VS Code extension, and CLI tool)
 
 **Last updated:** March 2, 2026
 

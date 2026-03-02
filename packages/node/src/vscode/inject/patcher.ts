@@ -13,9 +13,9 @@ import * as vscode from "vscode";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-const MARKER_START = "<!-- claude-accessible-start -->";
-const MARKER_END = "<!-- claude-accessible-end -->";
-const TRUSTED_TYPE_POLICY = "claudeAccessible";
+const MARKER_START = "<!-- claude-a11y-start -->";
+const MARKER_END = "<!-- claude-a11y-end -->";
+const TRUSTED_TYPE_POLICY = "claudeA11y";
 
 /**
  * Find the workbench.html file in the app installation.

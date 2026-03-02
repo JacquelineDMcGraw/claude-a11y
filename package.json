@@ -1,5 +1,5 @@
 {
-  "name": "claude-accessible-monorepo",
+  "name": "claude-a11y-monorepo",
   "private": true,
   "description": "Accessible AI coding tools — CLI and VS Code extension for screen reader users.",
   "license": "MIT",

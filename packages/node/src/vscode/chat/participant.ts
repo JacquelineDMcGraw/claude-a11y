@@ -121,7 +121,7 @@ async function handleVerbosityCommand(
   const level = request.prompt.trim().toLowerCase();
 
   if (level === "minimal" || level === "normal" || level === "detailed") {
-    const config = vscode.workspace.getConfiguration("claude-accessible");
+    const config = vscode.workspace.getConfiguration("claude-a11y");
     await config.update("verbosity", level, vscode.ConfigurationTarget.Global);
     stream.markdown(`Verbosity set to **${level}**.`);
   } else {
@@ -145,7 +145,7 @@ export function registerChatParticipant(
   }
 
   const participant = vscode.chat.createChatParticipant(
-    "claude-accessible.accessible",
+    "claude-a11y.accessible",
     handleRequest
   );
 

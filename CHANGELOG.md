@@ -51,7 +51,7 @@ Initial release.
 - ANSI sanitizer: strips escape codes, spinner frames, cursor repositioning
 - Announcer: queues and deduplicates screen reader announcements
 - Three verbosity presets: minimal, normal, detailed
-- CLI wrapper (`claude-sr` / `claude-accessible`): runs Claude Code with screen reader formatting
+- CLI wrapper (`claude-sr` / `claude-a11y`): runs Claude Code with screen reader formatting
 - Heartbeat messages during long responses in interactive REPL mode ("Still working...")
 - VS Code extension: chat participant, response formatting, Cursor workbench patching
 - Screen reader detection for auto-configuration
