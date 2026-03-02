@@ -38,7 +38,7 @@ npm run build:all
 npm test
 ```
 
-This runs all test suites across both packages: browser (81 tests) and node (193 tests, covering core, CLI, and VS Code extension). 274 tests total.
+This runs all test suites across both packages: browser (81 tests) and node (196 tests, covering core, CLI, and VS Code extension). 277 tests total.
 
 ## Screen reader testing
 

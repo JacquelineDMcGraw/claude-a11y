@@ -81,9 +81,9 @@ The browser and editor extensions use the same approach:
 
 1. A MutationObserver watches the DOM for new or changed chat messages.
 2. When a message appears, the extension walks its rendered HTML elements: code blocks, headings, tables, blockquotes, inline code, and links.
-3. For each element, it adds ARIA attributes in-place. Code blocks get an `aria-label` like "Python code block." Tables get `role="table"` with proper column headers. Headings get screen-reader-only prefix spans. Each AI response container is marked as a `role="region"` landmark so screen reader users can jump between responses.
+3. For each element, it adds ARIA attributes in-place. Code blocks get `role="region"`, an `aria-label` like "Python code block", and `tabindex="0"` for keyboard focus. Tables get `role="table"`, `aria-label`, `tabindex="0"`, and proper `scope`/`role` on header cells. Lists get explicit `role="list"` and `role="listitem"` to preserve semantics when CSS strips them. Headings get screen-reader-only prefix spans. Each AI response container is marked as a `role="region"` landmark so screen reader users can jump between responses.
 4. Screen-reader-only spans are inserted before and after structural elements to announce boundaries. These spans use the standard visually-hidden CSS pattern (1px clipped box) so they are invisible to sighted users but read by assistive technology.
-5. An ARIA live region announces activity like "Response complete" without interrupting the current reading position.
+5. An ARIA live region announces activity like "Response complete" without interrupting the current reading position. During generation, the active response container is marked `aria-busy="true"` so screen readers can defer reading until content is stable.
 
 The CLI takes a different path. It spawns Claude Code in headless mode with `NO_COLOR=1` and `TERM=dumb` to suppress visual formatting, then parses the markdown response into an abstract syntax tree using remark. It walks the AST and renders each node as plain text with structural cues: "[Python]" before a code block, "[End Python]" after it, "Heading:" before a heading, "Bullet:" before list items.
 
