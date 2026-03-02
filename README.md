@@ -4,25 +4,34 @@ Screen reader formatting for AI chat responses.
 
 ## Contents
 
+<table border="0" cellspacing="0" cellpadding="0"><tr>
+<td valign="top">
+
 **Background**
-- [Why I built this](#why-i-built-this)
-- [The problem](#the-problem)
+- [Motivation](#why-i-built-this)
+- [Problem](#the-problem)
 
 **Overview**
-- [What this project does](#what-this-project-does)
-- [What screen readers hear](#what-screen-readers-hear)
+- [What it does](#what-this-project-does)
+- [What you hear](#what-screen-readers-hear)
 - [How it works](#how-it-works)
 
-**Getting started**
+</td>
+<td valign="top">
+
+**Setup**
 - [Packages](#packages)
 - [Quick start](#quick-start)
-- [Supported platforms](#supported-platforms)
-- [Claude Desktop](#claude-desktop)
+- [Platforms](#supported-platforms)
+- [Desktop app](#claude-desktop)
 
-**Community**
+**Project**
 - [Contributing](#contributing)
 - [License](#license)
 - [Author](#author)
+
+</td>
+</tr></table>
 
 <p align="center">
   <img src="assets/logo-title.png" alt="Claude A11y" width="600">
