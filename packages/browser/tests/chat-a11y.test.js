@@ -105,13 +105,14 @@ describe("chat-a11y.js", function () {
       expect(pre.getAttribute("aria-label")).toBe("Python code block");
     });
 
-    it("does NOT add role=region to code blocks (avoids landmark pollution)", function () {
+    it("adds role=region and tabindex to code blocks", function () {
       document.body.innerHTML =
         '<pre><code class="language-javascript">var x = 1;</code></pre>';
       window.__ca11yScan();
 
       var pre = document.querySelector("pre");
-      expect(pre.getAttribute("role")).toBeNull();
+      expect(pre.getAttribute("role")).toBe("region");
+      expect(pre.getAttribute("tabindex")).toBe("0");
     });
 
     it("defaults to 'Code' when no language class is present", function () {

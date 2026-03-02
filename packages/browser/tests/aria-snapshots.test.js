@@ -72,7 +72,8 @@ describe("ARIA snapshot: screen reader output expectations", function () {
 
     var pre = document.querySelector("pre");
     expect(pre.getAttribute("aria-label")).toBe("Python code block");
-    expect(pre.getAttribute("role")).toBeNull();
+    expect(pre.getAttribute("role")).toBe("region");
+    expect(pre.getAttribute("tabindex")).toBe("0");
 
     var srSpans = pre.querySelectorAll(".ca11y-sr-only");
     expect(srSpans.length).toBe(2);

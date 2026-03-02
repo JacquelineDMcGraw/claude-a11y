@@ -228,7 +228,9 @@
         }
       }
 
+      pre.setAttribute("role", "region");
       pre.setAttribute("aria-label", lang + " code block");
+      pre.setAttribute("tabindex", "0");
 
       try {
         var startText = tpl(config.codeBlockStart, { lang: lang });
