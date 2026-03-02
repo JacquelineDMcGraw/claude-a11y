@@ -13,8 +13,19 @@
     "directory": "packages/node"
   },
   "keywords": [
-    "accessibility", "screen-reader", "a11y", "speech", "markdown",
-    "nvda", "jaws", "voiceover", "orca", "blind", "claude", "copilot", "ai"
+    "accessibility",
+    "screen-reader",
+    "a11y",
+    "speech",
+    "markdown",
+    "nvda",
+    "jaws",
+    "voiceover",
+    "orca",
+    "blind",
+    "claude",
+    "copilot",
+    "ai"
   ],
   "files": [
     "dist/",
@@ -144,7 +155,11 @@
         },
         "claude-accessible.verbosity": {
           "type": "string",
-          "enum": ["minimal", "normal", "detailed"],
+          "enum": [
+            "minimal",
+            "normal",
+            "detailed"
+          ],
           "default": "normal",
           "description": "Verbosity level for speech-formatted output.",
           "enumDescriptions": [
@@ -160,7 +175,11 @@
         },
         "claude-accessible.announceMode": {
           "type": "string",
-          "enum": ["notification", "output", "both"],
+          "enum": [
+            "notification",
+            "output",
+            "both"
+          ],
           "default": "output",
           "description": "How to announce AI activity.",
           "enumDescriptions": [
@@ -171,7 +190,11 @@
         },
         "claude-accessible.codeBlockAnnouncement": {
           "type": "string",
-          "enum": ["language", "language-and-lines", "minimal"],
+          "enum": [
+            "language",
+            "language-and-lines",
+            "minimal"
+          ],
           "default": "language",
           "description": "How to announce code blocks.",
           "enumDescriptions": [
@@ -187,7 +210,11 @@
         },
         "claude-accessible.backend": {
           "type": "string",
-          "enum": ["language-model-api", "claude-cli", "auto"],
+          "enum": [
+            "language-model-api",
+            "claude-cli",
+            "auto"
+          ],
           "default": "auto",
           "description": "Backend for the @accessible chat participant.",
           "enumDescriptions": [
@@ -228,16 +255,16 @@
     "test:speech": "bash ./bin/test-with-speech.sh --say"
   },
   "dependencies": {
-    "unified": "^11.0.5",
+    "remark-gfm": "^4.0.1",
     "remark-parse": "^11.0.0",
-    "remark-gfm": "^4.0.1"
+    "unified": "^11.0.5"
   },
   "devDependencies": {
     "@types/node": "^20.0.0",
     "@types/vscode": "^1.93.0",
-    "esbuild": "^0.21.0",
+    "esbuild": "^0.27.3",
     "tsx": "^4.7.0",
     "typescript": "^5.4.0",
-    "vitest": "^1.6.0"
+    "vitest": "^4.0.18"
   }
 }
