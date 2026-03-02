@@ -4,15 +4,15 @@ Screen reader formatting for AI chat responses.
 
 ## Why I built this
 
-I have Ehlers-Danlos Syndrome, dyscalculia, and ADHD. I can architect systems and reason about abstractions, but raw syntax -- nested brackets, semicolons, strings of letters mixed with numbers, formatting noise -- has always been a wall in regards to comprehension. AI coding tools bridged that gap for me and let me turn what I understood into working software with less struggle than I previously had. The difference between users of these AI tools is not just their allotted tokens, it is the allocated spoons it takes to use them.
+I have Ehlers-Danlos Syndrome, dyscalculia, and ADHD. I can architect systems and reason about abstractions, but raw syntax– nested brackets, semicolons, strings of letters mixed with numbers, formatting noise– has always been a wall in regards to comprehension. AI coding tools bridged that gap for me and let me turn what I understood into working software with less struggle than I previously had. The difference between users of these AI tools is not just their allotted tokens, it is the allocated spoons it takes to use them.
 
 EDS also causes vision problems with extended screen time. I already needed output I could process without straining through dense visual formatting. Then I tried using Claude Code with a screen reader.
 
 Spinning animations read as streams of meaningless characters. ANSI color codes garbled the output. Code blocks were announced as "backtick backtick backtick python" with no indication of structure. A user with low vision trying to use Claude Code would be getting a broken experience.
 
-claude-a11y formats AI chat responses for screen readers. It strips decorative output, structures responses for assistive technology, and presents code in a way that actually communicates what the code is. It started from my own needs -- vision fatigue, syntax processing, cleaner output -- but the harder problem was screen readers. The result is useful for anyone: blind and low-vision developers, people with cognitive processing differences, or anyone who prefers to read without fighting through formatting.
+claude-a11y formats AI chat responses for screen readers. It strips decorative output, structures responses for assistive technology, and presents code in a way that actually communicates what the code is. It started from my own needs– vision fatigue, syntax processing, cleaner output– but the harder problem was screen readers. The result is useful for anyone: blind and low-vision developers, people with cognitive processing differences, or anyone who prefers to read without fighting through formatting.
 
-Note: This project focuses on making AI responses readable and navigable. It does not solve every aspect of the full chat workflow -- input fields, settings panels, and some sidebar navigation on claude.ai are not yet addressed. What it does address, it addresses well.
+Note: This project focuses on making AI responses readable and navigable. It does not solve every aspect of the full chat workflow– input fields, settings panels, and some sidebar navigation on claude.ai are not yet addressed. What it does address, it addresses well.
 
 Other developers have been asking for these fixes too. The issues filed at https://github.com/anthropics/claude-code/issues/11002 (requesting a screen reader mode for NVDA and JAWS) and https://github.com/anthropics/claude-code/issues/15509 (requesting a no-ANSI flag for screen reader compatibility) describe the same problems this project addresses. This tool exists because those problems have not been solved upstream yet.
 
@@ -81,9 +81,9 @@ The browser and editor extensions use the same approach:
 
 1. A MutationObserver watches the DOM for new or changed chat messages.
 2. When a message appears, the extension walks its rendered HTML elements: code blocks, headings, tables, blockquotes, inline code, and links.
-3. For each element, it adds ARIA attributes in-place. Code blocks get `role="region"`, an `aria-label` like "Python code block", and `tabindex="0"` for keyboard focus. Tables get `role="table"`, `aria-label`, `tabindex="0"`, and proper `scope`/`role` on header cells. Lists get explicit `role="list"` and `role="listitem"` to preserve semantics when CSS strips them. Headings get screen-reader-only prefix spans. Each AI response container is marked as a `role="region"` landmark so screen reader users can jump between responses.
+3. For each element, it adds ARIA attributes in-place. Code blocks get an `aria-label` like "Python code block." Tables get `role="table"` with proper column headers. Headings get screen-reader-only prefix spans. Each AI response container is marked as a `role="region"` landmark so screen reader users can jump between responses.
 4. Screen-reader-only spans are inserted before and after structural elements to announce boundaries. These spans use the standard visually-hidden CSS pattern (1px clipped box) so they are invisible to sighted users but read by assistive technology.
-5. An ARIA live region announces activity like "Response complete" without interrupting the current reading position. During generation, the active response container is marked `aria-busy="true"` so screen readers can defer reading until content is stable.
+5. An ARIA live region announces activity like "Response complete" without interrupting the current reading position.
 
 The CLI takes a different path. It spawns Claude Code in headless mode with `NO_COLOR=1` and `TERM=dumb` to suppress visual formatting, then parses the markdown response into an abstract syntax tree using remark. It walks the AST and renders each node as plain text with structural cues: "[Python]" before a code block, "[End Python]" after it, "Heading:" before a heading, "Bullet:" before list items.
 
