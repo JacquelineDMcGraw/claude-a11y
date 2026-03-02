@@ -22,8 +22,10 @@ import { isInstalled, install, uninstall } from "../../src/vscode/inject/patcher
 
 const mockFs = vi.mocked(fs);
 
-const MARKER_START = "<!-- claude-accessible-start -->";
-const MARKER_END = "<!-- claude-accessible-end -->";
+const MARKER_START = "<!-- claude-a11y-start -->";
+const MARKER_END = "<!-- claude-a11y-end -->";
+const LEGACY_MARKER_START = "<!-- claude-accessible-start -->";
+const LEGACY_MARKER_END = "<!-- claude-accessible-end -->";
 
 const WORKBENCH_PATH = path.join(
   "/mock/app",
@@ -60,6 +62,16 @@ describe("patcher", () => {
       );
       mockFs.readFileSync.mockReturnValue(
         `<html>${MARKER_START}<script></script>${MARKER_END}</html>`
+      );
+      expect(isInstalled()).toBe(true);
+    });
+
+    it("returns true when legacy marker is present", () => {
+      mockFs.existsSync.mockImplementation((p: string) =>
+        p === WORKBENCH_PATH
+      );
+      mockFs.readFileSync.mockReturnValue(
+        `<html>${LEGACY_MARKER_START}<script></script>${LEGACY_MARKER_END}</html>`
       );
       expect(isInstalled()).toBe(true);
     });
@@ -109,6 +121,31 @@ describe("patcher", () => {
       expect(writtenHtml).toContain("chat-a11y.js");
       expect(writtenHtml).toContain(MARKER_END);
     });
+
+    it("strips legacy markers before injecting new ones", async () => {
+      const scriptPath = path.join("/mock/extension", "media", "chat-a11y.js");
+      const legacyHtml =
+        `<html><head></head><body></body>\n` +
+        `${LEGACY_MARKER_START}\n<script src="./chat-a11y.js"></script>\n${LEGACY_MARKER_END}\n` +
+        `</html>`;
+
+      mockFs.existsSync.mockImplementation((p: string) => {
+        if (p === WORKBENCH_PATH) return true;
+        if (p === scriptPath) return true;
+        if (p === WORKBENCH_PATH + ".ca11y-backup") return false;
+        return false;
+      });
+      mockFs.readFileSync.mockReturnValue(legacyHtml);
+
+      const result = await install(mockContext);
+      expect(result).toBe(true);
+
+      const writtenHtml = mockFs.writeFileSync.mock.calls[0][1] as string;
+      expect(writtenHtml).toContain(MARKER_START);
+      expect(writtenHtml).toContain(MARKER_END);
+      expect(writtenHtml).not.toContain(LEGACY_MARKER_START);
+      expect(writtenHtml).not.toContain(LEGACY_MARKER_END);
+    });
   });
 
   describe("uninstall()", () => {
@@ -145,6 +182,24 @@ describe("patcher", () => {
       const writtenHtml = mockFs.writeFileSync.mock.calls[0][1] as string;
       expect(writtenHtml).not.toContain(MARKER_START);
       expect(writtenHtml).not.toContain(MARKER_END);
+    });
+
+    it("removes legacy markers when no backup exists", async () => {
+      const htmlWithLegacy =
+        `<html>${LEGACY_MARKER_START}\n<script></script>\n${LEGACY_MARKER_END}</html>`;
+
+      mockFs.existsSync.mockImplementation((p: string) => {
+        if (p === WORKBENCH_PATH) return true;
+        return false;
+      });
+      mockFs.readFileSync.mockReturnValue(htmlWithLegacy);
+
+      const result = await uninstall();
+      expect(result).toBe(true);
+
+      const writtenHtml = mockFs.writeFileSync.mock.calls[0][1] as string;
+      expect(writtenHtml).not.toContain(LEGACY_MARKER_START);
+      expect(writtenHtml).not.toContain(LEGACY_MARKER_END);
     });
 
     it("returns false when workbench.html is not found", async () => {

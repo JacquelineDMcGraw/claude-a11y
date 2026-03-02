@@ -1,5 +1,5 @@
 {
-  "name": "@claude-accessible/browser",
+  "name": "@claude-a11y/browser",
   "version": "1.1.0",
   "private": true,
   "description": "Browser-side accessibility transforms for AI chat interfaces (Chrome extension + VS Code webview)",

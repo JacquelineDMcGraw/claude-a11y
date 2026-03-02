@@ -19,7 +19,7 @@ export function registerStatusBar(context: vscode.ExtensionContext): void {
   context.subscriptions.push(statusItem);
   context.subscriptions.push(
     vscode.workspace.onDidChangeConfiguration((e) => {
-      if (e.affectsConfiguration("claude-accessible")) {
+      if (e.affectsConfiguration("claude-a11y")) {
         updateStatusBar();
       }
     })
@@ -39,7 +39,7 @@ function updateStatusBar(): void {
     statusItem.tooltip = "Accessible AI formatting is disabled. Click to enable.";
   }
 
-  statusItem.command = "claude-accessible.setVerbosity";
+  statusItem.command = "claude-a11y.setVerbosity";
   statusItem.accessibilityInformation = {
     label: config.enabled
       ? `Accessible AI formatting is enabled at ${config.verbosity} verbosity`

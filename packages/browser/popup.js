@@ -1,5 +1,5 @@
 /**
- * popup.js — Logic for the Claude Accessible popup UI.
+ * popup.js — Logic for the Claude A11y popup UI.
  *
  * Communicates with background.js to get extension status, stats,
  * and to trigger a force rescan on the active tab.
@@ -171,7 +171,7 @@
               setTimeout(function () { exportFeedback.textContent = ""; }, 5000);
             }).catch(function () {
               exportFeedback.textContent = "Could not copy. Data logged to console.";
-              console.log("[claude-accessible] Feedback data:", json);
+              console.log("[claude-a11y] Feedback data:", json);
               setTimeout(function () { exportFeedback.textContent = ""; }, 5000);
             });
           });
@@ -181,7 +181,7 @@
             exportFeedback.textContent = "Copied to clipboard.";
           }).catch(function () {
             exportFeedback.textContent = "Could not copy. Check console.";
-            console.log("[claude-accessible] Feedback data:", json);
+            console.log("[claude-a11y] Feedback data:", json);
           });
         }
       });

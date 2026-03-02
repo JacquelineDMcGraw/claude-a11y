@@ -1,4 +1,4 @@
-# claude-accessible
+# claude-a11y
 
 Screen reader formatting for AI chat responses.
 
@@ -9,14 +9,14 @@ Transforms Markdown output from AI assistants into text that screen readers can 
 As a CLI wrapper for Claude Code:
 
 ```
-npm install -g claude-accessible
+npm install -g claude-a11y
 claude-sr
 ```
 
 As a library:
 
 ```
-npm install claude-accessible
+npm install claude-a11y
 ```
 
 As a VS Code/Cursor extension: install "Accessible AI Chat" from the VS Code Marketplace, or download the .vsix from GitHub Releases.
@@ -25,7 +25,7 @@ As a VS Code/Cursor extension: install "Accessible AI Chat" from the VS Code Mar
 
 Without formatting, a screen reader announces a Python code block as "backtick backtick backtick python print open paren hello close paren backtick backtick backtick."
 
-With claude-accessible, it becomes "[Python] print hello [End Python]."
+With claude-a11y, it becomes "[Python] print hello [End Python]."
 
 Specific transformations:
 
@@ -52,7 +52,7 @@ The wrapper spawns Claude Code as a subprocess, strips ANSI escape codes and spi
 In TypeScript or JavaScript:
 
 ```typescript
-import { formatForSpeech, sanitize } from "claude-accessible";
+import { formatForSpeech, sanitize } from "claude-a11y";
 
 const raw = "## Hello\n\n```python\nprint('hi')\n```";
 const accessible = formatForSpeech(raw);

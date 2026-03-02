@@ -144,7 +144,7 @@ describe("Integration: Help and version", () => {
 
   it("shows version", () => {
     const result = runWithMock("mock-claude.js", ["--version"]);
-    expect(result.stdout).toContain("claude-accessible v");
+    expect(result.stdout).toContain("claude-a11y v");
   });
 });
 

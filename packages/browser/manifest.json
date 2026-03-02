@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Claude Accessible",
+  "name": "Claude A11y",
   "version": "1.1.0",
   "description": "Formats AI chat responses for screen readers with ARIA landmarks, code block labels, and keyboard navigation.",
   "author": "Jacqueline McGraw",
@@ -34,7 +34,7 @@
 
   "action": {
     "default_popup": "popup.html",
-    "default_title": "Claude Accessible"
+    "default_title": "Claude A11y"
   },
 
   "web_accessible_resources": [

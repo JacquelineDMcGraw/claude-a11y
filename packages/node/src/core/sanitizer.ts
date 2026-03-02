@@ -1,7 +1,7 @@
 /**
  * ANSI escape code stripping and output sanitization.
  *
- * This is the most critical module in claude-accessible. Every byte
+ * This is the most critical module in claude-a11y. Every byte
  * written to stdout passes through here. A single leaked escape code
  * causes screen readers to produce garbled output for blind users.
  */

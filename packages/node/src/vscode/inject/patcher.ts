@@ -13,9 +13,14 @@ import * as vscode from "vscode";
 import * as fs from "node:fs";
 import * as path from "node:path";
 
-const MARKER_START = "<!-- claude-accessible-start -->";
-const MARKER_END = "<!-- claude-accessible-end -->";
-const TRUSTED_TYPE_POLICY = "claudeAccessible";
+const MARKER_START = "<!-- claude-a11y-start -->";
+const MARKER_END = "<!-- claude-a11y-end -->";
+const TRUSTED_TYPE_POLICY = "claudeA11y";
+
+// Pre-rename values that may exist in workbench.html from earlier versions
+const LEGACY_MARKER_START = "<!-- claude-accessible-start -->";
+const LEGACY_MARKER_END = "<!-- claude-accessible-end -->";
+const LEGACY_TRUSTED_TYPE_POLICY = "claudeAccessible";
 
 /**
  * Find the workbench.html file in the app installation.
@@ -77,7 +82,10 @@ export function isInstalled(): boolean {
 
   try {
     const content = fs.readFileSync(htmlPath, "utf-8");
-    return content.includes(MARKER_START);
+    return (
+      content.includes(MARKER_START) ||
+      content.includes(LEGACY_MARKER_START)
+    );
   } catch {
     return false;
   }
@@ -191,9 +199,14 @@ export async function uninstall(): Promise<boolean> {
  * Add our TrustedTypes policy name to the CSP meta tag.
  */
 function addTrustedTypePolicy(html: string): string {
-  // Match the trusted-types directive and add our policy if not already present
+  // Remove legacy policy name if present
+  html = html.replace(
+    new RegExp(`\\s*${LEGACY_TRUSTED_TYPE_POLICY}\\n?`, "g"),
+    ""
+  );
+
   if (html.includes(TRUSTED_TYPE_POLICY)) {
-    return html; // Already added
+    return html;
   }
 
   // Find the trusted-types line and append our policy name
@@ -210,18 +223,31 @@ function addTrustedTypePolicy(html: string): string {
 }
 
 function removeInjection(html: string): string {
+  // Strip current markers
   const startIdx = html.indexOf(MARKER_START);
   const endIdx = html.indexOf(MARKER_END);
-
   if (startIdx !== -1 && endIdx !== -1) {
     html =
       html.substring(0, startIdx) +
       html.substring(endIdx + MARKER_END.length);
   }
 
-  // Also remove our TrustedTypes policy from CSP
+  // Strip legacy markers from pre-rename versions
+  const legacyStart = html.indexOf(LEGACY_MARKER_START);
+  const legacyEnd = html.indexOf(LEGACY_MARKER_END);
+  if (legacyStart !== -1 && legacyEnd !== -1) {
+    html =
+      html.substring(0, legacyStart) +
+      html.substring(legacyEnd + LEGACY_MARKER_END.length);
+  }
+
+  // Remove both current and legacy TrustedTypes policy names from CSP
   html = html.replace(
     new RegExp(`\\s*${TRUSTED_TYPE_POLICY}\\n?`, "g"),
+    ""
+  );
+  html = html.replace(
+    new RegExp(`\\s*${LEGACY_TRUSTED_TYPE_POLICY}\\n?`, "g"),
     ""
   );
 

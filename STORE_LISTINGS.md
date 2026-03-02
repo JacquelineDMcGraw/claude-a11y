@@ -18,7 +18,7 @@ npm README: Uses the root README.md (symlinked or copied during publish).
 
 ### Extension name
 
-Claude Accessible
+Claude A11y
 
 ### Short description (132 chars max)
 
@@ -26,7 +26,7 @@ Formats AI chat responses for screen readers. Adds ARIA landmarks, code block la
 
 ### Detailed description
 
-Claude Accessible makes AI chat sites usable with screen readers (NVDA, JAWS, VoiceOver, Orca). Works on claude.ai, ChatGPT, Gemini, and Microsoft Copilot.
+Claude A11y makes AI chat sites usable with screen readers (NVDA, JAWS, VoiceOver, Orca). Works on claude.ai, ChatGPT, Gemini, and Microsoft Copilot.
 
 Without this extension, screen readers announce code blocks as "backtick backtick backtick python print open paren hello close paren backtick backtick backtick." Tables are read as pipes and dashes. There are no landmarks to navigate between responses.
 

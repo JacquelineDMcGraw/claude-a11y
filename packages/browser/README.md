@@ -1,4 +1,4 @@
-# Claude Accessible -- Chrome Extension
+# Claude A11y -- Chrome Extension
 
 Chrome extension that adds screen reader accessibility to claude.ai. Transforms rendered markdown in chat responses into semantic, ARIA-annotated markup without changing the visual appearance.
 
@@ -61,7 +61,7 @@ Open the browser console on claude.ai and run:
 
 The extension popup (click the toolbar icon) shows the same stats and provides a "Force Rescan" button.
 
-Console messages from the extension are prefixed with `[claude-accessible]`.
+Console messages from the extension are prefixed with `[claude-a11y]`.
 
 ## File overview
 

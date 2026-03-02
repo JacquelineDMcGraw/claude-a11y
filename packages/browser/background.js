@@ -1,11 +1,11 @@
 /**
- * background.js — Service worker for Claude Accessible Chrome extension.
+ * background.js — Service worker for Claude A11y Chrome extension.
  *
  * Minimal lifecycle management. Logs install/update events and handles
  * messages from the popup to query the content script status.
  */
 
-const LOG_PREFIX = "[claude-accessible:bg]";
+const LOG_PREFIX = "[claude-a11y:bg]";
 
 // ---------------------------------------------------------------------------
 // Extension lifecycle events

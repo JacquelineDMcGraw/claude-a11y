@@ -22,7 +22,7 @@ export interface AccessibleAIConfig {
 }
 
 export function getConfig(): AccessibleAIConfig {
-  const config = vscode.workspace.getConfiguration("claude-accessible");
+  const config = vscode.workspace.getConfiguration("claude-a11y");
   return {
     enabled: config.get("enabled", true),
     autoActivate: config.get("autoActivate", true),
@@ -65,7 +65,7 @@ export function onConfigChanged(
   callback: (config: AccessibleAIConfig) => void
 ): vscode.Disposable {
   return vscode.workspace.onDidChangeConfiguration((e) => {
-    if (e.affectsConfiguration("claude-accessible")) {
+    if (e.affectsConfiguration("claude-a11y")) {
       callback(getConfig());
     }
   });

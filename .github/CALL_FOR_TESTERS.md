@@ -1,8 +1,8 @@
-# Calling screen reader users: help test Claude Accessible
+# Calling screen reader users: help test Claude A11y
 
-I'm building [Claude Accessible](https://github.com/JacquelineDMcGraw/claude-a11y) — an open-source project that formats AI chat responses for screen readers (NVDA, JAWS, VoiceOver, Orca).
+I'm building [Claude A11y](https://github.com/JacquelineDMcGraw/claude-a11y) — an open-source project that formats AI chat responses for screen readers (NVDA, JAWS, VoiceOver, Orca).
 
-Right now, when Claude sends a response with code blocks, tables, or markdown formatting, screen readers get a wall of raw syntax — backticks, pipe characters, pound signs. Claude Accessible transforms those into clear announcements: `[Python] print('hello') [End Python]`, `[Table, 3 columns, 2 rows]`, `[Heading] Section Title`.
+Right now, when Claude sends a response with code blocks, tables, or markdown formatting, screen readers get a wall of raw syntax — backticks, pipe characters, pound signs. Claude A11y transforms those into clear announcements: `[Python] print('hello') [End Python]`, `[Table, 3 columns, 2 rows]`, `[Heading] Section Title`.
 
 It works as a **Chrome extension** (for claude.ai), a **VS Code extension**, and a **CLI wrapper**.
 
