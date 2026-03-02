@@ -1,4 +1,4 @@
-# claude-a11y
+# Claude A11y
 
 Screen reader formatting for AI chat responses.
 
