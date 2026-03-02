@@ -978,8 +978,8 @@
       if (found && !isGenerating) {
         isGenerating = true;
         statusChecked = true;
-        var lastResponse = document.querySelector("[data-ca11y-msg]:last-of-type") ||
-          Array.prototype.slice.call(document.querySelectorAll("[data-ca11y-msg]")).pop();
+        var allResponses = document.querySelectorAll("[data-ca11y-msg]");
+        var lastResponse = allResponses.length ? allResponses[allResponses.length - 1] : null;
         if (lastResponse) lastResponse.setAttribute("aria-busy", "true");
         announce(phrasing.generatingStatus || "Generating response...");
       } else if (!found && isGenerating) {
