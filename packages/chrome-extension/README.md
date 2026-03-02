@@ -6,7 +6,7 @@ Chrome extension that adds screen reader accessibility to claude.ai. Transforms 
 
 Claude.ai renders AI responses as styled HTML, but screen readers often miss structural cues like code block boundaries, heading levels, and table layouts. This extension intercepts rendered chat messages and adds:
 
-- Code blocks: `role="region"` with `aria-label` announcing the language. Screen-reader-only markers like "[Python]" and "[End Python]" bracket the code.
+- Code blocks: `aria-label` announcing the language (no `role="region"` — avoids landmark pollution). Screen-reader-only markers like "[Python]" and "[End Python]" bracket the code.
 - Headings: sr-only "[Heading]" or "[Subheading]" prefix injected before the text.
 - Tables: row/column count announced before the table. Header cells get `role="columnheader"` and `scope="col"`. "[End Table]" marks the boundary.
 - Lists: item count and type ("bulleted" or "numbered") announced before each list.
@@ -15,7 +15,7 @@ Claude.ai renders AI responses as styled HTML, but screen readers often miss str
 - Images: ensures `alt` text exists (defaults to "Image").
 - Links: empty links get their URL as visible text.
 - Horizontal rules: `role="separator"` with an `aria-label`.
-- Chat messages: each AI response container gets `role="article"` with `aria-label="AI response"`.
+- Chat messages: each AI response container gets `role="region"` with `aria-label="AI response"` (the only landmark added per response).
 
 An ARIA live region (`aria-live="polite"`) is created for streaming announcements.
 
@@ -25,7 +25,7 @@ An ARIA live region (`aria-live="polite"`) is created for streaming announcement
 2. It fetches chat-a11y.js from the extension bundle and injects it into the page's main world (not the extension's isolated world) by creating a temporary script element.
 3. chat-a11y.js sets up a MutationObserver on `document.documentElement` watching for `childList`, `subtree`, and `characterData` changes.
 4. When new DOM nodes appear (a new message streams in), the observer runs transformation functions on the added elements.
-5. A debounced full-page scan runs after mutations settle (300ms). Periodic rescans run every 15 seconds to catch lazily rendered content.
+5. A debounced full-page scan runs after mutations settle (300ms). A self-disabling 30-second fallback rescan catches lazily rendered content and shuts itself off after 20 idle cycles.
 
 All transforms are idempotent. Each processed element gets a `data-ca11y="1"` attribute to prevent double processing.
 
@@ -56,7 +56,7 @@ No host permissions, storage, or network access is requested.
 
 Open the browser console on claude.ai and run:
 
-- `__ca11yStats()` -- Returns an object with `transformCount` (number of elements processed), `hasTrustedTypes`, `hasLiveRegion`, and `observerActive`.
+- `__ca11yStats()` -- Returns an object with `transformCount` (number of elements processed), `hasTrustedTypes`, `hasLiveRegion`, `observerActive`, `fallbackActive` (whether the periodic rescan is still running), and `selectorHealthWarning` (true if no chat containers were found after 10 seconds).
 - `__ca11yScan()` -- Triggers an immediate full-page scan. Useful if content was missed.
 
 The extension popup (click the toolbar icon) shows the same stats and provides a "Force Rescan" button.

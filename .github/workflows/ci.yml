@@ -41,6 +41,12 @@ jobs:
       - name: Test extension
         run: npm test -w packages/vscode-extension
 
+      - name: Test chrome extension
+        run: npm test -w packages/chrome-extension
+
+      - name: Verify chat-a11y.js copies in sync
+        run: diff packages/chrome-extension/chat-a11y.js packages/vscode-extension/media/chat-a11y.js
+
   package-size:
     runs-on: ubuntu-latest
     steps:

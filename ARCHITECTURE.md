@@ -22,9 +22,9 @@ A MutationObserver watches `document.documentElement` for `childList`, `subtree`
 
 ### Element transformation pipeline
 
-Each element is tagged with `data-ca11y="1"` after transformation to prevent double-processing. The pipeline runs these transforms in order: code blocks (pre elements get `role="region"` and `aria-label`), inline code, headings (sr-only prefix spans), tables (`role="table"` with column headers), blockquotes (`role="note"`), horizontal rules (`role="separator"`), images (fallback alt text), links (fallback text content), and lists (item count announcements).
+Each element is tagged with `data-ca11y="1"` after transformation to prevent double-processing. The pipeline runs these transforms in order: code blocks (`aria-label` announcing the language — no `role="region"` to avoid landmark pollution), inline code, headings (sr-only prefix spans), tables (`role="table"` with column headers), blockquotes (`role="note"`), horizontal rules (`role="separator"`), images (fallback alt text), links (fallback text content), lists (item count announcements), and chat message containers (`role="region"` with `aria-label="AI response"` — the only landmark added).
 
-Screen-reader-only spans use the standard visually-hidden CSS pattern: 1px clipped box with `overflow: hidden`. These are invisible to sighted users but read by assistive technology.
+Screen-reader-only spans use the standard visually-hidden CSS pattern: 1px clipped box with `overflow: hidden` and `user-select: none` to prevent clipboard pollution when copying code. These are invisible to sighted users but read by assistive technology.
 
 ### TrustedTypes policy
 
@@ -36,7 +36,7 @@ A visually-hidden `div` with `role="status"` and `aria-live="polite"` is appende
 
 ### Debounced scanning with periodic rescans
 
-The observer triggers a debounced `scanAll()` at 300ms. In addition, aggressive initial scans fire at 1s, 3s, 5s, and 10s after injection to catch first-render content. A 15-second interval handles lazy rendering in Cursor, where the MutationObserver may miss elements rendered outside the observed subtree.
+The observer triggers a debounced `scanAll()` at 300ms. In addition, aggressive initial scans fire at 1s, 3s, 5s, and 10s after injection to catch first-render content. A self-disabling 30-second fallback interval handles lazy rendering in Cursor, where the MutationObserver may miss elements rendered outside the observed subtree. The fallback tracks idle cycles (scans that find no new elements) and disables itself after 20 consecutive idle cycles to avoid wasting resources on a settled page. Any new MutationObserver hit resets the idle counter.
 
 ### Selector strategy
 
