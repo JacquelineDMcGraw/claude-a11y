@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { execSync, execFileSync } from "node:child_process";
+import { execFileSync, spawnSync } from "node:child_process";
 import { join } from "node:path";
 
 const ROOT = join(__dirname, "..");
@@ -45,44 +45,36 @@ function runWithMock(
 
 /**
  * Run with mock and capture both stdout and stderr properly.
- * Uses a shell command to separate them.
+ * Uses spawnSync for cross-platform compatibility (no shell syntax).
  */
 function runWithMockFull(
   mockName: string,
   args: string[]
 ): { stdout: Buffer; stderr: Buffer; status: number } {
   const mockPath = join(FIXTURES, mockName);
-  const argsStr = args.map((a) => `"${a.replace(/"/g, '\\"')}"`).join(" ");
-  const cmd = `CLAUDE_PATH="${mockPath}" node "${BIN}" ${argsStr}`;
 
-  try {
-    const stdout = execSync(cmd, {
-      timeout: 10000,
-      stdio: ["pipe", "pipe", "pipe"],
-      cwd: ROOT,
-      env: {
-        ...process.env,
-        CLAUDE_PATH: mockPath,
-        NO_COLOR: "1",
-        FORCE_COLOR: "0",
-        PATH: process.env.PATH,
-      },
-    });
-    return { stdout: Buffer.from(stdout), stderr: Buffer.alloc(0), status: 0 };
-  } catch (err: unknown) {
-    const e = err as { stdout?: Buffer; stderr?: Buffer; status?: number };
-    return {
-      stdout: e.stdout ? Buffer.from(e.stdout) : Buffer.alloc(0),
-      stderr: e.stderr ? Buffer.from(e.stderr) : Buffer.alloc(0),
-      status: e.status ?? 1,
-    };
-  }
+  const result = spawnSync("node", [BIN, ...args], {
+    timeout: 10000,
+    cwd: ROOT,
+    env: {
+      ...process.env,
+      CLAUDE_PATH: mockPath,
+      NO_COLOR: "1",
+      FORCE_COLOR: "0",
+    },
+  });
+
+  return {
+    stdout: result.stdout ?? Buffer.alloc(0),
+    stderr: result.stderr ?? Buffer.alloc(0),
+    status: result.status ?? 1,
+  };
 }
 
 
 describe("Integration: One-shot mode", () => {
   it("T-INT-01: produces clean text output", () => {
-    const result = runWithMockFull("mock-claude.sh", ["-p", "test"]);
+    const result = runWithMockFull("mock-claude.js", ["-p", "test"]);
     const stdout = result.stdout.toString("utf-8");
 
     // Should contain the response text
@@ -96,12 +88,12 @@ describe("Integration: One-shot mode", () => {
   });
 
   it("T-INT-04: handles error exit codes", () => {
-    const result = runWithMockFull("mock-claude-error.sh", ["-p", "test"]);
+    const result = runWithMockFull("mock-claude-error.js", ["-p", "test"]);
     expect(result.status).toBe(1);
   });
 
   it("T-INT-05: sanitizes ANSI from stderr", () => {
-    const result = runWithMockFull("mock-claude-error.sh", ["-p", "test"]);
+    const result = runWithMockFull("mock-claude-error.js", ["-p", "test"]);
     const stderr = result.stderr.toString("utf-8");
 
     // stderr should be clean of ESC bytes
@@ -110,7 +102,7 @@ describe("Integration: One-shot mode", () => {
   });
 
   it("T-INT-06: handles heavy ANSI output", () => {
-    const result = runWithMockFull("mock-claude-ansi-heavy.sh", [
+    const result = runWithMockFull("mock-claude-ansi-heavy.js", [
       "-p",
       "test",
     ]);
@@ -127,7 +119,7 @@ describe("Integration: One-shot mode", () => {
   });
 
   it("T-INT-06b: handles large streaming output", () => {
-    const result = runWithMockFull("mock-claude-large.sh", ["-p", "test"]);
+    const result = runWithMockFull("mock-claude-large.js", ["-p", "test"]);
     const stdout = result.stdout.toString("utf-8");
 
     // Should contain many lines
@@ -144,14 +136,14 @@ describe("Integration: One-shot mode", () => {
 
 describe("Integration: Help and version", () => {
   it("shows help text", () => {
-    const result = runWithMock("mock-claude.sh", ["--help"]);
+    const result = runWithMock("mock-claude.js", ["--help"]);
     expect(result.stdout).toContain("claude-sr");
     expect(result.stdout).toContain("Screen-reader-friendly");
     expect(result.stdout).toContain("REPL COMMANDS");
   });
 
   it("shows version", () => {
-    const result = runWithMock("mock-claude.sh", ["--version"]);
+    const result = runWithMock("mock-claude.js", ["--version"]);
     expect(result.stdout).toContain("claude-accessible v");
   });
 });
@@ -183,13 +175,13 @@ describe("Integration: Byte-level verification", () => {
   }
 
   it("stdout contains zero forbidden bytes (basic mock)", () => {
-    const result = runWithMockFull("mock-claude.sh", ["-p", "test"]);
+    const result = runWithMockFull("mock-claude.js", ["-p", "test"]);
     const violations = scanForForbiddenBytes(result.stdout);
     expect(violations).toEqual([]);
   });
 
   it("stdout contains zero forbidden bytes (ANSI-heavy mock)", () => {
-    const result = runWithMockFull("mock-claude-ansi-heavy.sh", [
+    const result = runWithMockFull("mock-claude-ansi-heavy.js", [
       "-p",
       "test",
     ]);
@@ -198,13 +190,13 @@ describe("Integration: Byte-level verification", () => {
   });
 
   it("stdout contains zero forbidden bytes (large mock)", () => {
-    const result = runWithMockFull("mock-claude-large.sh", ["-p", "test"]);
+    const result = runWithMockFull("mock-claude-large.js", ["-p", "test"]);
     const violations = scanForForbiddenBytes(result.stdout);
     expect(violations).toEqual([]);
   });
 
   it("stderr contains zero ESC bytes (error mock)", () => {
-    const result = runWithMockFull("mock-claude-error.sh", ["-p", "test"]);
+    const result = runWithMockFull("mock-claude-error.js", ["-p", "test"]);
     const escCount = [...result.stderr].filter((b) => b === 0x1b).length;
     expect(escCount).toBe(0);
   });

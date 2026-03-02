@@ -33,8 +33,10 @@ export interface RunResult {
 export function checkClaudeInstalled(): boolean {
   const { execFileSync } = require("node:child_process") as typeof import("node:child_process");
   const claudePath = process.env.CLAUDE_PATH ?? "claude";
+  const cmd = claudePath.endsWith(".js") ? process.execPath : claudePath;
+  const args = claudePath.endsWith(".js") ? [claudePath, "--version"] : ["--version"];
   try {
-    execFileSync(claudePath, ["--version"], {
+    execFileSync(cmd, args, {
       stdio: "pipe",
       timeout: 10000,
       env: { ...process.env, NO_COLOR: "1", FORCE_COLOR: "0" },
@@ -51,8 +53,10 @@ export function checkClaudeInstalled(): boolean {
 export function getClaudeVersion(): string {
   const { execFileSync } = require("node:child_process") as typeof import("node:child_process");
   const claudePath = process.env.CLAUDE_PATH ?? "claude";
+  const cmd = claudePath.endsWith(".js") ? process.execPath : claudePath;
+  const args = claudePath.endsWith(".js") ? [claudePath, "--version"] : ["--version"];
   try {
-    const output = execFileSync(claudePath, ["--version"], {
+    const output = execFileSync(cmd, args, {
       stdio: "pipe",
       timeout: 10000,
       env: { ...process.env, NO_COLOR: "1", FORCE_COLOR: "0" },
@@ -66,6 +70,7 @@ export function getClaudeVersion(): string {
 /**
  * Spawn the claude CLI with the given arguments.
  * Sets environment variables to suppress color/ANSI at the source.
+ * Supports .js CLAUDE_PATH for cross-platform testing.
  */
 function spawnClaude(args: string[]): ChildProcess {
   const claudePath = process.env.CLAUDE_PATH ?? "claude";
@@ -78,7 +83,11 @@ function spawnClaude(args: string[]): ChildProcess {
   env.FORCE_COLOR = "0";
   env.TERM = "dumb";
 
-  return spawn(claudePath, args, {
+  // When CLAUDE_PATH points to a .js file, spawn it via node for Windows compat
+  const cmd = claudePath.endsWith(".js") ? process.execPath : claudePath;
+  const spawnArgs = claudePath.endsWith(".js") ? [claudePath, ...args] : args;
+
+  return spawn(cmd, spawnArgs, {
     env,
     stdio: ["pipe", "pipe", "pipe"],
     cwd: process.cwd(),
