@@ -10,7 +10,7 @@ npm run build
 npm test
 ```
 
-Requires Node.js 18 or later.
+Requires Node.js 20 or later.
 
 ## Project structure
 

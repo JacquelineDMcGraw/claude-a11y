@@ -67,7 +67,7 @@ npm link -w packages/node
 claude-sr "explain this project"
 ```
 
-Requires Node.js 18 or later and Claude Code CLI installed.
+Requires Node.js 20 or later and Claude Code CLI installed.
 
 Use --raw to bypass speech formatting and get sanitized plaintext output:
 
@@ -134,7 +134,7 @@ Without claude-a11y, a table built from pipes is announced as a stream of pipe c
 ### CLI
 - Any terminal on macOS, Windows, or Linux
 - Any screen reader: VoiceOver, NVDA, JAWS, Orca
-- Requires Node.js 18 or later
+- Requires Node.js 20 or later
 
 ## Claude Desktop
 
