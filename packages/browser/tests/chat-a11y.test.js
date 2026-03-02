@@ -191,7 +191,7 @@ describe("chat-a11y.js", function () {
       var table = document.querySelector("table");
       expect(table.getAttribute("role")).toBe("table");
       expect(table.getAttribute("tabindex")).toBe("0");
-      expect(table.getAttribute("aria-label")).toBe("[Table, 2 columns]");
+      expect(table.getAttribute("aria-label")).toBe("Table, 2 columns");
 
       var srSpans = document.querySelectorAll(".ca11y-sr-only");
       var texts = [];

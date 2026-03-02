@@ -293,7 +293,7 @@
 
       try {
         var annText = tpl(config.tableStart, { rows: rows.length, cols: cols });
-        table.setAttribute("aria-label", annText);
+        table.setAttribute("aria-label", "Table, " + cols + " columns");
         var ann = createSrSpan(annText, "note");
         table.parentNode.insertBefore(ann, table);
 
