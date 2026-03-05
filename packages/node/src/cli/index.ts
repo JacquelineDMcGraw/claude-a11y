@@ -14,7 +14,7 @@ const VERSION = (() => {
   try {
     return (require("../package.json") as { version: string }).version;
   } catch {
-    return "1.1.0";
+    return "1.2.0";
   }
 })();
 

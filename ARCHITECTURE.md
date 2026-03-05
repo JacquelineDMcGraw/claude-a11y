@@ -7,7 +7,7 @@ claude-a11y formats AI chat responses for screen readers. It transforms rendered
 The project is organized into two packages:
 
 - **packages/browser** -- Self-contained IIFE (`chat-a11y.js`) for DOM transformation, plus the shared announcement phrasing (`phrasing.js`). Used by the Chrome extension and injected into VS Code/Cursor webviews.
-- **packages/node** -- Node.js library and tools. Contains the speech formatter (remark AST), ANSI sanitizer, stream parser, CLI wrapper (claude-sr), and VS Code extension source. Imports phrasing from the browser package at build time.
+- **packages/node** -- Node.js library and tools. Contains the speech formatter (remark AST), ANSI sanitizer, stream parser, CLI wrapper (claude-sr), VS Code extension source, and the Claude Code hooks integration (claude-a11y-hooks). Imports phrasing from the browser package at build time.
 
 Both packages use the same announcement strings defined in `packages/browser/phrasing.js`, the single source of truth.
 
@@ -163,3 +163,39 @@ In the CLI, data flows through these modules in sequence. Raw subprocess output 
 ### stream-parser for JSON streaming mode
 
 `createStreamParser()` accepts raw `Buffer` or `string` chunks from the subprocess stdout. It maintains an internal line buffer, splits on newlines, and passes each complete line to `parseStreamLine()`. The line parser attempts `JSON.parse()` on each line and maps the `type` field to typed event objects. Malformed lines emit a warning to stderr and are skipped. The `flush()` method processes any remaining buffered data when the stream ends.
+
+## Claude Code hooks system (claude-a11y-hooks)
+
+The hooks module (`packages/node/src/hooks/`) integrates with Claude Code's hooks system to intercept tool output and reformat it into screen-reader-friendly summaries. This is complementary to the CLI wrapper: the CLI replaces the terminal UI entirely, while hooks work alongside Claude Code's native interface by transforming the tool output that Claude Code pipes through its hook system.
+
+Based on claude-sonar (MIT) by @vylasaven.
+
+### Hook event flow
+
+Claude Code invokes `claude-a11y-hooks format` for each hook event, passing event JSON via stdin. The pipeline processes the event as follows:
+
+1. `readStdin()` reads the input (5 second timeout, 5 MB limit)
+2. `loadConfig()` loads user config from `~/.config/claude-a11y/hooks/config.json`, merging with defaults
+3. `processHookEvent()` parses the event and dispatches to the appropriate handler based on `hook_event_name`
+4. For PostToolUse events: the tool output is formatted, classified for significance, sequenced, and optionally accumulated into a digest
+5. `buildHookOutput()` constructs the JSON response based on verbosity level
+6. stdout receives the JSON response (always, immediately, before any audio)
+7. Earcon sounds fire (fire-and-forget, non-blocking)
+8. TTS speaks the summary (fire-and-forget, non-blocking)
+9. History is recorded for later browsing
+
+### Formatter registry
+
+Each supported tool has a dedicated formatter registered at startup. Formatters receive the tool input and response objects and return a `FormattedOutput` with `contextText` (for the hook JSON response), `ttsText` (for spoken output), and an optional `earcon` ID. Bash commands are further dispatched to recognizers that detect specific patterns (git status, git diff, npm test, npm install).
+
+### Significance classification
+
+Every event is classified as noise (file reads, glob searches), routine (completed commands, web operations), notable (code edits, package installs, failed commands), or important (test failures). Noise-level events are suppressed from TTS and earcons. Users can override classifications per tool via config.
+
+### Code summarization
+
+When code summarization is enabled, the Read, Write, and Edit formatters extract declarations (functions, classes, interfaces, imports) from file content using language-specific regex patterns. Instead of announcing raw code, the formatter announces "3 functions, 1 class, 2 imports" or lists declaration names.
+
+### Configuration
+
+All settings are stored in `~/.config/claude-a11y/hooks/config.json` following XDG conventions. State data (history, digests, progress, sequence counters) is stored in `~/.local/state/claude-a11y/hooks/`. Config supports dotted key paths (`tts.enabled`, `earcon.volume`, `significance.overrides.Read`) and guards against prototype pollution.
