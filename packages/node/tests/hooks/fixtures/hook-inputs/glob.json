@@ -1,0 +1,9 @@
+{
+  "tool_name": "Glob",
+  "tool_input": {
+    "pattern": "**/*.ts"
+  },
+  "tool_response": {
+    "output": "src/index.ts\nsrc/utils.ts\nsrc/types.ts"
+  }
+}

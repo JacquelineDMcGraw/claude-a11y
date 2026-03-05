@@ -1,0 +1,10 @@
+{
+  "tool_name": "Bash",
+  "tool_input": {
+    "command": "ls -la"
+  },
+  "tool_response": {
+    "exitCode": 0,
+    "stdout": "total 8\ndrwxr-xr-x  2 user staff 64 Jan 1 00:00 .\ndrwxr-xr-x 10 user staff 320 Jan 1 00:00 .."
+  }
+}

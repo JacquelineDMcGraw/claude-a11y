@@ -1,0 +1,9 @@
+{
+  "tool_name": "Edit",
+  "tool_input": {
+    "file_path": "/src/index.ts",
+    "old_string": "const x = 1;",
+    "new_string": "const x = 2;\nconst y = 3;"
+  },
+  "tool_response": {}
+}
