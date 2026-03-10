@@ -77,6 +77,14 @@ describe("applySignificance", () => {
     expect(original.contextText).toBe("ctx");
   });
 
+  it("preserves extra properties on formatted output for important", () => {
+    const extended = { contextText: "ctx", ttsText: "tts", extra: "value" } as FormattedOutput & { extra: string };
+    const sig: SignificanceResult = { level: "important", reason: "test failure" };
+    const result = applySignificance(extended, sig) as FormattedOutput & { extra?: string };
+    expect(result.extra).toBe("value");
+    expect(result.ttsText).toBe("Important: tts");
+  });
+
   it("handles multiline contextText for noise (keeps first line)", () => {
     const multi: FormattedOutput = {
       contextText: "First line summary\nSecond line details\nThird line",
