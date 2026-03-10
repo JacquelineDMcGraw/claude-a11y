@@ -35,7 +35,7 @@ export function applySignificance(
 
     case "important":
       return {
-        contextText: formatted.contextText,
+        ...formatted,
         ttsText: formatted.ttsText
           ? `Important: ${formatted.ttsText}`
           : "",
