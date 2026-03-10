@@ -59,7 +59,7 @@ describe("playEarcon", () => {
     playEarcon("done", earconConfig({ engine: "canberra-gtk-play" }));
     expect(spawn).toHaveBeenCalledWith(
       "canberra-gtk-play",
-      ["-i", "bell", "--volume", "50"],
+      ["-i", "bell", "--volume", "-6"],
       expect.objectContaining({ detached: true, stdio: "ignore" }),
     );
   });

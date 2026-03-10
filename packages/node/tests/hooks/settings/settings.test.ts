@@ -68,9 +68,9 @@ describe("settings", () => {
       expect(settings.hooks.PostToolUse).toHaveLength(1);
       expect(settings.hooks.Notification).toHaveLength(1);
       expect(settings.hooks.PermissionRequest).toHaveLength(1);
-      expect(settings.hooks.PostToolUse[0].hooks[0].command).toContain("claude-a11y hooks format");
-      expect(settings.hooks.Notification[0].hooks[0].command).toContain("claude-a11y hooks format");
-      expect(settings.hooks.PermissionRequest[0].hooks[0].command).toContain("claude-a11y hooks format");
+      expect(settings.hooks.PostToolUse[0].hooks[0].command).toContain("claude-a11y-hooks format");
+      expect(settings.hooks.Notification[0].hooks[0].command).toContain("claude-a11y-hooks format");
+      expect(settings.hooks.PermissionRequest[0].hooks[0].command).toContain("claude-a11y-hooks format");
     });
 
     it("adds hooks to existing settings without hooks", () => {
@@ -128,13 +128,13 @@ describe("settings", () => {
           hooks: {
             PostToolUse: [
               { matcher: "", hooks: [{ type: "command", command: "other-tool" }] },
-              { matcher: "", hooks: [{ type: "command", command: "claude-a11y hooks format" }] },
+              { matcher: "", hooks: [{ type: "command", command: "claude-a11y-hooks format" }] },
             ],
             Notification: [
-              { matcher: "", hooks: [{ type: "command", command: "claude-a11y hooks format" }] },
+              { matcher: "", hooks: [{ type: "command", command: "claude-a11y-hooks format" }] },
             ],
             PermissionRequest: [
-              { matcher: "", hooks: [{ type: "command", command: "claude-a11y hooks format" }] },
+              { matcher: "", hooks: [{ type: "command", command: "claude-a11y-hooks format" }] },
             ],
           },
         },

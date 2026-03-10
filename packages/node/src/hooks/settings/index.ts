@@ -14,7 +14,7 @@ export interface HookEntry {
   hooks: A11yHook[];
 }
 
-const HOOKS_COMMAND_PREFIX = "claude-a11y hooks format";
+const HOOKS_COMMAND_PREFIX = "claude-a11y-hooks format";
 
 /** All hook event types claude-a11y registers for. */
 const HOOK_EVENT_TYPES = [
