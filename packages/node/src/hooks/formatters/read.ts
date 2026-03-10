@@ -1,6 +1,7 @@
 import type { Formatter, PostToolUseInput } from "./types.js";
 import { getSummarizeOptions } from "./summarize-options.js";
 import { summarizeCode, formatCodeSummary, LANGUAGE_MAP } from "../core/code-summarizer.js";
+import { basename } from "./utils.js";
 
 interface ContentAnalysis {
   imports: number;
@@ -119,8 +120,3 @@ export const readFormatter: Formatter = {
     return { contextText, ttsText };
   },
 };
-
-function basename(p: string): string {
-  const parts = p.split("/");
-  return parts[parts.length - 1] || p;
-}

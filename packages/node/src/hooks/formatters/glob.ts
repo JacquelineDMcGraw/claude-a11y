@@ -1,4 +1,5 @@
 import type { Formatter, PostToolUseInput } from "./types.js";
+import { basename } from "./utils.js";
 
 export const globFormatter: Formatter = {
   id: "glob",
@@ -33,8 +34,3 @@ export const globFormatter: Formatter = {
     return { contextText, ttsText };
   },
 };
-
-function basename(p: string): string {
-  const parts = p.split("/");
-  return parts[parts.length - 1] || p;
-}

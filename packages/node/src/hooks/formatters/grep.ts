@@ -1,4 +1,5 @@
 import type { Formatter, PostToolUseInput } from "./types.js";
+import { basename } from "./utils.js";
 
 export const grepFormatter: Formatter = {
   id: "grep",
@@ -59,8 +60,3 @@ export const grepFormatter: Formatter = {
     return { contextText, ttsText };
   },
 };
-
-function basename(p: string): string {
-  const parts = p.split("/");
-  return parts[parts.length - 1] || p;
-}

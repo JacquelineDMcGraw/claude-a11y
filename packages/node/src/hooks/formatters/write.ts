@@ -1,6 +1,7 @@
 import type { Formatter, PostToolUseInput } from "./types.js";
 import { getSummarizeOptions } from "./summarize-options.js";
 import { summarizeCode, formatCodeSummary } from "../core/code-summarizer.js";
+import { basename } from "./utils.js";
 
 const FILE_TYPE_MAP: Record<string, string> = {
   ".ts": "TypeScript",
@@ -62,12 +63,6 @@ export const writeFormatter: Formatter = {
     };
   },
 };
-
-function basename(p: string): string {
-  const parts = p.split("/");
-  return parts[parts.length - 1] || p;
-}
-
 function getExtension(filePath: string): string {
   const dotIdx = filePath.lastIndexOf(".");
   if (dotIdx === -1) return "";

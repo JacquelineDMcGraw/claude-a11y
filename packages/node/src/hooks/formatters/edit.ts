@@ -2,6 +2,7 @@ import type { Formatter, PostToolUseInput } from "./types.js";
 import { analyzeEdit, extractStructuralChanges, formatStructuralChanges } from "./edit-analysis.js";
 import { getSummarizeOptions } from "./summarize-options.js";
 import { summarizeCode, formatCodeSummary } from "../core/code-summarizer.js";
+import { basename } from "./utils.js";
 
 export const editFormatter: Formatter = {
   id: "edit",
@@ -49,8 +50,3 @@ export const editFormatter: Formatter = {
     return { contextText, ttsText };
   },
 };
-
-function basename(p: string): string {
-  const parts = p.split("/");
-  return parts[parts.length - 1] || p;
-}
