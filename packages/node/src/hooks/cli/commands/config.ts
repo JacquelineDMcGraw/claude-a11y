@@ -21,11 +21,10 @@ export function configGetCommand(key: string): void {
  * Config set command.
  */
 export function configSetCommand(key: string, rawValue: string): void {
-  // Parse value: try JSON first, then treat as string
   let value: unknown = rawValue;
   if (rawValue === "true") value = true;
   else if (rawValue === "false") value = false;
-  else if (rawValue !== "" && !isNaN(Number(rawValue))) value = Number(rawValue);
+  else if (/^-?(?:\d+\.?\d*|\.\d+)$/.test(rawValue)) value = Number(rawValue);
 
   try {
     setConfigValue(key, value);
