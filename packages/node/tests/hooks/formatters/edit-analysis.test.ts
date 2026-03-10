@@ -205,6 +205,15 @@ describe("extractStructuralChanges", () => {
     expect(changes).toContainEqual({ type: "modified", kind: "function", name: "loadConfig" });
   });
 
+  it("detects multiple modified declarations when bodies differ", () => {
+    const oldStr = "function alpha() {\n  return 1;\n}\nfunction beta() {\n  return 2;\n}";
+    const newStr = "function alpha() {\n  return 10;\n}\nfunction beta() {\n  return 20;\n}";
+    const changes = extractStructuralChanges(oldStr, newStr);
+    expect(changes).toHaveLength(2);
+    expect(changes).toContainEqual({ type: "modified", kind: "function", name: "alpha" });
+    expect(changes).toContainEqual({ type: "modified", kind: "function", name: "beta" });
+  });
+
   it("detects export function", () => {
     const oldStr = "";
     const newStr = "export function processEvent() {}";

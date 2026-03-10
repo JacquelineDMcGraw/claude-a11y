@@ -292,13 +292,12 @@ export function extractStructuralChanges(oldStr: string, newStr: string, filePat
     }
   }
 
-  // Modified: in both, but code differs (simplified: if same key exists in both, mark as modified)
-  // We only mark modified if the old and new strings actually differ around those declarations
-  if (oldStr !== newStr) {
+  // Modified: in both, but code differs — only when there are no structural adds/removes
+  const noStructuralChanges = changes.length === 0;
+  if (oldStr !== newStr && noStructuralChanges) {
     for (const [key, decl] of newMap) {
-      if (oldMap.has(key) && changes.length === 0) {
+      if (oldMap.has(key)) {
         const rich = richMap.get(key);
-        // If there are no structural adds/removes, but the code changed, existing decls were modified
         changes.push({ type: "modified", kind: decl.kind, name: decl.name, richDeclaration: rich });
       }
     }
