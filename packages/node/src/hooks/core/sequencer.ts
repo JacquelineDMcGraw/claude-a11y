@@ -46,40 +46,46 @@ export function recordAndSequence(
   toolName: string,
 ): SequenceInfo {
   const sessionPath = getSessionPath(sessionId);
+  const lockPath = sessionPath + ".lock";
   const now = Date.now();
 
-  const state = readSessionState(sessionPath);
+  acquireLock(lockPath);
+  try {
+    const state = readSessionState(sessionPath);
 
-  // Prune entries outside the batch window
-  const recentEntries = state.entries.filter(
-    (e) => now - e.timestamp < BATCH_WINDOW_MS,
-  );
+    // Prune entries outside the batch window
+    const recentEntries = state.entries.filter(
+      (e) => now - e.timestamp < BATCH_WINDOW_MS,
+    );
 
-  // Check if this toolUseId is already recorded (idempotent)
-  const existing = recentEntries.findIndex((e) => e.toolUseId === toolUseId);
-  if (existing >= 0) {
+    // Check if this toolUseId is already recorded (idempotent)
+    const existing = recentEntries.findIndex((e) => e.toolUseId === toolUseId);
+    if (existing >= 0) {
+      return {
+        index: existing + 1,
+        batchSize: recentEntries.length,
+      };
+    }
+
+    // Add this entry
+    const newEntry: SessionEntry = {
+      toolUseId,
+      toolName,
+      timestamp: now,
+    };
+    recentEntries.push(newEntry);
+
+    // Write updated state
+    const newState: SessionState = { entries: recentEntries };
+    writeSessionState(sessionPath, newState);
+
     return {
-      index: existing + 1,
+      index: recentEntries.length,
       batchSize: recentEntries.length,
     };
+  } finally {
+    releaseLock(lockPath);
   }
-
-  // Add this entry
-  const newEntry: SessionEntry = {
-    toolUseId,
-    toolName,
-    timestamp: now,
-  };
-  recentEntries.push(newEntry);
-
-  // Write updated state
-  const newState: SessionState = { entries: recentEntries };
-  writeSessionState(sessionPath, newState);
-
-  return {
-    index: recentEntries.length,
-    batchSize: recentEntries.length,
-  };
 }
 
 /**
@@ -106,6 +112,52 @@ export function cleanStaleSessions(): void {
     }
   } catch {
     // Session dir doesn't exist or can't be read — nothing to clean
+  }
+}
+
+const LOCK_RETRY_MS = 5;
+const LOCK_MAX_WAIT_MS = 200;
+const LOCK_STALE_MS = 5000;
+
+function acquireLock(lockPath: string): void {
+  const dir = path.dirname(lockPath);
+  fs.mkdirSync(dir, { recursive: true });
+
+  const deadline = Date.now() + LOCK_MAX_WAIT_MS;
+  while (Date.now() < deadline) {
+    try {
+      fs.writeFileSync(lockPath, String(process.pid), { flag: "wx" });
+      return;
+    } catch (err: unknown) {
+      if ((err as NodeJS.ErrnoException).code === "EEXIST") {
+        // Break stale locks left by crashed processes
+        try {
+          const stat = fs.statSync(lockPath);
+          if (Date.now() - stat.mtimeMs > LOCK_STALE_MS) {
+            fs.unlinkSync(lockPath);
+            continue;
+          }
+        } catch {
+          // Lock disappeared between checks — retry will succeed
+          continue;
+        }
+        const waitUntil = Date.now() + LOCK_RETRY_MS;
+        while (Date.now() < waitUntil) {
+          // busy-wait for a short interval
+        }
+        continue;
+      }
+      throw err;
+    }
+  }
+  // Timed out — proceed without lock rather than blocking the hook pipeline
+}
+
+function releaseLock(lockPath: string): void {
+  try {
+    fs.unlinkSync(lockPath);
+  } catch {
+    // Already cleaned up
   }
 }
 

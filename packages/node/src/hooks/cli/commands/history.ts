@@ -81,14 +81,14 @@ export function historyCommandInteractive(count: number): void {
     console.log("\nUp/Down: navigate | Q: quit");
   }
 
+  if (!process.stdin.isTTY) {
+    console.log("Interactive mode requires a TTY. Use non-interactive mode instead.");
+    return;
+  }
+
   console.log(`${shown.length} event${shown.length !== 1 ? "s" : ""} (interactive mode):`);
   showHelp();
   announceCurrent();
-
-  if (!process.stdin.isTTY) {
-    console.log("\nInteractive mode requires a TTY. Use non-interactive mode instead.");
-    return;
-  }
 
   readline.emitKeypressEvents(process.stdin);
   process.stdin.setRawMode(true);

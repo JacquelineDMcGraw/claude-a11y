@@ -119,16 +119,14 @@ export function tasksCommandInteractive(): void {
     console.log("\nUp/Down: navigate | Right/Enter: details | Left/Esc: back | Q: quit");
   }
 
-  // Display initial state
+  if (!process.stdin.isTTY) {
+    console.log("Interactive mode requires a TTY. Use non-interactive mode instead.");
+    return;
+  }
+
   console.log(`${tasks.length} task${tasks.length !== 1 ? "s" : ""} (interactive mode):`);
   showHelp();
   announceCurrentTask();
-
-  // Set up raw mode for keypress detection
-  if (!process.stdin.isTTY) {
-    console.log("\nInteractive mode requires a TTY. Use non-interactive mode instead.");
-    return;
-  }
 
   readline.emitKeypressEvents(process.stdin);
   process.stdin.setRawMode(true);
