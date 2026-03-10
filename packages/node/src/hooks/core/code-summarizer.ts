@@ -48,7 +48,7 @@ export const LANGUAGE_MAP: Record<string, string> = {
 
 export function detectLanguage(filePath: string): string | null {
   const dotIdx = filePath.lastIndexOf(".");
-  if (dotIdx === -1) return "";
+  if (dotIdx === -1) return null;
   const ext = filePath.slice(dotIdx).toLowerCase();
   return LANGUAGE_MAP[ext] || null;
 }

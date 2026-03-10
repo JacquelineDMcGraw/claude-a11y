@@ -41,8 +41,8 @@ describe("detectLanguage", () => {
     expect(detectLanguage("/file.xyz")).toBeNull();
   });
 
-  it("returns empty string for no extension", () => {
-    expect(detectLanguage("Makefile")).toBe("");
+  it("returns null for no extension", () => {
+    expect(detectLanguage("Makefile")).toBeNull();
   });
 });
 
