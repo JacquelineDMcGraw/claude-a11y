@@ -1,7 +1,7 @@
 {
   "name": "claude-a11y",
   "displayName": "Accessible AI Chat",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Screen-reader-friendly formatting for AI chat responses. CLI wrapper for Claude Code and VS Code extension with ARIA landmarks, code block announcements, and structural annotations.",
   "license": "MIT",
   "author": "Jacqueline McGraw (Jackie's Jawn)",
@@ -42,7 +42,8 @@
   },
   "bin": {
     "claude-sr": "bin/claude-sr.js",
-    "claude-a11y": "bin/claude-sr.js"
+    "claude-a11y": "bin/claude-sr.js",
+    "claude-a11y-hooks": "bin/claude-a11y-hooks.js"
   },
   "main": "./dist/core/index.js",
   "types": "./dist/core/index.d.ts",
@@ -54,6 +55,10 @@
     "./cli": {
       "types": "./dist/cli/index.d.ts",
       "default": "./dist/cli/index.js"
+    },
+    "./hooks": {
+      "types": "./dist/hooks/index.d.ts",
+      "default": "./dist/hooks/index.js"
     }
   },
   "publishConfig": {
@@ -243,7 +248,7 @@
     }
   },
   "scripts": {
-    "build": "tsc -p tsconfig.core.json && tsc -p tsconfig.cli.json",
+    "build": "rm -f tsconfig.*.tsbuildinfo && tsc -p tsconfig.core.json && tsc -p tsconfig.cli.json && tsc -p tsconfig.hooks.json",
     "compile": "node esbuild.mjs",
     "watch": "node esbuild.mjs --watch",
     "package": "node esbuild.mjs --production",
@@ -258,6 +263,7 @@
     "test:speech": "bash ./bin/test-with-speech.sh --say"
   },
   "dependencies": {
+    "commander": "^14.0.3",
     "remark-gfm": "^4.0.1",
     "remark-parse": "^11.0.0",
     "unified": "^11.0.5"

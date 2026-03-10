@@ -1,0 +1,12 @@
+{
+  "tool_name": "Task",
+  "tool_input": {
+    "subagent_type": "Explore",
+    "description": "Find draw functions",
+    "prompt": "Search for all draw-related functions in the codebase"
+  },
+  "tool_response": {
+    "result": "Found 5 draw functions:\n- drawCanvas()\n- drawOverlay()\n- drawBackground()\n- drawSprite()\n- drawUI()",
+    "status": "completed"
+  }
+}
