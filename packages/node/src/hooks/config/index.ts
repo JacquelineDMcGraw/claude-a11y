@@ -79,6 +79,7 @@ function mergeConfig(user: Record<string, unknown>): HooksConfig {
     if (typeof silence["tools"] === "object" && silence["tools"] !== null && !Array.isArray(silence["tools"])) {
       const tools = silence["tools"] as Record<string, unknown>;
       for (const [key, val] of Object.entries(tools)) {
+        if (DANGEROUS_KEYS.has(key)) continue;
         if (typeof val === "boolean") {
           base.silence.tools[key] = val;
         }
@@ -91,6 +92,7 @@ function mergeConfig(user: Record<string, unknown>): HooksConfig {
     if (typeof sig["overrides"] === "object" && sig["overrides"] !== null && !Array.isArray(sig["overrides"])) {
       const overrides = sig["overrides"] as Record<string, unknown>;
       for (const [key, val] of Object.entries(overrides)) {
+        if (DANGEROUS_KEYS.has(key)) continue;
         if (isValidSignificanceLevel(val)) {
           base.significance.overrides[key] = val;
         }

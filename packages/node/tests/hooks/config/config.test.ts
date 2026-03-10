@@ -83,6 +83,39 @@ describe("config", () => {
       a.tts.enabled = true;
       expect(b.tts.enabled).toBe(false);
     });
+
+    it("strips __proto__ from silence.tools", () => {
+      fs.writeFileSync(
+        path.join(tmpDir, "config.json"),
+        JSON.stringify({ silence: { tools: { __proto__: true, Read: true } } }),
+      );
+      const config = loadConfig();
+      expect(config.silence.tools["Read"]).toBe(true);
+      expect(Object.keys(config.silence.tools)).not.toContain("__proto__");
+      expect(({} as Record<string, unknown>)["polluted"]).toBeUndefined();
+    });
+
+    it("strips __proto__ from significance.overrides", () => {
+      fs.writeFileSync(
+        path.join(tmpDir, "config.json"),
+        JSON.stringify({ significance: { overrides: { __proto__: "noise", Read: "noise" } } }),
+      );
+      const config = loadConfig();
+      expect(config.significance.overrides["Read"]).toBe("noise");
+      expect(Object.keys(config.significance.overrides)).not.toContain("__proto__");
+      expect(({} as Record<string, unknown>)["polluted"]).toBeUndefined();
+    });
+
+    it("strips __proto__ from earcon.overrides", () => {
+      fs.writeFileSync(
+        path.join(tmpDir, "config.json"),
+        JSON.stringify({ earcon: { overrides: { __proto__: "chime", Edit: "chime" } } }),
+      );
+      const config = loadConfig();
+      expect(config.earcon.overrides["Edit"]).toBe("chime");
+      expect(Object.keys(config.earcon.overrides)).not.toContain("__proto__");
+      expect(({} as Record<string, unknown>)["polluted"]).toBeUndefined();
+    });
   });
 
   describe("setConfigValue", () => {
