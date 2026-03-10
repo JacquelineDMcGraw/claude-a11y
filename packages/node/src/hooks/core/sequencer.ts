@@ -25,7 +25,7 @@ interface SessionState {
  * Prevents path traversal by replacing non-alphanumeric chars.
  */
 function sanitizeSessionId(sessionId: string): string {
-  return sessionId.replace(/[^a-zA-Z0-9_-]/g, "_").slice(0, 64);
+  return sessionId.replace(/[^a-zA-Z0-9_-]/g, "_");
 }
 
 function getSessionDir(): string {

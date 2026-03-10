@@ -104,4 +104,4 @@ configCmd
     configResetCommand();
   });
 
-program.parse();
+program.parseAsync();
