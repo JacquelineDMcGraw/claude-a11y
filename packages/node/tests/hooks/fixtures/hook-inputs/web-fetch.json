@@ -1,0 +1,9 @@
+{
+  "tool_name": "WebFetch",
+  "tool_input": {
+    "url": "https://example.com/api/docs"
+  },
+  "tool_response": {
+    "content": "API documentation content..."
+  }
+}

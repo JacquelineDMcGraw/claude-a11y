@@ -1,0 +1,8 @@
+{
+  "tool_name": "Write",
+  "tool_input": {
+    "file_path": "/src/new-file.ts",
+    "content": "export const a = 1;\nexport const b = 2;\n"
+  },
+  "tool_response": {}
+}

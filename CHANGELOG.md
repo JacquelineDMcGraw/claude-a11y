@@ -1,5 +1,33 @@
 # Changelog
 
+## 1.2.0 (2026-03-05)
+
+### Claude Code hooks integration (packages/node)
+
+Integrated the claude-sonar hooks framework by @vylasaven, adapted and rebranded for claude-a11y. This adds a new `claude-a11y-hooks` CLI that intercepts Claude Code's tool output via the hooks system and reformats it into screen-reader-friendly summaries.
+
+- 14 tool formatters: tailored summaries for Bash, Edit, Read, Write, Grep, Glob, Task, TaskCreate, TaskUpdate, TaskList, TaskGet, WebSearch, WebFetch, plus a fallback formatter for unknown tools
+- Bash recognizers: specialized formatters for git status, git diff, npm test, npm install, with a generic fallback
+- Significance classification: categorizes events as noise, routine, notable, or important to suppress noisy output and highlight what matters
+- Earcon sounds: short audio cues mapped to events (chime for test pass, thud for test fail, alert for errors, etc.) using system sounds on macOS (afplay) and Linux (canberra-gtk-play)
+- TTS support: optional spoken announcements via say (macOS) or spd-say/espeak (Linux) with configurable rate and max length
+- Code summarization: extracts function, class, and import declarations from TypeScript, JavaScript, Python, Rust, Go, Java, and Shell scripts instead of reading raw code
+- Structural edit analysis: detects renames, additions, removals, and structural changes in edited files
+- Digest system: accumulates tool events during a session and produces a summary at the end
+- Session history: JSONL event log for browsing past hook events
+- Progress timing: tracks how long each tool invocation takes
+- Result sequencing: groups parallel tool results with "Result N of M" annotations
+- Task tracking: monitors task status changes across turns
+- Configurable verbosity: compact, minimal, normal, and full detail levels
+- Permission rules: auto-allow or auto-deny specific tools by pattern
+- Hook registration: `claude-a11y-hooks setup` installs hooks for 9 event types (PreToolUse, PostToolUse, Notification, PermissionRequest, Stop, SubagentStart, SubagentStop, PostToolUseFailure, TaskCompleted) in Claude Code settings.json
+- XDG-compliant config and state directories at ~/.config/claude-a11y/hooks/ and ~/.local/state/claude-a11y/hooks/
+- 545 tests adapted and passing for all hooks functionality
+
+Attribution: Based on claude-sonar (MIT) by @vylasaven. See https://github.com/vylasaven/claude-sonar
+
+---
+
 ## 1.1.0 (2026-03-02)
 
 ### Browser extension (packages/browser)

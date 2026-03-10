@@ -1,0 +1,10 @@
+{
+  "tool_name": "Bash",
+  "tool_input": {
+    "command": "cat nonexistent"
+  },
+  "tool_response": {
+    "exitCode": 1,
+    "stdout": "cat: nonexistent: No such file or directory"
+  }
+}
