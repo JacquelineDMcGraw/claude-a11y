@@ -33,11 +33,15 @@ export function speakLinux(text: string, rate: number): void {
   }
 }
 
+let cachedEngine: "spd-say" | "espeak" | null = null;
+
 function detectLinuxEngine(): "spd-say" | "espeak" {
+  if (cachedEngine) return cachedEngine;
   try {
     execFileSync("which", ["spd-say"], { stdio: "ignore" });
-    return "spd-say";
+    cachedEngine = "spd-say";
   } catch {
-    return "espeak";
+    cachedEngine = "espeak";
   }
+  return cachedEngine;
 }

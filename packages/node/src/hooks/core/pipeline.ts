@@ -81,9 +81,28 @@ export function processHookEvent(rawInput: string, config: HooksConfig): FormatR
     case "PreToolUse":
       return handlePreToolUse(event as PreToolUseEvent, config);
     case "PostToolUse":
-    default:
       return handlePostToolUse(event as PostToolUseEvent, config);
+    default:
+      return handleUnknownEvent(event, config);
   }
+}
+
+/**
+ * Handle unknown/unrecognized event types with a safe passthrough.
+ */
+function handleUnknownEvent(event: HookEvent, config: HooksConfig): FormatResult {
+  const formatted: FormattedOutput = {
+    contextText: `Unrecognized event: ${event.hook_event_name}.`,
+    ttsText: "",
+  };
+
+  const hookOutput = buildHookOutput({
+    formatted,
+    verbosity: config.verbosity,
+    eventName: event.hook_event_name,
+  });
+
+  return { hookOutput, ttsText: null, earcon: null };
 }
 
 /**

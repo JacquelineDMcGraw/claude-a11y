@@ -6,7 +6,7 @@ describe("writeFormatter", () => {
   it("formats file write with type detection", () => {
     const result = writeFormatter.format(fixture);
     expect(result.contextText).toContain("/src/new-file.ts");
-    expect(result.contextText).toContain("3 lines");
+    expect(result.contextText).toContain("2 lines");
     expect(result.contextText).toContain("[TypeScript]");
     expect(result.ttsText).toContain("new-file.ts");
   });

@@ -44,27 +44,26 @@ export function appendToHistory(
 
   const line = JSON.stringify(entry) + "\n";
 
-  // Check if we need to trim
-  let existingLines = 0;
+  // Read existing content once and decide whether to trim
+  let existingContent: string | null = null;
   try {
-    const content = fs.readFileSync(historyPath, "utf-8");
-    existingLines = content.split("\n").filter((l) => l.trim()).length;
+    existingContent = fs.readFileSync(historyPath, "utf-8");
   } catch {
     // File doesn't exist yet
   }
 
-  if (existingLines >= maxEntries) {
-    // Trim oldest entries: keep last (maxEntries - 1) + new one
-    try {
-      const content = fs.readFileSync(historyPath, "utf-8");
-      const lines = content.split("\n").filter((l) => l.trim());
+  if (existingContent !== null) {
+    const lines = existingContent.split("\n").filter((l) => l.trim());
+    if (lines.length >= maxEntries) {
       const keep = lines.slice(lines.length - (maxEntries - 1));
       const tmpPath = historyPath + ".tmp";
-      fs.writeFileSync(tmpPath, keep.join("\n") + "\n" + line, "utf-8");
-      fs.renameSync(tmpPath, historyPath);
-      return;
-    } catch {
-      // Fall through to simple append
+      try {
+        fs.writeFileSync(tmpPath, keep.join("\n") + "\n" + line, "utf-8");
+        fs.renameSync(tmpPath, historyPath);
+        return;
+      } catch {
+        // Fall through to simple append
+      }
     }
   }
 

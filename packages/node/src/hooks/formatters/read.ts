@@ -1,7 +1,7 @@
 import type { Formatter, PostToolUseInput } from "./types.js";
 import { getSummarizeOptions } from "./summarize-options.js";
 import { summarizeCode, formatCodeSummary, LANGUAGE_MAP } from "../core/code-summarizer.js";
-import { basename } from "./utils.js";
+import { basename, countLines } from "./utils.js";
 
 interface ContentAnalysis {
   imports: number;
@@ -81,7 +81,7 @@ export const readFormatter: Formatter = {
   format(input: PostToolUseInput) {
     const filePath = String(input.tool_input["file_path"] || "unknown file");
     const content = String(input.tool_response["content"] || input.tool_response["output"] || "");
-    const lineCount = content ? content.split("\n").filter(Boolean).length : 0;
+    const lineCount = content ? countLines(content) : 0;
 
     const analysis = analyzeContent(content, filePath);
     const langSuffix = analysis.language ? ` [${analysis.language}]` : "";

@@ -1,7 +1,7 @@
 import type { Formatter, PostToolUseInput } from "./types.js";
 import { getSummarizeOptions } from "./summarize-options.js";
 import { summarizeCode, formatCodeSummary } from "../core/code-summarizer.js";
-import { basename } from "./utils.js";
+import { basename, countLines } from "./utils.js";
 
 const FILE_TYPE_MAP: Record<string, string> = {
   ".ts": "TypeScript",
@@ -32,7 +32,7 @@ export const writeFormatter: Formatter = {
   format(input: PostToolUseInput) {
     const filePath = String(input.tool_input["file_path"] || "unknown file");
     const content = String(input.tool_input["content"] || "");
-    const lineCount = content ? content.split("\n").length : 0;
+    const lineCount = content ? countLines(content) : 0;
 
     const ext = getExtension(filePath);
     const fileType = FILE_TYPE_MAP[ext];

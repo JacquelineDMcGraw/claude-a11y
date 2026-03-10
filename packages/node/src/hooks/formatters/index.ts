@@ -62,6 +62,7 @@ export function clearFormatters(): void {
  * Register all built-in formatters.
  */
 export function registerBuiltinFormatters(): void {
+  formatterMap.clear();
   registerFormatter(bashFormatter);
   registerFormatter(editFormatter);
   registerFormatter(writeFormatter);

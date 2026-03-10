@@ -115,14 +115,8 @@ function classifyBash(
   const exitNum = typeof exitCode === "number" ? exitCode : parseInt(String(exitCode), 10);
   const failed = !isNaN(exitNum) && exitNum !== 0;
 
-  // Check noise patterns first
-  for (const pattern of NOISE_BASH_PATTERNS) {
-    if (pattern.test(command)) {
-      return { level: "noise", reason: "read-only command" };
-    }
-  }
-
-  // Test commands
+  // Check high-impact patterns first so compound commands like
+  // "git diff && npm test" aren't misclassified as noise.
   for (const pattern of TEST_PATTERNS) {
     if (pattern.test(command)) {
       return failed
@@ -131,10 +125,16 @@ function classifyBash(
     }
   }
 
-  // Install commands
   for (const pattern of INSTALL_PATTERNS) {
     if (pattern.test(command)) {
       return { level: "notable", reason: "package install" };
+    }
+  }
+
+  // Noise patterns only if no higher-significance pattern matched
+  for (const pattern of NOISE_BASH_PATTERNS) {
+    if (pattern.test(command)) {
+      return { level: "noise", reason: "read-only command" };
     }
   }
 
