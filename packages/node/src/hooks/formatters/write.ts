@@ -64,7 +64,8 @@ export const writeFormatter: Formatter = {
   },
 };
 function getExtension(filePath: string): string {
-  const dotIdx = filePath.lastIndexOf(".");
-  if (dotIdx === -1) return "";
-  return filePath.slice(dotIdx).toLowerCase();
+  const name = basename(filePath);
+  const dotIdx = name.lastIndexOf(".");
+  if (dotIdx <= 0) return "";
+  return name.slice(dotIdx).toLowerCase();
 }

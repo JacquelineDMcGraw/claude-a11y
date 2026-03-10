@@ -23,12 +23,14 @@ export function speakLinux(text: string, rate: number): void {
       detached: true,
       stdio: "ignore",
     });
+    child.on("error", () => {});
     child.unref();
   } else {
     const child = spawn("espeak", ["-s", String(rate), "--", text], {
       detached: true,
       stdio: "ignore",
     });
+    child.on("error", () => {});
     child.unref();
   }
 }

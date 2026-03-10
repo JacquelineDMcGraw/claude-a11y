@@ -51,7 +51,7 @@ export function applySignificance(
  * Keeps only the first line (usually the summary).
  */
 function shortenContext(text: string): string {
-  const firstLine = text.split("\n")[0] || "";
+  const firstLine = text.split(/\r?\n/)[0] || "";
   return firstLine.length > 120
     ? firstLine.slice(0, 117) + "..."
     : firstLine;

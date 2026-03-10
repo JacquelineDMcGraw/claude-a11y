@@ -23,5 +23,6 @@ export function playLinux(soundName: string, volume: number): void {
       stdio: "ignore",
     },
   );
+  child.on("error", () => {});
   child.unref();
 }

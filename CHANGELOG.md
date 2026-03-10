@@ -22,7 +22,7 @@ Integrated the claude-sonar hooks framework by @vylasaven, adapted and rebranded
 - Permission rules: auto-allow or auto-deny specific tools by pattern
 - Hook registration: `claude-a11y-hooks setup` installs hooks for 9 event types (PreToolUse, PostToolUse, Notification, PermissionRequest, Stop, SubagentStart, SubagentStop, PostToolUseFailure, TaskCompleted) in Claude Code settings.json
 - XDG-compliant config and state directories at ~/.config/claude-a11y/hooks/ and ~/.local/state/claude-a11y/hooks/
-- 545 tests adapted and passing for all hooks functionality
+- 755 tests adapted and passing for all hooks functionality
 
 Attribution: Based on claude-sonar (MIT) by @vylasaven. See https://github.com/vylasaven/claude-sonar
 

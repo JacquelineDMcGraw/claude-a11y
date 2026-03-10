@@ -11,6 +11,7 @@ import { appendToHistory } from "../../core/history.js";
  * MUST always write valid JSON to stdout. MUST never exit non-zero.
  */
 export async function formatCommand(): Promise<void> {
+  let stdoutWritten = false;
   try {
     const raw = await readStdin(process.stdin, { timeoutMs: 5000, maxBytes: 5_000_000 });
     const config = loadConfig();
@@ -18,20 +19,20 @@ export async function formatCommand(): Promise<void> {
 
     // stdout first, always — never blocked by audio
     process.stdout.write(JSON.stringify(result.hookOutput));
+    stdoutWritten = true;
 
-    // Earcon (fire-and-forget)
-    if (result.earcon && config.earcon.enabled) {
-      playEarcon(result.earcon, config.earcon);
-    }
+    // Earcon, TTS, and history are non-fatal side effects.
+    // Wrap them so they never reach the outer catch (which would double-write stdout).
+    try {
+      if (result.earcon && config.earcon.enabled) {
+        playEarcon(result.earcon, config.earcon);
+      }
 
-    // TTS (fire-and-forget)
-    if (result.ttsText && config.tts.enabled) {
-      speak(result.ttsText, config.tts);
-    }
+      if (result.ttsText && config.tts.enabled) {
+        speak(result.ttsText, config.tts);
+      }
 
-    // History recording (non-fatal)
-    if (config.history.enabled) {
-      try {
+      if (config.history.enabled) {
         const event = parseHookEvent(raw);
         const toolName =
           "tool_name" in event ? (event as { tool_name: string }).tool_name : undefined;
@@ -46,12 +47,14 @@ export async function formatCommand(): Promise<void> {
           },
           config.history.maxEntries,
         );
-      } catch {
-        // History failure is never fatal
       }
+    } catch {
+      // Side-effect failures are never fatal
     }
   } catch {
     // ALWAYS return valid JSON, even on total failure
-    process.stdout.write(JSON.stringify({}));
+    if (!stdoutWritten) {
+      process.stdout.write(JSON.stringify({}));
+    }
   }
 }

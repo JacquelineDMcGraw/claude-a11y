@@ -59,11 +59,9 @@ export function world(): void {}`;
   it("falls back to counts when no declarations found", () => {
     setSummarizeOptions({ enabled: true, maxDeclarations: 20, maxTtsNames: 3 });
     const content = `// just a comment
-const x = 42;
-console.log(x);`;
+console.log(42);`;
     const result = readFormatter.format(makeReadInput("/src/app.ts", content));
-    // const is detected as a declaration, so this should show it
-    expect(result.contextText).toContain("const x");
+    expect(result.contextText).not.toContain("Defines:");
   });
 
   it("includes top N names in TTS", () => {

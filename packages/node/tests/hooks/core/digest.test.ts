@@ -183,7 +183,10 @@ describe("loadMostRecentDigest", () => {
 
   it("returns the most recent digest", () => {
     saveLastDigest("old-session", "Old digest.");
-    // Small delay to ensure different mtime
+    const oldFile = path.join(tmpDir, "claude-a11y", "hooks", "digests", "old-session.last.json");
+    const past = new Date(Date.now() - 2000);
+    fs.utimesSync(oldFile, past, past);
+
     saveLastDigest("new-session", "New digest.");
     const result = loadMostRecentDigest();
     expect(result).toBe("New digest.");

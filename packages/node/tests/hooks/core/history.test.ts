@@ -82,7 +82,10 @@ describe("event history", () => {
 
     it("returns the most recent session history", () => {
       appendToHistory("session-old", makeEntry({ ttsText: "Old" }));
-      // Wait a tiny bit so mtime differs
+      const oldFile = path.join(tmpDir, "claude-a11y", "hooks", "history", "session-old.jsonl");
+      const past = new Date(Date.now() - 2000);
+      fs.utimesSync(oldFile, past, past);
+
       appendToHistory("session-new", makeEntry({ ttsText: "New" }));
 
       const result = loadMostRecentHistory();

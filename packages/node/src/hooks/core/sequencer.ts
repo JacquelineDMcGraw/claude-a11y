@@ -1,6 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { getStateDir } from "../config/index.js";
+import { acquireLock, releaseLock } from "./file-lock.js";
 
 const BATCH_WINDOW_MS = 500;
 const STALE_SESSION_MS = 60 * 60 * 1000; // 1 hour
@@ -49,7 +50,7 @@ export function recordAndSequence(
   const lockPath = sessionPath + ".lock";
   const now = Date.now();
 
-  acquireLock(lockPath);
+  const lockAcquired = acquireLock(lockPath);
   try {
     const state = readSessionState(sessionPath);
 
@@ -84,7 +85,7 @@ export function recordAndSequence(
       batchSize: recentEntries.length,
     };
   } finally {
-    releaseLock(lockPath);
+    if (lockAcquired) releaseLock(lockPath);
   }
 }
 
@@ -112,52 +113,6 @@ export function cleanStaleSessions(): void {
     }
   } catch {
     // Session dir doesn't exist or can't be read — nothing to clean
-  }
-}
-
-const LOCK_RETRY_MS = 5;
-const LOCK_MAX_WAIT_MS = 200;
-const LOCK_STALE_MS = 5000;
-
-function acquireLock(lockPath: string): void {
-  const dir = path.dirname(lockPath);
-  fs.mkdirSync(dir, { recursive: true });
-
-  const deadline = Date.now() + LOCK_MAX_WAIT_MS;
-  while (Date.now() < deadline) {
-    try {
-      fs.writeFileSync(lockPath, String(process.pid), { flag: "wx" });
-      return;
-    } catch (err: unknown) {
-      if ((err as NodeJS.ErrnoException).code === "EEXIST") {
-        // Break stale locks left by crashed processes
-        try {
-          const stat = fs.statSync(lockPath);
-          if (Date.now() - stat.mtimeMs > LOCK_STALE_MS) {
-            fs.unlinkSync(lockPath);
-            continue;
-          }
-        } catch {
-          // Lock disappeared between checks — retry will succeed
-          continue;
-        }
-        const waitUntil = Date.now() + LOCK_RETRY_MS;
-        while (Date.now() < waitUntil) {
-          // busy-wait for a short interval
-        }
-        continue;
-      }
-      throw err;
-    }
-  }
-  // Timed out — proceed without lock rather than blocking the hook pipeline
-}
-
-function releaseLock(lockPath: string): void {
-  try {
-    fs.unlinkSync(lockPath);
-  } catch {
-    // Already cleaned up
   }
 }
 

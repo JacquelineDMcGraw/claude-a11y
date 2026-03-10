@@ -6,6 +6,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { getStateDir } from "../config/index.js";
+import { acquireLock, releaseLock } from "./file-lock.js";
 
 export interface HistoryEntry {
   timestamp: number;
@@ -39,35 +40,40 @@ export function appendToHistory(
   if (!sessionId) return;
 
   const historyPath = getHistoryPath(sessionId);
+  const lockPath = historyPath + ".lock";
   const dir = path.dirname(historyPath);
   fs.mkdirSync(dir, { recursive: true });
 
-  const line = JSON.stringify(entry) + "\n";
-
-  // Read existing content once and decide whether to trim
-  let existingContent: string | null = null;
+  const lockAcquired = acquireLock(lockPath);
   try {
-    existingContent = fs.readFileSync(historyPath, "utf-8");
-  } catch {
-    // File doesn't exist yet
-  }
+    const line = JSON.stringify(entry) + "\n";
 
-  if (existingContent !== null) {
-    const lines = existingContent.split("\n").filter((l) => l.trim());
-    if (lines.length >= maxEntries) {
-      const keep = lines.slice(lines.length - (maxEntries - 1));
-      const tmpPath = historyPath + ".tmp";
-      try {
-        fs.writeFileSync(tmpPath, keep.join("\n") + "\n" + line, "utf-8");
-        fs.renameSync(tmpPath, historyPath);
-        return;
-      } catch {
-        // Fall through to simple append
+    let existingContent: string | null = null;
+    try {
+      existingContent = fs.readFileSync(historyPath, "utf-8");
+    } catch {
+      // File doesn't exist yet
+    }
+
+    if (existingContent !== null) {
+      const lines = existingContent.split("\n").filter((l) => l.trim());
+      if (lines.length >= maxEntries) {
+        const keep = lines.slice(lines.length - (maxEntries - 1));
+        const tmpPath = historyPath + ".tmp";
+        try {
+          fs.writeFileSync(tmpPath, keep.join("\n") + "\n" + line, "utf-8");
+          fs.renameSync(tmpPath, historyPath);
+          return;
+        } catch {
+          // Fall through to simple append
+        }
       }
     }
-  }
 
-  fs.appendFileSync(historyPath, line, "utf-8");
+    fs.appendFileSync(historyPath, line, "utf-8");
+  } finally {
+    if (lockAcquired) releaseLock(lockPath);
+  }
 }
 
 /**

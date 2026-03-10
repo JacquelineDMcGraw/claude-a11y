@@ -9,5 +9,6 @@ export function speakMacos(text: string, rate: number): void {
     detached: true,
     stdio: "ignore",
   });
+  child.on("error", () => {});
   child.unref();
 }

@@ -9,5 +9,6 @@ export function playMacos(soundPath: string, volume: number): void {
     detached: true,
     stdio: "ignore",
   });
+  child.on("error", () => {});
   child.unref();
 }

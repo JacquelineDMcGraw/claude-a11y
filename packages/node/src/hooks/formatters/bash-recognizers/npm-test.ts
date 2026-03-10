@@ -7,8 +7,8 @@ export const npmTestRecognizer: BashRecognizer = {
     const trimmed = command.trim();
     return (
       /^(npm\s+test|npx\s+vitest|npx\s+jest|yarn\s+test|pnpm\s+test)/.test(trimmed) ||
-      /vitest\s+(run|watch)?/.test(trimmed) ||
-      /jest\s/.test(trimmed)
+      /^vitest(?:\s+(run|watch))?(?:\s|$)/.test(trimmed) ||
+      /^jest(?:\s|$)/.test(trimmed)
     );
   },
 
@@ -34,8 +34,10 @@ export const npmTestRecognizer: BashRecognizer = {
     if (passed === 0 && failed === 0 && jestMatch) {
       const jestPassed = jestMatch[1]?.match(/(\d+)\s*passed/);
       const jestFailedM = jestMatch[1]?.match(/(\d+)\s*failed/);
+      const jestSkipped = jestMatch[1]?.match(/(\d+)\s*skipped/);
       if (jestPassed) passed = parseInt(jestPassed[1]!, 10);
       if (jestFailedM) failed = parseInt(jestFailedM[1]!, 10);
+      if (jestSkipped) skipped = parseInt(jestSkipped[1]!, 10);
     }
 
     const total = passed + failed + skipped;
@@ -62,7 +64,9 @@ export const npmTestRecognizer: BashRecognizer = {
       ttsText:
         failed > 0
           ? `Tests: ${failed} failed, ${passed} passed.`
-          : `All ${passed} tests passed.`,
+          : skipped > 0
+            ? `${passed} passed, ${skipped} skipped.`
+            : `All ${passed} tests passed.`,
     };
   },
 };

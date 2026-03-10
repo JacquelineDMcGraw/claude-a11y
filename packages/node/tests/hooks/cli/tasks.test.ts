@@ -96,8 +96,10 @@ describe("tasksCommandNonInteractive", () => {
     saveTaskSnapshot("old-session", [
       { id: "1", subject: "Old task", status: "pending" },
     ]);
+    const oldFile = path.join(tmpDir, "claude-a11y", "hooks", "tasks", "old-session.json");
+    const past = new Date(Date.now() - 2000);
+    fs.utimesSync(oldFile, past, past);
 
-    // Brief pause to ensure different mtime
     saveTaskSnapshot("new-session", [
       { id: "2", subject: "New task", status: "pending" },
     ]);

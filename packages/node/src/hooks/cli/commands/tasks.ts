@@ -153,7 +153,7 @@ export function tasksCommandInteractive(): void {
       }
       currentIndex = Math.min(tasks.length - 1, currentIndex + 1);
       announceCurrentTask();
-    } else if (key.name === "right" || key.name === "return") {
+    } else if ((key.name === "right" || key.name === "return") && !inDetail) {
       showDetail();
     } else if (key.name === "left" || key.name === "escape") {
       if (inDetail) {

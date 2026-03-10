@@ -6,6 +6,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { getStateDir } from "../config/index.js";
+import { acquireLock, releaseLock } from "./file-lock.js";
 
 interface ProgressEntry {
   toolName: string;
@@ -33,36 +34,41 @@ function getProgressPath(sessionId: string): string {
  */
 export function recordToolStart(sessionId: string, toolUseId: string, toolName: string): void {
   const progressPath = getProgressPath(sessionId);
+  const lockPath = progressPath + ".lock";
   const dir = path.dirname(progressPath);
   fs.mkdirSync(dir, { recursive: true });
 
-  let state: ProgressState = { entries: {} };
+  const lockAcquired = acquireLock(lockPath);
   try {
-    const raw = fs.readFileSync(progressPath, "utf-8");
-    const parsed = JSON.parse(raw) as unknown;
-    if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
-      const p = parsed as { entries?: unknown };
-      if (typeof p.entries === "object" && p.entries !== null && !Array.isArray(p.entries)) {
-        state = parsed as ProgressState;
+    let state: ProgressState = { entries: {} };
+    try {
+      const raw = fs.readFileSync(progressPath, "utf-8");
+      const parsed = JSON.parse(raw) as unknown;
+      if (typeof parsed === "object" && parsed !== null && !Array.isArray(parsed)) {
+        const p = parsed as { entries?: unknown };
+        if (typeof p.entries === "object" && p.entries !== null && !Array.isArray(p.entries)) {
+          state = parsed as ProgressState;
+        }
+      }
+    } catch {
+      // Start fresh
+    }
+
+    const cutoff = Date.now() - 5 * 60 * 1000;
+    for (const [id, entry] of Object.entries(state.entries)) {
+      if (entry.startMs < cutoff) {
+        delete state.entries[id];
       }
     }
-  } catch {
-    // Start fresh
+
+    state.entries[toolUseId] = { toolName, startMs: Date.now() };
+
+    const tmpPath = progressPath + ".tmp";
+    fs.writeFileSync(tmpPath, JSON.stringify(state), "utf-8");
+    fs.renameSync(tmpPath, progressPath);
+  } finally {
+    if (lockAcquired) releaseLock(lockPath);
   }
-
-  // Prune entries older than 5 minutes
-  const cutoff = Date.now() - 5 * 60 * 1000;
-  for (const [id, entry] of Object.entries(state.entries)) {
-    if (entry.startMs < cutoff) {
-      delete state.entries[id];
-    }
-  }
-
-  state.entries[toolUseId] = { toolName, startMs: Date.now() };
-
-  const tmpPath = progressPath + ".tmp";
-  fs.writeFileSync(tmpPath, JSON.stringify(state), "utf-8");
-  fs.renameSync(tmpPath, progressPath);
 }
 
 /**

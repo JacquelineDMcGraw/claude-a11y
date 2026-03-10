@@ -40,7 +40,7 @@ describe("summarize CLI command", () => {
     expect(spy).toHaveBeenCalledWith("Code summarization disabled.");
   });
 
-  it("shows status when called without args", () => {
+  it("shows status when called with status action", () => {
     const spy = vi.spyOn(console, "log").mockImplementation(() => {});
     summarizeCommand("status");
     expect(spy).toHaveBeenCalledWith("Code summarization is off.");

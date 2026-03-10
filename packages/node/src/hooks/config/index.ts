@@ -171,6 +171,9 @@ function isValidPermissionRule(v: unknown): v is import("./types.js").Permission
  * Guards against prototype pollution.
  */
 export function setConfigValue(key: string, value: unknown): void {
+  if (!key || key.trim() === "") {
+    throw new Error("Config key cannot be empty");
+  }
   const parts = key.split(".");
   for (const part of parts) {
     if (DANGEROUS_KEYS.has(part)) {

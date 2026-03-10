@@ -117,9 +117,10 @@ export function historyCommandInteractive(count: number): void {
  * Main history command entry point.
  */
 export function historyCommand(interactive: boolean, count: number): void {
+  const safeCount = Number.isInteger(count) && count > 0 ? count : 20;
   if (interactive) {
-    historyCommandInteractive(count);
+    historyCommandInteractive(safeCount);
   } else {
-    historyCommandNonInteractive(count);
+    historyCommandNonInteractive(safeCount);
   }
 }

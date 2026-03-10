@@ -182,10 +182,18 @@ export const taskGetFormatter: Formatter = {
 function mergeSnapshots(previous: TaskSnapshot[], updates: TaskSnapshot[]): TaskSnapshot[] {
   const map = new Map<string, TaskSnapshot>();
   for (const t of previous) {
-    map.set(t.id, t);
+    map.set(t.id, { ...t });
   }
-  for (const t of updates) {
-    map.set(t.id, t);
+  for (const incoming of updates) {
+    const existing = map.get(incoming.id);
+    if (!existing) {
+      map.set(incoming.id, incoming);
+    } else {
+      if (incoming.subject) existing.subject = incoming.subject;
+      if (incoming.status && incoming.status !== "pending") existing.status = incoming.status;
+      if (incoming.description) existing.description = incoming.description;
+      if (incoming.blockedBy && incoming.blockedBy.length > 0) existing.blockedBy = incoming.blockedBy;
+    }
   }
   return Array.from(map.values());
 }

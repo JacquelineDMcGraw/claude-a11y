@@ -17,7 +17,7 @@ Requires Node.js 20 or later.
 This is a monorepo with two packages:
 
 - packages/browser -- Chrome extension, shared phrasing config, and DOM injection script. No build step. Load as unpacked in Chrome. Has 81 tests (DOM transforms, axe-core WCAG, ARIA snapshots, content script, background, popup).
-- packages/node -- Node.js library, CLI wrapper (claude-sr), VS Code extension, and Claude Code hooks integration (claude-a11y-hooks). Contains the speech formatter, sanitizer, tool formatters, significance classifier, earcon system, TTS support, and all Node-based tooling. Has 741 tests.
+- packages/node -- Node.js library, CLI wrapper (claude-sr), VS Code extension, and Claude Code hooks integration (claude-a11y-hooks). Contains the speech formatter, sanitizer, tool formatters, significance classifier, earcon system, TTS support, and all Node-based tooling. Has 755 tests.
 
 Build the node package (which includes the core library, CLI, and VS Code extension):
 
@@ -38,7 +38,7 @@ npm run build:all
 npm test
 ```
 
-This runs all test suites across both packages: browser (81 tests) and node (741 tests, covering core, CLI, VS Code extension, and Claude Code hooks). 822 tests total.
+This runs all test suites across both packages: browser (81 tests) and node (755 tests, covering core, CLI, VS Code extension, and Claude Code hooks). 836 tests total.
 
 ## Screen reader testing
 

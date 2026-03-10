@@ -5,6 +5,7 @@
 
 import { summarizeCode, formatDeclaration, type Declaration } from "../core/code-summarizer.js";
 import { getSummarizeOptions } from "./summarize-options.js";
+import { countLines } from "./utils.js";
 
 export type EditOperation =
   | { type: "rename"; from: string; to: string }
@@ -48,32 +49,34 @@ export function analyzeEdit(
     };
   }
 
+  const oldLineCount = countLines(oldStr);
+  const newLineCount = countLines(newStr);
   const oldLines = oldStr.split("\n");
   const newLines = newStr.split("\n");
 
   // Pure insertion (old is empty or old is substring prefix/suffix)
   if (oldStr === "") {
     return {
-      operation: { type: "insert", lineCount: newLines.length },
-      summary: `Inserted ${newLines.length} line${newLines.length !== 1 ? "s" : ""}`,
-      ttsSummary: `Inserted ${newLines.length} line${newLines.length !== 1 ? "s" : ""}.`,
+      operation: { type: "insert", lineCount: newLineCount },
+      summary: `Inserted ${newLineCount} line${newLineCount !== 1 ? "s" : ""}`,
+      ttsSummary: `Inserted ${newLineCount} line${newLineCount !== 1 ? "s" : ""}.`,
     };
   }
 
   // Pure deletion (new is empty)
   if (newStr === "") {
     return {
-      operation: { type: "delete", lineCount: oldLines.length },
-      summary: `Deleted ${oldLines.length} line${oldLines.length !== 1 ? "s" : ""}`,
-      ttsSummary: `Deleted ${oldLines.length} line${oldLines.length !== 1 ? "s" : ""}.`,
+      operation: { type: "delete", lineCount: oldLineCount },
+      summary: `Deleted ${oldLineCount} line${oldLineCount !== 1 ? "s" : ""}`,
+      ttsSummary: `Deleted ${oldLineCount} line${oldLineCount !== 1 ? "s" : ""}.`,
     };
   }
 
   // Replace all
   if (replaceAll) {
     return {
-      operation: { type: "replace_all", oldLineCount: oldLines.length, newLineCount: newLines.length },
-      summary: `Replaced all occurrences (${oldLines.length} → ${newLines.length} lines each)`,
+      operation: { type: "replace_all", oldLineCount, newLineCount },
+      summary: `Replaced all occurrences (${oldLineCount} → ${newLineCount} lines each)`,
       ttsSummary: `Replaced all occurrences.`,
     };
   }
@@ -89,13 +92,13 @@ export function analyzeEdit(
   }
 
   // General replacement
-  const diff = newLines.length - oldLines.length;
+  const diff = newLineCount - oldLineCount;
   const diffStr = diff > 0 ? `+${diff}` : String(diff);
 
   return {
-    operation: { type: "replace", oldLineCount: oldLines.length, newLineCount: newLines.length },
-    summary: `Replaced ${oldLines.length} line${oldLines.length !== 1 ? "s" : ""} with ${newLines.length} line${newLines.length !== 1 ? "s" : ""} (${diffStr} net)`,
-    ttsSummary: `Replaced ${oldLines.length} with ${newLines.length} line${newLines.length !== 1 ? "s" : ""}.`,
+    operation: { type: "replace", oldLineCount, newLineCount },
+    summary: `Replaced ${oldLineCount} line${oldLineCount !== 1 ? "s" : ""} with ${newLineCount} line${newLineCount !== 1 ? "s" : ""} (${diffStr} net)`,
+    ttsSummary: `Replaced ${oldLineCount} with ${newLineCount} line${newLineCount !== 1 ? "s" : ""}.`,
   };
 }
 
@@ -227,6 +230,35 @@ export function extractDeclarations(code: string): NamedDeclaration[] {
 }
 
 /**
+ * Extract the source text for each named declaration so we can compare
+ * old vs new content. Each declaration spans from its header line to
+ * the line before the next declaration (or end of string).
+ */
+function extractDeclarationContent(code: string): Map<string, string> {
+  const lines = code.split("\n");
+  const entries: Array<{ key: string; startLine: number }> = [];
+
+  for (let i = 0; i < lines.length; i++) {
+    const trimmed = lines[i]!.trimStart();
+    for (const { kind, pattern } of DECLARATION_PATTERNS) {
+      const match = pattern.exec(trimmed);
+      if (match && match[1]) {
+        entries.push({ key: `${kind}:${match[1]}`, startLine: i });
+        break;
+      }
+    }
+  }
+
+  const result = new Map<string, string>();
+  for (let i = 0; i < entries.length; i++) {
+    const start = entries[i]!.startLine;
+    const end = i + 1 < entries.length ? entries[i + 1]!.startLine : lines.length;
+    result.set(entries[i]!.key, lines.slice(start, end).join("\n"));
+  }
+  return result;
+}
+
+/**
  * Extract rich declarations from a code string using the code summarizer.
  */
 export function extractRichDeclarations(code: string, filePath: string): Declaration[] {
@@ -295,10 +327,16 @@ export function extractStructuralChanges(oldStr: string, newStr: string, filePat
   // Modified: in both, but code differs — only when there are no structural adds/removes
   const noStructuralChanges = changes.length === 0;
   if (oldStr !== newStr && noStructuralChanges) {
+    const oldDeclContent = extractDeclarationContent(oldStr);
+    const newDeclContent = extractDeclarationContent(newStr);
     for (const [key, decl] of newMap) {
       if (oldMap.has(key)) {
-        const rich = richMap.get(key);
-        changes.push({ type: "modified", kind: decl.kind, name: decl.name, richDeclaration: rich });
+        const oldContent = oldDeclContent.get(`${decl.kind}:${decl.name}`);
+        const newContent = newDeclContent.get(`${decl.kind}:${decl.name}`);
+        if (oldContent !== newContent) {
+          const rich = richMap.get(key);
+          changes.push({ type: "modified", kind: decl.kind, name: decl.name, richDeclaration: rich });
+        }
       }
     }
   }

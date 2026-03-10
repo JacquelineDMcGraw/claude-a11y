@@ -41,7 +41,8 @@ function analyzeContent(content: string, filePath: string): ContentAnalysis {
       trimmed.startsWith("import ") ||
       trimmed.startsWith("from ") ||
       trimmed.startsWith("use ") ||
-      trimmed.startsWith("require(")
+      trimmed.startsWith("require(") ||
+      /^(const|let|var)\s+\w+\s*=\s*require\(/.test(trimmed)
     ) {
       imports++;
     }
