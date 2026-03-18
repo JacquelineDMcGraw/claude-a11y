@@ -16,6 +16,7 @@ Screen reader formatting for AI chat responses.
 **Getting started**
 - [Packages](#packages)
 - [Quick start](#quick-start)
+- [Claude Code hooks](#claude-code-hooks)
 - [Supported platforms](#supported-platforms)
 - [Claude Desktop](#claude-desktop)
 
@@ -65,7 +66,7 @@ This is a monorepo with two packages:
 
 - **packages/browser** -- Browser extension for claude.ai and DOM injection script for VS Code/Cursor. Runs a MutationObserver that transforms rendered markdown in-place, adding ARIA roles, landmarks, screen-reader-only announcements, keyboard navigation between responses (Alt+Up/Down), and generation status announcements. Also includes the shared announcement phrasing used by both packages. Works with Chrome, Edge, and Brave.
 
-- **packages/node** -- Everything that runs in Node.js. Contains the markdown-to-speech formatter, ANSI sanitizer, stream parser, CLI wrapper (claude-sr), and VS Code extension source. The CLI strips ANSI and spinner artifacts, streams responses incrementally with heartbeat status in interactive mode, and supports a --raw flag to bypass formatting. The VS Code extension provides an @accessible chat participant, an output channel, configurable verbosity, and keyboard shortcuts.
+- **packages/node** -- Everything that runs in Node.js. Contains the markdown-to-speech formatter, ANSI sanitizer, stream parser, CLI wrapper (claude-sr), VS Code extension source, and the Claude Code hooks integration (claude-a11y-hooks). The CLI strips ANSI and spinner artifacts, streams responses incrementally with heartbeat status in interactive mode, and supports a --raw flag to bypass formatting. The VS Code extension provides an @accessible chat participant, an output channel, configurable verbosity, and keyboard shortcuts. The hooks system intercepts Claude Code's tool output and reformats it into concise screen-reader-friendly summaries with optional TTS and earcon sounds.
 
 ## Quick start
 
@@ -100,6 +101,31 @@ Use --raw to bypass speech formatting and get sanitized plaintext output:
 ```
 claude-sr --raw "explain this function"
 ```
+
+### Claude Code hooks
+
+The hooks system works alongside Claude Code's native interface. Instead of replacing the terminal UI, it intercepts tool output and reformats it into screen-reader-friendly summaries. You hear "Edited auth.ts, changed login function" instead of raw JSON, and "npm test failed, 47 passed, 2 failed" instead of a wall of test output.
+
+```
+npm install -g claude-a11y
+claude-a11y-hooks setup
+```
+
+That registers hooks for all supported Claude Code events. To enable spoken announcements:
+
+```
+claude-a11y-hooks config set tts.enabled true
+```
+
+To enable earcon sounds (short audio cues for test pass, test fail, errors, etc.):
+
+```
+claude-a11y-hooks config set earcon.enabled true
+```
+
+Available commands: `claude-a11y-hooks setup`, `uninstall`, `config get/set/list/reset`, `history`, `tasks`, `replay`, `summarize`.
+
+Based on claude-sonar (MIT) by @vylasaven.
 
 ## How it works
 

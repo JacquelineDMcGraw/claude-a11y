@@ -1,0 +1,9 @@
+{
+  "tool_name": "WebSearch",
+  "tool_input": {
+    "query": "vitest coverage setup"
+  },
+  "tool_response": {
+    "results": []
+  }
+}
