@@ -93,12 +93,10 @@ function scroll(x, y, direction, amount) {
 
   execFileSync("cliclick", ["m:" + x + "," + y]);
 
+  const keyCodes = { up: 126, down: 125, left: 123, right: 124 };
+  const code = keyCodes[dir];
   for (let i = 0; i < (amount || 3); i++) {
-    if (dir === "up") {
-      execSync(`osascript -e 'tell application "System Events" to key code 126 using {option down}'`);
-    } else if (dir === "down") {
-      execSync(`osascript -e 'tell application "System Events" to key code 125 using {option down}'`);
-    }
+    execSync(`osascript -e 'tell application "System Events" to key code ${code} using {option down}'`);
   }
 }
 
