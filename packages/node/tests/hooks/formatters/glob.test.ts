@@ -43,4 +43,44 @@ describe("globFormatter", () => {
     expect(result.contextText).toContain("2 files");
     expect(result.contextText).toContain("README.md");
   });
+
+  describe("TTS humanization", () => {
+    it("humanizes .ts extension to TypeScript files", () => {
+      const result = globFormatter.format({
+        tool_name: "Glob",
+        tool_input: { pattern: "**/*.ts" },
+        tool_response: { files: ["a.ts"] },
+      });
+      expect(result.ttsText).toContain("TypeScript files");
+      expect(result.ttsText).not.toContain("**/*.ts");
+    });
+
+    it("humanizes brace patterns like {ts,tsx}", () => {
+      const result = globFormatter.format({
+        tool_name: "Glob",
+        tool_input: { pattern: "src/**/*.{ts,tsx}" },
+        tool_response: { files: ["a.ts", "b.tsx"] },
+      });
+      expect(result.ttsText).toContain("TypeScript");
+      expect(result.ttsText).toContain("TypeScript React");
+    });
+
+    it("falls back to quoted pattern for unrecognized globs", () => {
+      const result = globFormatter.format({
+        tool_name: "Glob",
+        tool_input: { pattern: "**/node_modules/**" },
+        tool_response: { files: [] },
+      });
+      expect(result.ttsText).toContain('"**/node_modules/**"');
+    });
+
+    it("keeps raw pattern in contextText for precision", () => {
+      const result = globFormatter.format({
+        tool_name: "Glob",
+        tool_input: { pattern: "**/*.ts" },
+        tool_response: { files: ["a.ts"] },
+      });
+      expect(result.contextText).toContain("**/*.ts");
+    });
+  });
 });

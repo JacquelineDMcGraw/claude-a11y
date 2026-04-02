@@ -41,6 +41,10 @@ jobs:
       - name: Verify chat-a11y.js synced to node media
         run: git diff --no-index --exit-code packages/browser/chat-a11y.js packages/node/media/chat-a11y.js
 
+      - name: Smoke test test-app modules
+        if: matrix.os != 'windows-latest'
+        run: node -e "require('./packages/test-app/agent/index.js'); console.log('test-app agent modules OK')"
+
   package-size:
     runs-on: ubuntu-latest
     steps:
