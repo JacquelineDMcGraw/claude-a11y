@@ -85,15 +85,10 @@ class AgentLoop extends EventEmitter {
         }
 
         if (toolResults.length === 0) {
-          this.emit("log", { level: "info", message: "Agent finished (no more tool calls)" });
-          this.emit("done", { iterations: this.iterationCount, reason: "complete" });
+          const reason = response.stop_reason === "end_turn" ? "end_turn" : "complete";
+          this.emit("log", { level: "info", message: `Agent finished (${reason})` });
+          this.emit("done", { iterations: this.iterationCount, reason });
           this.running = false;
-          return;
-        }
-
-        if (response.stop_reason === "end_turn" && toolResults.length === 0) {
-          this.running = false;
-          this.emit("done", { iterations: this.iterationCount, reason: "end_turn" });
           return;
         }
 

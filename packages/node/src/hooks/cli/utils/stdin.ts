@@ -13,10 +13,16 @@ export async function readStdin(
     let totalBytes = 0;
     let settled = false;
 
+    function cleanup() {
+      stream.off("data", onData);
+      stream.off("end", onEnd);
+      stream.off("error", onError);
+    }
+
     const timer = setTimeout(() => {
       if (!settled) {
         settled = true;
-        stream.removeAllListeners();
+        cleanup();
         if ("destroy" in stream && typeof stream.destroy === "function") {
           (stream as NodeJS.ReadStream).destroy();
         }
@@ -24,13 +30,13 @@ export async function readStdin(
       }
     }, timeoutMs);
 
-    stream.on("data", (chunk: Buffer) => {
+    function onData(chunk: Buffer) {
       if (settled) return;
       totalBytes += chunk.length;
       if (totalBytes > maxBytes) {
         settled = true;
         clearTimeout(timer);
-        stream.removeAllListeners();
+        cleanup();
         if ("destroy" in stream && typeof stream.destroy === "function") {
           (stream as NodeJS.ReadStream).destroy();
         }
@@ -38,22 +44,28 @@ export async function readStdin(
         return;
       }
       chunks.push(chunk);
-    });
+    }
 
-    stream.on("end", () => {
+    function onEnd() {
       if (!settled) {
         settled = true;
         clearTimeout(timer);
+        cleanup();
         resolve(Buffer.concat(chunks).toString("utf-8"));
       }
-    });
+    }
 
-    stream.on("error", (err) => {
+    function onError(err: Error) {
       if (!settled) {
         settled = true;
         clearTimeout(timer);
+        cleanup();
         reject(err);
       }
-    });
+    }
+
+    stream.on("data", onData);
+    stream.on("end", onEnd);
+    stream.on("error", onError);
   });
 }
