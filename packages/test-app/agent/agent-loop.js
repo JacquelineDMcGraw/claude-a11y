@@ -34,6 +34,7 @@ class AgentLoop extends EventEmitter {
     this.running = true;
     this.aborted = false;
     this.iterationCount = 0;
+    this.messages = [];
 
     this.messages.push({
       role: "user",
@@ -145,6 +146,16 @@ class AgentLoop extends EventEmitter {
         const result = handleAction(action, input);
         if (result.type === "error") {
           return [{ type: "text", text: `Error: ${result.message}` }];
+        }
+
+        if (result.type === "screenshot" && result.base64) {
+          return [
+            { type: "text", text: `Action ${action} executed successfully.` },
+            {
+              type: "image",
+              source: { type: "base64", media_type: "image/png", data: result.base64 },
+            },
+          ];
         }
 
         const { screenshot: takeScreenshot } = require("./mac-actions");
