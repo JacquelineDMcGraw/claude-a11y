@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>claude-a11y Testing</title>
+  <link rel="stylesheet" id="xterm-css" href="">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #1a1a2e;
+      --surface: #16213e;
+      --border: #2a2a4a;
+      --text: #e0e0e0;
+      --text-muted: #a0a0c0;
+      --accent: #4fc3f7;
+      --accent-dim: #2a7a9e;
+      --success: #66bb6a;
+      --warning: #ffa726;
+      --error: #ef5350;
+      --record-red: #e53935;
+      --agent-purple: #b388ff;
+      --agent-purple-dim: #6a3faa;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", system-ui, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 20px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    header h1 {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    button {
+      background: var(--accent-dim);
+      color: var(--text);
+      border: 1px solid var(--accent);
+      border-radius: 6px;
+      padding: 6px 14px;
+      font-size: 13px;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s;
+    }
+
+    button:hover { background: var(--accent); color: #000; }
+    button:disabled { opacity: 0.4; cursor: not-allowed; }
+
+    button.record {
+      background: transparent;
+      border-color: var(--record-red);
+      color: var(--record-red);
+    }
+    button.record:hover { background: var(--record-red); color: #fff; }
+    button.record.active {
+      background: var(--record-red);
+      color: #fff;
+      animation: pulse 1.5s infinite;
+    }
+
+    button.agent-btn {
+      background: var(--agent-purple-dim);
+      border-color: var(--agent-purple);
+      color: var(--agent-purple);
+    }
+    button.agent-btn:hover { background: var(--agent-purple); color: #000; }
+    button.agent-btn.active {
+      background: var(--agent-purple);
+      color: #000;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.7; }
+    }
+
+    .status {
+      font-size: 12px;
+      color: var(--text-muted);
+      padding: 0 10px;
+    }
+    .status.recording { color: var(--record-red); }
+    .status.agent-active { color: var(--agent-purple); }
+
+    /* ── Tab bar ─────────────────────────────── */
+
+    .tab-bar {
+      display: flex;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .tab-bar button {
+      background: transparent;
+      border: none;
+      border-bottom: 2px solid transparent;
+      border-radius: 0;
+      padding: 8px 20px;
+      color: var(--text-muted);
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .tab-bar button:hover { color: var(--text); background: transparent; }
+    .tab-bar button.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+
+    /* ── Main layout ─────────────────────────── */
+
+    .main-content {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    .tab-panel {
+      display: none;
+      flex: 1;
+      overflow: hidden;
+    }
+    .tab-panel.active {
+      display: flex;
+    }
+
+    /* ── Manual tab ──────────────────────────── */
+
+    #terminal-container {
+      flex: 1;
+      padding: 8px;
+      overflow: hidden;
+    }
+
+    /* ── Agent tab ───────────────────────────── */
+
+    #agent-panel {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      padding: 20px;
+      gap: 16px;
+      overflow-y: auto;
+    }
+
+    .agent-config {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      padding: 16px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+    }
+
+    .agent-config label {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 2px;
+    }
+
+    .agent-config input,
+    .agent-config select {
+      background: var(--bg);
+      color: var(--text);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 8px 10px;
+      font-size: 13px;
+      font-family: inherit;
+      width: 100%;
+    }
+
+    .agent-config select { cursor: pointer; }
+    .agent-config input:focus,
+    .agent-config select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .mode-description {
+      font-size: 12px;
+      color: var(--text-muted);
+      line-height: 1.5;
+      min-height: 2em;
+    }
+
+    .agent-controls {
+      display: flex;
+      gap: 10px;
+    }
+
+    #agent-log {
+      flex: 1;
+      overflow-y: auto;
+      font-family: "SF Mono", "Menlo", monospace;
+      font-size: 12px;
+      line-height: 1.6;
+      padding: 12px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      min-height: 200px;
+    }
+
+    .agent-log-entry {
+      padding: 2px 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .agent-log-entry.info { color: var(--text-muted); }
+    .agent-log-entry.assistant { color: var(--text); }
+    .agent-log-entry.tool { color: var(--accent); }
+    .agent-log-entry.error { color: var(--error); }
+    .agent-log-entry.warn { color: var(--warning); }
+
+    /* ── Sidebar ─────────────────────────────── */
+
+    #sidebar {
+      width: 340px;
+      background: var(--surface);
+      border-left: 1px solid var(--border);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      flex-shrink: 0;
+    }
+
+    .sidebar-header {
+      padding: 12px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    #log-container {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 12px;
+      font-family: "SF Mono", "Menlo", monospace;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .log-entry {
+      padding: 2px 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .log-entry.pass { color: var(--success); }
+    .log-entry.fail { color: var(--error); }
+    .log-entry.skip { color: var(--warning); }
+    .log-entry.hear { color: var(--accent); }
+    .log-entry.info { color: var(--text-muted); }
+
+    #report-container {
+      border-top: 1px solid var(--border);
+      max-height: 40%;
+      overflow-y: auto;
+      padding: 12px;
+      font-family: "SF Mono", "Menlo", monospace;
+      font-size: 11px;
+      line-height: 1.5;
+      display: none;
+    }
+    #report-container.visible { display: block; }
+    #report-container h3 {
+      font-size: 12px;
+      color: var(--accent);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+    #report-content {
+      white-space: pre-wrap;
+      color: var(--text-muted);
+    }
+
+    footer {
+      padding: 8px 20px;
+      background: var(--surface);
+      border-top: 1px solid var(--border);
+      font-size: 11px;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      flex-shrink: 0;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>claude-a11y Testing</h1>
+    <div class="controls">
+      <button id="btn-sandbox" title="Launch the testing sandbox in the terminal">Run Sandbox</button>
+      <button id="btn-record" class="record" title="Start or stop recording this session">Record</button>
+      <button id="btn-analyze" disabled title="Run Whisper on the last recording">Analyze</button>
+      <span id="status" class="status" aria-live="polite"></span>
+    </div>
+  </header>
+
+  <nav class="tab-bar" role="tablist" aria-label="View selector">
+    <button role="tab" id="tab-manual" class="active" aria-selected="true" aria-controls="panel-manual">Manual</button>
+    <button role="tab" id="tab-agent" aria-selected="false" aria-controls="panel-agent">Agent (Computer Use)</button>
+  </nav>
+
+  <div class="main-content">
+    <!-- Manual tab: terminal + sidebar -->
+    <div id="panel-manual" class="tab-panel active" role="tabpanel" aria-labelledby="tab-manual">
+      <div id="terminal-container" role="application" aria-label="Terminal"></div>
+    </div>
+
+    <!-- Agent tab: config + log -->
+    <div id="panel-agent" class="tab-panel" role="tabpanel" aria-labelledby="tab-agent">
+      <div id="agent-panel">
+        <div class="agent-config">
+          <div>
+            <label for="agent-api-key">Anthropic API Key</label>
+            <input type="password" id="agent-api-key" placeholder="sk-ant-..." autocomplete="off">
+          </div>
+          <div>
+            <label for="agent-model">Model</label>
+            <select id="agent-model">
+              <option value="claude-sonnet-4-6">Claude Sonnet 4.6 (fast, cheap)</option>
+              <option value="claude-opus-4-6">Claude Opus 4.6 (capable, slower)</option>
+            </select>
+          </div>
+          <div>
+            <label for="agent-mode">Mode</label>
+            <select id="agent-mode">
+              <option value="test-runner">Autonomous Test Runner</option>
+              <option value="dev-agent">Development Agent</option>
+              <option value="a11y-auditor">Accessibility Auditor</option>
+            </select>
+          </div>
+          <div class="mode-description" id="agent-mode-desc" aria-live="polite">
+            Runs the full test sandbox automatically, validates TTS and earcon output, captures results.
+          </div>
+          <div class="agent-controls">
+            <button id="btn-agent-start" class="agent-btn">Start Agent</button>
+            <button id="btn-agent-stop" class="agent-btn" disabled>Stop Agent</button>
+            <span id="agent-status" class="status" aria-live="polite"></span>
+          </div>
+        </div>
+        <div id="agent-log" role="log" aria-live="polite" aria-label="Agent activity log"></div>
+      </div>
+    </div>
+
+    <div id="sidebar">
+      <div class="sidebar-header">Test Log</div>
+      <div id="log-container" role="log" aria-live="polite" aria-label="Test results log"></div>
+      <div id="report-container">
+        <h3>Latency Report</h3>
+        <pre id="report-content"></pre>
+      </div>
+    </div>
+  </div>
+
+  <footer>
+    <span id="footer-info" aria-live="polite">Ready</span>
+    <span id="footer-whisper"></span>
+  </footer>
+
+  <script src="./renderer.js"></script>
+</body>
+</html>

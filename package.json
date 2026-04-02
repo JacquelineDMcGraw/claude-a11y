@@ -10,14 +10,16 @@
   },
   "workspaces": [
     "packages/browser",
-    "packages/node"
+    "packages/node",
+    "packages/test-app"
   ],
   "scripts": {
     "build": "npm run build -w packages/node",
     "build:all": "npm run build -w packages/node && npm run compile -w packages/node",
     "test": "npm test --workspaces --if-present",
     "test:all": "npm test --workspaces --if-present",
-    "lint": "npm run lint --workspaces --if-present"
+    "lint": "npm run lint --workspaces --if-present",
+    "test-app": "npm start -w packages/test-app"
   },
   "engines": {
     "node": ">=20.0.0"
