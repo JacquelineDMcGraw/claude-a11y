@@ -201,11 +201,12 @@ export function setConfigValue(key: string, value: unknown): void {
   const lastKey = parts[parts.length - 1]!;
   target[lastKey] = value;
 
-  // Round-trip validation: mergeConfig strips values the loader can't rehydrate
+  // Round-trip validation: mergeConfig silently falls back to defaults for
+  // invalid values, so compare the reloaded value against what was set.
   const reloaded = mergeConfig(JSON.parse(JSON.stringify(config)) as Record<string, unknown>);
   const actual = getNestedValue(reloaded, parts);
-  if (actual === undefined && value !== undefined) {
-    throw new Error(`Invalid value for "${key}": the value was rejected by config validation`);
+  if (actual !== value) {
+    throw new Error(`Invalid value for "${key}": expected "${String(value)}" but config validation resolved to "${String(actual)}"`);
   }
 
   writeConfig(config);

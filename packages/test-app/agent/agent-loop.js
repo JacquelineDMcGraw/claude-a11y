@@ -1,7 +1,6 @@
 const Anthropic = require("@anthropic-ai/sdk").default;
 const { handleAction, runBash } = require("./mac-actions");
 const { EventEmitter } = require("events");
-const { execSync } = require("child_process");
 
 class AgentLoop extends EventEmitter {
   constructor({ apiKey, model, systemPrompt, maxIterations, displayWidth, displayHeight }) {
@@ -205,7 +204,7 @@ class AgentLoop extends EventEmitter {
         if (!content.includes(input.old_str)) {
           return [{ type: "text", text: `old_str not found in ${filePath}` }];
         }
-        const updated = content.replace(input.old_str, input.new_str);
+        const updated = content.replace(input.old_str, () => input.new_str);
         fs.writeFileSync(filePath, updated);
         return [{ type: "text", text: `Replaced text in ${filePath}` }];
       }
