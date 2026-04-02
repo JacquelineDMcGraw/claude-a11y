@@ -203,9 +203,10 @@ export function setConfigValue(key: string, value: unknown): void {
 
   // Round-trip validation: mergeConfig silently falls back to defaults for
   // invalid values, so compare the reloaded value against what was set.
+  // Use JSON serialization for deep equality (handles objects and arrays).
   const reloaded = mergeConfig(JSON.parse(JSON.stringify(config)) as Record<string, unknown>);
   const actual = getNestedValue(reloaded, parts);
-  if (actual !== value) {
+  if (JSON.stringify(actual) !== JSON.stringify(value)) {
     throw new Error(`Invalid value for "${key}": expected "${String(value)}" but config validation resolved to "${String(actual)}"`);
   }
 
