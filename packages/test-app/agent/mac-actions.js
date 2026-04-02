@@ -116,7 +116,7 @@ function runBash(command) {
     return { output: output.slice(0, 50000), exitCode: 0 };
   } catch (err) {
     return {
-      output: (err.stdout || "") + "\n" + (err.stderr || ""),
+      output: ((err.stdout || "") + "\n" + (err.stderr || "")).slice(0, 50000),
       exitCode: err.status || 1,
     };
   }
