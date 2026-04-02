@@ -6,7 +6,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { getStateDir } from "../config/index.js";
-import { acquireLock, releaseLock } from "./file-lock.js";
+import { acquireLock, releaseLock, sanitizeSessionId } from "./file-lock.js";
 
 interface ProgressEntry {
   toolName: string;
@@ -19,10 +19,6 @@ interface ProgressState {
 
 function getProgressDir(): string {
   return path.join(getStateDir(), "progress");
-}
-
-function sanitizeSessionId(sessionId: string): string {
-  return sessionId.replace(/[^a-zA-Z0-9_-]/g, "_");
 }
 
 function getProgressPath(sessionId: string): string {
@@ -80,8 +76,9 @@ export function getToolElapsed(sessionId: string, toolUseId: string): number | n
     const raw = fs.readFileSync(getProgressPath(sessionId), "utf-8");
     const state = JSON.parse(raw) as ProgressState;
     const entry = state.entries?.[toolUseId];
-    if (!entry) return null;
-    return Date.now() - entry.startMs;
+    if (!entry || typeof entry.startMs !== "number" || !Number.isFinite(entry.startMs)) return null;
+    const elapsed = Date.now() - entry.startMs;
+    return Number.isFinite(elapsed) ? elapsed : null;
   } catch {
     return null;
   }

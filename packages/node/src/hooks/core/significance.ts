@@ -131,10 +131,14 @@ function classifyBash(
     }
   }
 
-  // Noise patterns only if no higher-significance pattern matched
+  // Noise patterns only if no higher-significance pattern matched.
+  // Failed noise commands escalate to notable so the user hears about
+  // unexpected errors (e.g. cat on a missing file, ls on a bad path).
   for (const pattern of NOISE_BASH_PATTERNS) {
     if (pattern.test(command)) {
-      return { level: "noise", reason: "read-only command" };
+      return failed
+        ? { level: "notable", reason: "read-only command failed" }
+        : { level: "noise", reason: "read-only command" };
     }
   }
 

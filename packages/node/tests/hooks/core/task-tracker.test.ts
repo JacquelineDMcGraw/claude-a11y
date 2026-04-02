@@ -137,7 +137,7 @@ describe("loadTaskSnapshot + saveTaskSnapshot", () => {
   });
 
   it("handles corrupted snapshot file", () => {
-    const taskDir = path.join(tmpDir, "claude-a11y-hooks", "tasks");
+    const taskDir = path.join(tmpDir, "claude-a11y", "hooks", "tasks");
     fs.mkdirSync(taskDir, { recursive: true });
     fs.writeFileSync(path.join(taskDir, "corrupt.json"), "not json", "utf-8");
 

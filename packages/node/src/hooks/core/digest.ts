@@ -7,6 +7,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { getStateDir } from "../config/index.js";
+import { acquireLock, releaseLock, sanitizeSessionId } from "./file-lock.js";
 import type { SignificanceLevel } from "./significance.js";
 
 export interface DigestEntry {
@@ -25,10 +26,6 @@ function getDigestDir(): string {
   return path.join(getStateDir(), "digests");
 }
 
-function sanitizeSessionId(sessionId: string): string {
-  return sessionId.replace(/[^a-zA-Z0-9_-]/g, "_");
-}
-
 function getDigestPath(sessionId: string): string {
   return path.join(getDigestDir(), `${sanitizeSessionId(sessionId)}.json`);
 }
@@ -42,25 +39,31 @@ function getLastDigestPath(sessionId: string): string {
  */
 export function appendToDigest(sessionId: string, entry: DigestEntry): void {
   const digestPath = getDigestPath(sessionId);
+  const lockPath = digestPath + ".lock";
   const dir = path.dirname(digestPath);
   fs.mkdirSync(dir, { recursive: true });
 
-  let state: DigestState = { entries: [] };
+  const lockAcquired = acquireLock(lockPath);
   try {
-    const raw = fs.readFileSync(digestPath, "utf-8");
-    const parsed = JSON.parse(raw) as unknown;
-    if (typeof parsed === "object" && parsed !== null && Array.isArray((parsed as DigestState).entries)) {
-      state = parsed as DigestState;
+    let state: DigestState = { entries: [] };
+    try {
+      const raw = fs.readFileSync(digestPath, "utf-8");
+      const parsed = JSON.parse(raw) as unknown;
+      if (typeof parsed === "object" && parsed !== null && Array.isArray((parsed as DigestState).entries)) {
+        state = parsed as DigestState;
+      }
+    } catch {
+      // No existing digest or corrupted — start fresh
     }
-  } catch {
-    // No existing digest or corrupted — start fresh
+
+    state.entries.push(entry);
+
+    const tmpPath = digestPath + ".tmp";
+    fs.writeFileSync(tmpPath, JSON.stringify(state), "utf-8");
+    fs.renameSync(tmpPath, digestPath);
+  } finally {
+    if (lockAcquired) releaseLock(lockPath);
   }
-
-  state.entries.push(entry);
-
-  const tmpPath = digestPath + ".tmp";
-  fs.writeFileSync(tmpPath, JSON.stringify(state), "utf-8");
-  fs.renameSync(tmpPath, digestPath);
 }
 
 /**
@@ -68,26 +71,31 @@ export function appendToDigest(sessionId: string, entry: DigestEntry): void {
  */
 export function flushDigest(sessionId: string): DigestEntry[] {
   const digestPath = getDigestPath(sessionId);
+  const lockPath = digestPath + ".lock";
 
-  let entries: DigestEntry[] = [];
+  const lockAcquired = acquireLock(lockPath);
   try {
-    const raw = fs.readFileSync(digestPath, "utf-8");
-    const parsed = JSON.parse(raw) as unknown;
-    if (typeof parsed === "object" && parsed !== null && Array.isArray((parsed as DigestState).entries)) {
-      entries = (parsed as DigestState).entries;
+    let entries: DigestEntry[] = [];
+    try {
+      const raw = fs.readFileSync(digestPath, "utf-8");
+      const parsed = JSON.parse(raw) as unknown;
+      if (typeof parsed === "object" && parsed !== null && Array.isArray((parsed as DigestState).entries)) {
+        entries = (parsed as DigestState).entries;
+      }
+    } catch {
+      return [];
     }
-  } catch {
-    return [];
-  }
 
-  // Clear the digest
-  try {
-    fs.unlinkSync(digestPath);
-  } catch {
-    // Best effort
-  }
+    try {
+      fs.unlinkSync(digestPath);
+    } catch {
+      // Best effort
+    }
 
-  return entries;
+    return entries;
+  } finally {
+    if (lockAcquired) releaseLock(lockPath);
+  }
 }
 
 /**

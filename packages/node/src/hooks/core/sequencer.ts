@@ -1,7 +1,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { getStateDir } from "../config/index.js";
-import { acquireLock, releaseLock } from "./file-lock.js";
+import { acquireLock, releaseLock, sanitizeSessionId } from "./file-lock.js";
 
 const BATCH_WINDOW_MS = 500;
 const STALE_SESSION_MS = 60 * 60 * 1000; // 1 hour
@@ -19,14 +19,6 @@ interface SessionEntry {
 
 interface SessionState {
   entries: SessionEntry[];
-}
-
-/**
- * Sanitize session ID for use in file paths.
- * Prevents path traversal by replacing non-alphanumeric chars.
- */
-function sanitizeSessionId(sessionId: string): string {
-  return sessionId.replace(/[^a-zA-Z0-9_-]/g, "_");
 }
 
 function getSessionDir(): string {

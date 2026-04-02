@@ -1,6 +1,19 @@
 import type { Formatter, PostToolUseInput } from "./types.js";
 import { basename } from "./utils.js";
 
+/**
+ * Strip regex metacharacters for TTS so the screen reader doesn't
+ * spell out "backslash b function backslash s plus".
+ * Keeps the literal words/characters that a human would recognize.
+ */
+function humanizeRegex(pattern: string): string {
+  return pattern
+    .replace(/\\[bBdDwWsS]/g, " ")
+    .replace(/[.*+?^${}()|[\]\\]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim() || pattern;
+}
+
 export const grepFormatter: Formatter = {
   id: "grep",
   toolNames: ["Grep"],
@@ -52,10 +65,11 @@ export const grepFormatter: Formatter = {
     const firstMatchSuffix = firstMatch ? `. First: ${firstMatch.slice(0, 100)}` : "";
 
     const contextText = `Grep for "${pattern}": ${matchCount} match${matchCount !== 1 ? "es" : ""} across ${fileCount} file${fileCount !== 1 ? "s" : ""}${topFilesSuffix}${firstMatchSuffix}`;
+    const spoken = humanizeRegex(pattern);
     const ttsText =
       matchCount > 0
-        ? `Found ${matchCount} match${matchCount !== 1 ? "es" : ""} for ${pattern} in ${fileCount} file${fileCount !== 1 ? "s" : ""}.`
-        : `No matches for ${pattern}.`;
+        ? `Found ${matchCount} match${matchCount !== 1 ? "es" : ""} for ${spoken} in ${fileCount} file${fileCount !== 1 ? "s" : ""}.`
+        : `No matches for ${spoken}.`;
 
     return { contextText, ttsText };
   },

@@ -170,6 +170,8 @@ function isValidPermissionRule(v: unknown): v is import("./types.js").Permission
  * Set a config value by dotted key path (e.g., "tts.enabled").
  * Guards against prototype pollution.
  */
+const VALID_TOP_LEVEL_KEYS = new Set(Object.keys(DEFAULT_CONFIG));
+
 export function setConfigValue(key: string, value: unknown): void {
   if (!key || key.trim() === "") {
     throw new Error("Config key cannot be empty");
@@ -179,6 +181,11 @@ export function setConfigValue(key: string, value: unknown): void {
     if (DANGEROUS_KEYS.has(part)) {
       throw new Error(`Refusing to set dangerous key: ${part}`);
     }
+  }
+
+  const topKey = parts[0]!;
+  if (!VALID_TOP_LEVEL_KEYS.has(topKey)) {
+    throw new Error(`Unknown config key: "${topKey}". Valid top-level keys: ${[...VALID_TOP_LEVEL_KEYS].join(", ")}`);
   }
 
   const config = loadConfig();
@@ -194,7 +201,24 @@ export function setConfigValue(key: string, value: unknown): void {
   const lastKey = parts[parts.length - 1]!;
   target[lastKey] = value;
 
+  // Round-trip validation: mergeConfig strips values the loader can't rehydrate
+  const reloaded = mergeConfig(JSON.parse(JSON.stringify(config)) as Record<string, unknown>);
+  const actual = getNestedValue(reloaded, parts);
+  if (actual === undefined && value !== undefined) {
+    throw new Error(`Invalid value for "${key}": the value was rejected by config validation`);
+  }
+
   writeConfig(config);
+}
+
+function getNestedValue(obj: unknown, parts: string[]): unknown {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let cur: any = obj;
+  for (const part of parts) {
+    if (typeof cur !== "object" || cur === null) return undefined;
+    cur = cur[part];
+  }
+  return cur;
 }
 
 /**

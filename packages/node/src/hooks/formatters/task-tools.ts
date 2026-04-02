@@ -17,37 +17,28 @@ import type { TaskSnapshot } from "../core/task-tracker.js";
  * The response typically includes the current task list state.
  */
 function extractTasksFromResponse(response: Record<string, unknown>): TaskSnapshot[] {
-  // TaskCreate response includes the created task info
-  // TaskUpdate response includes the updated task info
-  // We build a single-task snapshot from whatever we can extract
   const tasks: TaskSnapshot[] = [];
 
   const id = String(response["taskId"] || response["id"] || "");
-  const subject = String(response["subject"] || "");
-  const status = String(response["status"] || "pending");
-
   if (id) {
-    tasks.push({
-      id,
-      subject,
-      status,
-      description: typeof response["description"] === "string" ? response["description"] : undefined,
-    });
+    const snapshot: TaskSnapshot = { id, subject: "", status: "" };
+    if (typeof response["subject"] === "string" && response["subject"]) snapshot.subject = response["subject"];
+    if (typeof response["status"] === "string" && response["status"]) snapshot.status = response["status"];
+    if (typeof response["description"] === "string") snapshot.description = response["description"];
+    tasks.push(snapshot);
   }
 
-  // If there's a full task list in the response, use that
   if (Array.isArray(response["tasks"])) {
     for (const t of response["tasks"] as unknown[]) {
       if (typeof t === "object" && t !== null) {
         const task = t as Record<string, unknown>;
         const taskId = String(task["id"] || task["taskId"] || "");
         if (taskId) {
-          tasks.push({
-            id: taskId,
-            subject: String(task["subject"] || ""),
-            status: String(task["status"] || "pending"),
-            description: typeof task["description"] === "string" ? task["description"] : undefined,
-          });
+          const snapshot: TaskSnapshot = { id: taskId, subject: "", status: "" };
+          if (typeof task["subject"] === "string" && task["subject"]) snapshot.subject = task["subject"];
+          if (typeof task["status"] === "string" && task["status"]) snapshot.status = task["status"];
+          if (typeof task["description"] === "string") snapshot.description = task["description"];
+          tasks.push(snapshot);
         }
       }
     }
@@ -190,8 +181,8 @@ function mergeSnapshots(previous: TaskSnapshot[], updates: TaskSnapshot[]): Task
       map.set(incoming.id, incoming);
     } else {
       if (incoming.subject) existing.subject = incoming.subject;
-      if (incoming.status && incoming.status !== "pending") existing.status = incoming.status;
-      if (incoming.description) existing.description = incoming.description;
+      if (incoming.status) existing.status = incoming.status;
+      if (incoming.description !== undefined) existing.description = incoming.description;
       if (incoming.blockedBy && incoming.blockedBy.length > 0) existing.blockedBy = incoming.blockedBy;
     }
   }
