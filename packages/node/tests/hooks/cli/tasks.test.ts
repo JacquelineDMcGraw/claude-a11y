@@ -79,7 +79,7 @@ describe("tasksCommandNonInteractive", () => {
   });
 
   it("handles corrupted snapshot gracefully", () => {
-    const taskDir = path.join(tmpDir, "claude-a11y-hooks", "tasks");
+    const taskDir = path.join(tmpDir, "claude-a11y", "hooks", "tasks");
     fs.mkdirSync(taskDir, { recursive: true });
     fs.writeFileSync(path.join(taskDir, "bad.json"), "not json", "utf-8");
 

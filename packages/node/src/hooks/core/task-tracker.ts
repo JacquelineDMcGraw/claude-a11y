@@ -7,6 +7,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { getStateDir } from "../config/index.js";
+import { sanitizeSessionId } from "./file-lock.js";
 
 export interface TaskSnapshot {
   id: string;
@@ -31,9 +32,6 @@ function getTaskDir(): string {
   return path.join(getStateDir(), "tasks");
 }
 
-function sanitizeSessionId(sessionId: string): string {
-  return sessionId.replace(/[^a-zA-Z0-9_-]/g, "_");
-}
 
 function getSnapshotPath(sessionId: string): string {
   return path.join(getTaskDir(), `${sanitizeSessionId(sessionId)}.json`);

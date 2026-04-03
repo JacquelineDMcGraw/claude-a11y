@@ -47,4 +47,36 @@ describe("grepFormatter", () => {
     expect(result.contextText).toContain("First:");
     expect(result.contextText).toContain("src/index.ts:5:// TODO: fix this");
   });
+
+  describe("TTS humanization", () => {
+    it("strips regex metacharacters from TTS", () => {
+      const result = grepFormatter.format({
+        tool_name: "Grep",
+        tool_input: { pattern: "\\bfunction\\s+\\w+" },
+        tool_response: { output: "foo.ts:10:function bar()" },
+      });
+      expect(result.ttsText).toContain("function");
+      expect(result.ttsText).not.toContain("\\b");
+      expect(result.ttsText).not.toContain("\\s");
+      expect(result.ttsText).not.toContain("\\w");
+    });
+
+    it("keeps plain text patterns unchanged in TTS", () => {
+      const result = grepFormatter.format({
+        tool_name: "Grep",
+        tool_input: { pattern: "TODO" },
+        tool_response: { output: "a.ts:1:TODO fix" },
+      });
+      expect(result.ttsText).toContain("TODO");
+    });
+
+    it("keeps raw pattern in contextText for precision", () => {
+      const result = grepFormatter.format({
+        tool_name: "Grep",
+        tool_input: { pattern: "\\bfunction\\s+\\w+" },
+        tool_response: { output: "foo.ts:10:function bar()" },
+      });
+      expect(result.contextText).toContain("\\bfunction\\s+\\w+");
+    });
+  });
 });

@@ -93,10 +93,14 @@ function buildAdditionalContext(
       return formatted.ttsText || undefined;
     case "minimal":
       return formatted.ttsText || undefined;
-    case "full":
-      return `${formatted.ttsText}\n---\n${formatted.contextText}`;
+    case "full": {
+      const parts = [formatted.ttsText, formatted.contextText].filter(Boolean);
+      return parts.length > 0 ? parts.join("\n---\n") : undefined;
+    }
     case "normal":
-    default:
-      return `${formatted.ttsText}\n${formatted.contextText}`;
+    default: {
+      const parts = [formatted.ttsText, formatted.contextText].filter(Boolean);
+      return parts.length > 0 ? parts.join("\n") : undefined;
+    }
   }
 }

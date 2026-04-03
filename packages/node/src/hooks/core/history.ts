@@ -6,7 +6,7 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { getStateDir } from "../config/index.js";
-import { acquireLock, releaseLock } from "./file-lock.js";
+import { acquireLock, releaseLock, sanitizeSessionId } from "./file-lock.js";
 
 export interface HistoryEntry {
   timestamp: number;
@@ -18,10 +18,6 @@ export interface HistoryEntry {
 
 function getHistoryDir(): string {
   return path.join(getStateDir(), "history");
-}
-
-function sanitizeSessionId(sessionId: string): string {
-  return sessionId.replace(/[^a-zA-Z0-9_-]/g, "_");
 }
 
 function getHistoryPath(sessionId: string): string {

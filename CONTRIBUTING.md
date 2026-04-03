@@ -14,10 +14,11 @@ Requires Node.js 20 or later.
 
 ## Project structure
 
-This is a monorepo with two packages:
+This is a monorepo with three packages:
 
 - packages/browser -- Chrome extension, shared phrasing config, and DOM injection script. No build step. Load as unpacked in Chrome. Has 81 tests (DOM transforms, axe-core WCAG, ARIA snapshots, content script, background, popup).
-- packages/node -- Node.js library, CLI wrapper (claude-sr), VS Code extension, and Claude Code hooks integration (claude-a11y-hooks). Contains the speech formatter, sanitizer, tool formatters, significance classifier, earcon system, TTS support, and all Node-based tooling. Has 755 tests.
+- packages/node -- Node.js library, CLI wrapper (claude-sr), VS Code extension, and Claude Code hooks integration (claude-a11y-hooks). Contains the speech formatter, sanitizer, tool formatters, significance classifier, earcon system, TTS support, and all Node-based tooling. Has 777 tests.
+- packages/test-app -- Electron app for local accessibility testing. Embeds a terminal, records screen and audio, runs Whisper transcription, and includes a Claude computer-use agent for autonomous testing. See packages/test-app/README.md for setup.
 
 Build the node package (which includes the core library, CLI, and VS Code extension):
 
@@ -38,7 +39,17 @@ npm run build:all
 npm test
 ```
 
-This runs all test suites across both packages: browser (81 tests) and node (755 tests, covering core, CLI, VS Code extension, and Claude Code hooks). 836 tests total.
+This runs all test suites across both packages: browser (81 tests) and node (777 tests, covering core, CLI, VS Code extension, and Claude Code hooks). 858 tests total.
+
+## Accessibility test sandbox
+
+To run the interactive accessibility testing sandbox (macOS):
+
+```
+./test-sandbox.sh
+```
+
+This runs each hook fixture through the formatter, plays TTS and earcons, and produces a visual log. Choose option 5 (All) to run the full suite. See packages/test-app/README.md for the Electron-based test app with recording and Whisper analysis.
 
 ## Screen reader testing
 

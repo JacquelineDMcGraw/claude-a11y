@@ -1,0 +1,23 @@
+{
+  "name": "claude-a11y-test-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Self-contained Electron app for accessibility testing with embedded terminal, audio capture, and Whisper analysis.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "postinstall": "electron-rebuild -f -w node-pty",
+    "rebuild": "electron-rebuild -f -w node-pty"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.82.0",
+    "mac-screen-capture-permissions": "^2.1.0",
+    "node-pty": "^1.1.0",
+    "xterm": "^5.3.0",
+    "xterm-addon-fit": "^0.8.0"
+  },
+  "devDependencies": {
+    "@electron/rebuild": "^3.7.0",
+    "electron": "^41.0.0"
+  }
+}

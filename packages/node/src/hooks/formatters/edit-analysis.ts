@@ -98,7 +98,7 @@ export function analyzeEdit(
   return {
     operation: { type: "replace", oldLineCount, newLineCount },
     summary: `Replaced ${oldLineCount} line${oldLineCount !== 1 ? "s" : ""} with ${newLineCount} line${newLineCount !== 1 ? "s" : ""} (${diffStr} net)`,
-    ttsSummary: `Replaced ${oldLineCount} with ${newLineCount} line${newLineCount !== 1 ? "s" : ""}.`,
+    ttsSummary: `Replaced ${oldLineCount} line${oldLineCount !== 1 ? "s" : ""} with ${newLineCount} line${newLineCount !== 1 ? "s" : ""}.`,
   };
 }
 

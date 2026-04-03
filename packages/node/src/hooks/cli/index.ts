@@ -104,4 +104,7 @@ configCmd
     configResetCommand();
   });
 
-program.parseAsync();
+program.parseAsync().catch((err) => {
+  process.stderr.write(`claude-a11y-hooks: ${err instanceof Error ? err.message : String(err)}\n`);
+  process.exitCode = 1;
+});

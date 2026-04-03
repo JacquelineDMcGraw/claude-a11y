@@ -86,11 +86,13 @@ describe("processToolUse (backward compat)", () => {
   it("respects full verbosity", () => {
     const input = JSON.stringify({
       tool_name: "Bash",
-      tool_input: { command: "ls" },
-      tool_response: { exitCode: 0, stdout: "a\nb\n" },
+      tool_input: { command: "npm test" },
+      tool_response: { exitCode: 1, stdout: "FAIL tests\n1 failed", stderr: "Error" },
     });
     const result = processToolUse(input, config({ verbosity: "full" }));
-    expect(getContext(result)).toContain("---");
+    const ctx = getContext(result);
+    expect(ctx).toContain("---");
+    expect(ctx).toBeTruthy();
   });
 
   it("falls back for unknown tool names", () => {

@@ -72,6 +72,22 @@ describe("classifySignificance", () => {
       expect(result.level).toBe("noise");
     });
 
+    it("escalates failed cat to notable", () => {
+      const result = classifySignificance("Bash", { command: "cat nonexistent" }, { exitCode: 1 });
+      expect(result.level).toBe("notable");
+      expect(result.reason).toBe("read-only command failed");
+    });
+
+    it("escalates failed ls to notable", () => {
+      const result = classifySignificance("Bash", { command: "ls /no/such/dir" }, { exitCode: 2 });
+      expect(result.level).toBe("notable");
+    });
+
+    it("escalates failed grep to notable", () => {
+      const result = classifySignificance("Bash", { command: "grep pattern missing-file" }, { exitCode: 2 });
+      expect(result.level).toBe("notable");
+    });
+
     it("classifies npm test pass as routine", () => {
       const result = classifySignificance("Bash", { command: "npm test" }, { exitCode: 0 });
       expect(result.level).toBe("routine");
