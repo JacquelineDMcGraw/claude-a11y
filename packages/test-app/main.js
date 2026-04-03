@@ -355,7 +355,7 @@ ipcMain.handle("agent-start", async (_event, { apiKey, modeId, model }) => {
 
   activeAgent = new AgentLoop({
     apiKey,
-    model: model || "claude-sonnet-4-20250514",
+    model: model || "claude-sonnet-4-6",
     systemPrompt: modeConfig.systemPrompt,
     maxIterations: 50,
     displayWidth: 1280,
