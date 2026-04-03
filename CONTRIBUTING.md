@@ -103,6 +103,19 @@ Bug reports should include:
 
 Feature requests should describe the problem you are trying to solve, not just the feature you want. This helps us find the right solution.
 
+## Screen reader validation
+
+The `test-voiceover.sh` script validates that TTS and earcon output from the hooks system is correct by recording system audio, transcribing with local Whisper, and asserting expected phrases appear in the transcript.
+
+Requirements: macOS, ffmpeg, local Whisper install. The script auto-detects available audio capture methods.
+
+1. Run `./test-voiceover.sh` for full validation, or `./test-voiceover.sh quick` to use the tiny Whisper model for faster but less accurate results.
+2. The script feeds each hook fixture through the format pipeline, records the TTS output, and checks the transcription.
+3. Results are written to `recordings/results/` as JSON and Markdown. These files are committed to the repo as evidence for accessibility validation.
+4. Raw audio files (wav, mp4) are gitignored and never committed.
+
+If you add a new hook formatter, add a corresponding fixture in `packages/node/tests/hooks/fixtures/hook-inputs/` and add an assertion entry in `test-voiceover.sh`.
+
 ## Code style
 
 - TypeScript for core and CLI. Plain JavaScript (ES5-compatible) for the Chrome extension and chat-a11y.js.
