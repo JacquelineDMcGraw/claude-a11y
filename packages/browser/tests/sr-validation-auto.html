@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Claude A11y — Screen Reader Validation (Auto-injected)</title>
+  <style>
+    body { font-family: system-ui, sans-serif; max-width: 800px; margin: 40px auto; padding: 20px; }
+    .test-section { border: 1px solid #ccc; border-radius: 8px; padding: 16px; margin: 16px 0; }
+    .test-section h3 { margin-top: 0; }
+    .expected { background: #f0f7f0; padding: 12px; border-radius: 4px; margin-top: 8px; }
+    .expected strong { display: block; margin-bottom: 4px; }
+    pre { background: #1e1e1e; color: #d4d4d4; padding: 12px; border-radius: 6px; overflow-x: auto; }
+    code.language-python { color: #ce9178; }
+    code.language-javascript { color: #dcdcaa; }
+    table { border-collapse: collapse; width: 100%; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+    blockquote { border-left: 3px solid #666; padding-left: 12px; margin-left: 0; color: #555; }
+  </style>
+</head>
+<body>
+  <h1>Claude A11y Screen Reader Validation</h1>
+  <p>
+    This page auto-loads chat-a11y.js for automated VoiceOver testing.
+    Navigate with your screen reader's virtual cursor to verify announcements.
+  </p>
+
+  <div class="test-section" data-testid="chat-message-content">
+    <h3>Test 1: Python Code Block</h3>
+    <pre><code class="language-python">def hello():
+    print("Hello, World!")
+
+hello()</code></pre>
+  </div>
+
+  <div class="test-section" data-testid="chat-message-content">
+    <h3>Test 2: JavaScript Code Block</h3>
+    <pre><code class="language-javascript">const greet = (name) => `Hello, ${name}!`;</code></pre>
+  </div>
+
+  <div class="test-section" data-testid="chat-message-content">
+    <h3>Test 3: Table</h3>
+    <table>
+      <tr><th>Screen Reader</th><th>OS</th><th>Status</th></tr>
+      <tr><td>NVDA</td><td>Windows</td><td>Supported</td></tr>
+      <tr><td>JAWS</td><td>Windows</td><td>Supported</td></tr>
+      <tr><td>VoiceOver</td><td>macOS</td><td>Supported</td></tr>
+      <tr><td>Orca</td><td>Linux</td><td>Supported</td></tr>
+    </table>
+  </div>
+
+  <div class="test-section" data-testid="chat-message-content">
+    <h3>Test 4: Headings</h3>
+    <h2>Major Section</h2>
+    <p>Content under a heading.</p>
+    <h4>Subsection Detail</h4>
+    <p>Content under a subheading.</p>
+  </div>
+
+  <div class="test-section" data-testid="chat-message-content">
+    <h3>Test 5: Blockquote</h3>
+    <blockquote>
+      The best way to predict the future is to invent it. — Alan Kay
+    </blockquote>
+  </div>
+
+  <div class="test-section" data-testid="chat-message-content">
+    <h3>Test 6: Lists</h3>
+    <ul>
+      <li>Install Node.js 18 or later</li>
+      <li>Clone the repository</li>
+      <li>Run npm install</li>
+    </ul>
+    <ol>
+      <li>Open the terminal</li>
+      <li>Navigate to the project</li>
+    </ol>
+  </div>
+
+  <div class="test-section" data-testid="chat-message-content">
+    <h3>Test 7: Horizontal Rule</h3>
+    <p>Section one content.</p>
+    <hr>
+    <p>Section two content.</p>
+  </div>
+
+  <div class="test-section" data-testid="chat-message-content">
+    <h3>Test 8: Image without Alt Text</h3>
+    <img src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7">
+  </div>
+
+  <div class="test-section" data-testid="chat-message-content">
+    <h3>Test 9: Mixed Content Response</h3>
+    <h2>Installation Guide</h2>
+    <p>Follow these steps to set up the project:</p>
+    <ol>
+      <li>Clone the repo</li>
+      <li>Install dependencies</li>
+      <li>Start the server</li>
+    </ol>
+    <pre><code class="language-python">pip install -r requirements.txt
+python manage.py runserver</code></pre>
+    <blockquote>Make sure Python 3.10+ is installed before proceeding.</blockquote>
+    <table>
+      <tr><th>Command</th><th>Purpose</th></tr>
+      <tr><td>pip install</td><td>Install packages</td></tr>
+      <tr><td>python manage.py</td><td>Run server</td></tr>
+    </table>
+  </div>
+
+  <h2>Recording Template</h2>
+  <p>End of test sections. Automated validation complete.</p>
+
+  <script src="../chat-a11y.js"></script>
+  <script>
+    if (window.__ca11yScan) {
+      window.__ca11yScan();
+      document.title = "Claude A11y — SR Validation (Ready)";
+    }
+  </script>
+</body>
+</html>

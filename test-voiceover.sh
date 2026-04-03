@@ -11,9 +11,11 @@
 # Requirements: macOS, ffmpeg, Whisper (local)
 #
 # Usage:
-#   ./test-voiceover.sh          # Run full validation suite
-#   ./test-voiceover.sh quick    # Use Whisper tiny model (faster, less accurate)
-#   ./test-voiceover.sh setup    # Configure audio capture
+#   ./test-voiceover.sh                      # Run full suite (hooks + browser)
+#   ./test-voiceover.sh quick                # Use Whisper tiny model
+#   ./test-voiceover.sh setup                # Configure audio capture
+#   ./test-voiceover.sh --skip-browser       # Hooks TTS validation only
+#   ./test-voiceover.sh --skip-hooks         # Browser extension validation only
 
 set -euo pipefail
 
@@ -38,9 +40,20 @@ WHISPER_MODEL="medium"
 AUDIO_DEVICE_INDEX=""
 CAPTURE_METHOD=""
 
-if [ "${1:-}" = "quick" ]; then
-  WHISPER_MODEL="tiny"
-fi
+# Flags
+RUN_HOOKS=true
+RUN_BROWSER=true
+RUN_SETUP=false
+
+while [ $# -gt 0 ]; do
+  case "$1" in
+    quick)          WHISPER_MODEL="tiny"; shift ;;
+    setup)          RUN_SETUP=true; shift ;;
+    --skip-hooks)   RUN_HOOKS=false; shift ;;
+    --skip-browser) RUN_BROWSER=false; shift ;;
+    *)              shift ;;
+  esac
+done
 
 mkdir -p "$RECORDINGS_DIR" "$RESULTS_DIR"
 
@@ -827,9 +840,111 @@ EOF
   echo ""
 }
 
+# ── Phase 2: Browser extension validation (virtual screen reader) ──
+
+run_browser_validation() {
+  echo ""
+  echo "BROWSER EXTENSION VALIDATION"
+  echo "============================"
+  echo ""
+  echo "Testing chat-a11y.js via virtual screen reader on sr-validation.html"
+  echo "(runs in-process, no real browser or VoiceOver needed)"
+  echo ""
+
+  if ! command -v node &>/dev/null; then
+    echo "Error: node not found. Cannot run browser validation."
+    return 1
+  fi
+
+  if [ ! -f "$SCRIPT_DIR/test-browser-voiceover.js" ]; then
+    echo "Error: test-browser-voiceover.js not found."
+    return 1
+  fi
+
+  if [ ! -f "$SCRIPT_DIR/node_modules/@guidepup/virtual-screen-reader/lib/cjs/index.js" ]; then
+    echo "Virtual screen reader not installed. Running npm install..."
+    (cd "$SCRIPT_DIR" && npm install >/dev/null 2>&1)
+  fi
+
+  local browser_output="$TEMP_DIR/browser-results.json"
+  node "$SCRIPT_DIR/test-browser-voiceover.js" --output "$browser_output" 2>&1
+
+  if [ -f "$browser_output" ]; then
+    BROWSER_RESULTS_JSON="$(cat "$browser_output")"
+    BROWSER_PASSED="$(python3 -c "
+import json
+with open('$browser_output') as f:
+    d = json.load(f)
+print(d.get('summary',{}).get('virtual',{}).get('passed',0))
+" 2>/dev/null)" || true
+    BROWSER_FAILED="$(python3 -c "
+import json
+with open('$browser_output') as f:
+    d = json.load(f)
+print(d.get('summary',{}).get('virtual',{}).get('failed',0))
+" 2>/dev/null)" || true
+    BROWSER_TOTAL="$(python3 -c "
+import json
+with open('$browser_output') as f:
+    d = json.load(f)
+print(d.get('summary',{}).get('virtual',{}).get('total',0))
+" 2>/dev/null)" || true
+  fi
+}
+
+write_combined_results() {
+  python3 - "$RESULTS_JSON" "$RESULTS_MD" "$DATE_STAMP" "$CAPTURE_METHOD" "$WHISPER_MODEL" "$@" <<'PYEOF'
+import json, sys, os
+
+json_path = sys.argv[1]
+md_path = sys.argv[2]
+date = sys.argv[3]
+capture = sys.argv[4]
+model = sys.argv[5]
+extra_json_files = sys.argv[6:]
+
+existing = {}
+if os.path.exists(json_path):
+    try:
+        with open(json_path) as f:
+            existing = json.load(f)
+    except Exception:
+        pass
+
+for fpath in extra_json_files:
+    if os.path.exists(fpath):
+        with open(fpath) as f:
+            data = json.load(f)
+        existing["browser"] = data
+
+with open(json_path, "w") as f:
+    json.dump(existing, f, indent=2)
+
+if "browser" in existing:
+    with open(md_path, "a") as f:
+        f.write("\n\n## Browser Extension Results\n\n")
+        f.write("Method: virtual screen reader (in-process, no real VoiceOver)\n\n")
+        results = existing["browser"].get("results", {}).get("virtual", [])
+        f.write("| Test | Pass | Matched | Missed |\n")
+        f.write("|------|------|---------|--------|\n")
+        for t in results:
+            status = "PASS" if t.get("pass") else "FAIL"
+            matched = ", ".join(t.get("matched", [])) or "none"
+            missed = ", ".join(t.get("missed", [])) or "none"
+            f.write(f"| {t['name']} | {status} | {matched} | {missed} |\n")
+        summary = existing["browser"].get("summary", {}).get("virtual", {})
+        f.write(f"\n{summary.get('passed', 0)}/{summary.get('total', 0)} passed\n")
+
+PYEOF
+
+  echo ""
+  echo "Combined results: $RESULTS_JSON"
+  echo "Combined summary: $RESULTS_MD"
+}
+
 # ── Entry point ───────────────────────────────────────────────────
 
-if [ "${1:-}" = "setup" ]; then
+if [ "$RUN_SETUP" = true ]; then
   TEMP_DIR="$(mktemp -d /tmp/voiceover-validation-XXXXXX)"
   SCA_APP="$(find_sca 2>/dev/null)" || true
   if [ -z "$SCA_APP" ]; then
@@ -843,4 +958,22 @@ if [ "${1:-}" = "setup" ]; then
 fi
 
 preflight
-run_validation
+
+HOOKS_RESULTS_JSON=""
+BROWSER_RESULTS_JSON=""
+BROWSER_PASSED=0
+BROWSER_FAILED=0
+BROWSER_TOTAL=0
+
+if [ "$RUN_HOOKS" = true ]; then
+  run_validation
+fi
+
+if [ "$RUN_BROWSER" = true ]; then
+  run_browser_validation
+
+  browser_file="$TEMP_DIR/browser-results.json"
+  if [ -f "$browser_file" ]; then
+    write_combined_results "$browser_file"
+  fi
+fi

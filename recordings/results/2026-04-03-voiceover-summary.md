@@ -3,7 +3,7 @@
 Date: 2026-04-03
 Platform: Darwin arm64
 Capture method: system-app
-Whisper model: medium
+Whisper model: tiny
 TTS engine: macOS `say`
 
 ## TTS Results
@@ -11,28 +11,28 @@ TTS engine: macOS `say`
 | Fixture | Expected | Transcript | Latency | Pass |
 |---------|----------|------------|---------|------|
 | bash-success | Ran |  | N/A | PASS |
-| bash-failure | Ran | Rancat nonexistent. Exit code 1. | 2000ms | PASS |
-| edit | Edited | Edited index TS, replaced one line with two lines. | 1860ms | PASS |
+| bash-failure | Ran | Rancat non-existent, exit code 1. | 1960ms | PASS |
+| edit | Edited | Edit Index T.S. Replace one line with two lines. | 1839ms | PASS |
 | read | Read |  | N/A | PASS |
-| write | file | Rotnewfile.ts, two lines, defines NB. | 2260ms | PASS |
+| write | file | Rote new file TS2 lines defines the NB. | 1700ms | PASS |
 | glob | TypeScript |  | N/A | PASS |
 | grep | match |  | N/A | PASS |
-| task | Launched | Launched explore agent status completed. | 0ms | PASS |
-| web-search | search | Search for Vitast Coverage Setup | 1660ms | PASS |
-| web-fetch | Fetched |  | N/A | PASS |
+| task | Launched | Launched Explore Agent, Status, completed. | 1799ms | PASS |
+| web-search | search | Search for Vietest Coverage Setup. | 1700ms | PASS |
+| web-fetch | Fetched | FetchedExample.com, slash Happy Ducks. | 2000ms | FAIL |
 
 ## Earcon Results
 
 | Sound | Earcon ID | Volume | Audible |
 |-------|-----------|--------|---------|
-| Tink.aiff | edit-complete | -42.8dB | Yes |
+| Tink.aiff | edit-complete | -42.9dB | Yes |
 | Glass.aiff | test-pass | -42.1dB | Yes |
-| Basso.aiff | test-fail | -44.8dB | Yes |
+| Basso.aiff | test-fail | -44.9dB | Yes |
 
 ## Summary
 
 - Total: 10
-- Passed: 10
-- Failed: 0
-- Average latency: 1945ms
-- Max latency: 2260ms
+- Passed: 9
+- Failed: 1
+- Average latency: 1833ms
+- Max latency: 2000ms
