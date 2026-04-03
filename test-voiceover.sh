@@ -596,6 +596,7 @@ run_validation() {
 
     if [ ! -f "$fixture_path" ]; then
       echo "SKIP (fixture not found)"
+      total=$((total - 1))
       continue
     fi
 
@@ -742,7 +743,7 @@ run_validation() {
   avg_latency="$(echo "$test_results" | python3 -c "
 import json, sys
 tests = json.loads(sys.stdin.read())
-latencies = [t['latencyMs'] for t in tests if t['latencyMs'] > 0]
+latencies = [t['latencyMs'] for t in tests if t['latencyMs'] >= 0 and not t.get('noise')]
 if latencies:
     print(int(sum(latencies)/len(latencies)))
 else:
@@ -752,7 +753,7 @@ else:
   max_latency="$(echo "$test_results" | python3 -c "
 import json, sys
 tests = json.loads(sys.stdin.read())
-latencies = [t['latencyMs'] for t in tests if t['latencyMs'] > 0]
+latencies = [t['latencyMs'] for t in tests if t['latencyMs'] >= 0 and not t.get('noise')]
 print(max(latencies) if latencies else 0)
 " 2>/dev/null)" || true
 
@@ -838,6 +839,8 @@ EOF
   echo "  Avg latency: ${avg_latency:-0}ms"
   echo "==============================="
   echo ""
+
+  HOOKS_FAILED="$failed"
 }
 
 # ── Phase 2: Browser extension validation (virtual screen reader) ──
@@ -964,9 +967,14 @@ BROWSER_RESULTS_JSON=""
 BROWSER_PASSED=0
 BROWSER_FAILED=0
 BROWSER_TOTAL=0
+EXIT_CODE=0
+HOOKS_FAILED=0
 
 if [ "$RUN_HOOKS" = true ]; then
   run_validation
+  if [ "${HOOKS_FAILED:-0}" -gt 0 ]; then
+    EXIT_CODE=1
+  fi
 fi
 
 if [ "$RUN_BROWSER" = true ]; then
@@ -976,4 +984,10 @@ if [ "$RUN_BROWSER" = true ]; then
   if [ -f "$browser_file" ]; then
     write_combined_results "$browser_file"
   fi
+
+  if [ "${BROWSER_FAILED:-0}" -gt 0 ]; then
+    EXIT_CODE=1
+  fi
 fi
+
+exit "$EXIT_CODE"
