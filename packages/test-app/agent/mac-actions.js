@@ -105,7 +105,28 @@ function wait(seconds) {
   execSync(`sleep ${ms / 1000}`);
 }
 
+const BLOCKED_PATTERNS = [
+  /\brm\s+(-\w*\s+)*-rf?\s+\//,
+  /\bmkfs\b/,
+  /\bdd\s+.*\bof=\//,
+  /\b:\(\)\s*\{\s*:\|\:\s*&\s*\}\s*;/,
+  /\bshutdown\b/,
+  /\breboot\b/,
+  /\bhalt\b/,
+  /\bsudo\s+rm\b/,
+  /\bchmod\s+(-\w+\s+)*777\s+\//,
+  /\bchown\s+.*\s+\//,
+  />\s*\/dev\/sda/,
+  /\bcurl\b.*\|\s*(ba)?sh/,
+  /\bwget\b.*\|\s*(ba)?sh/,
+];
+
 function runBash(command) {
+  for (const pattern of BLOCKED_PATTERNS) {
+    if (pattern.test(command)) {
+      return { output: `Blocked: command matches dangerous pattern (${pattern})`, exitCode: 1 };
+    }
+  }
   try {
     const output = execSync(command, {
       encoding: "utf-8",

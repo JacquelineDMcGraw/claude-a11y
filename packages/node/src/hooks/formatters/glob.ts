@@ -15,7 +15,9 @@ function humanizeGlob(pattern: string): string {
   const labels = rawExts.map(extLabel).filter(Boolean);
   if (labels.length === 0) return `"${pattern}"`;
 
-  return labels.join(" and ") + " files";
+  if (labels.length === 1) return labels[0] + " files";
+  if (labels.length === 2) return labels[0] + " and " + labels[1] + " files";
+  return labels.slice(0, -1).join(", ") + ", and " + labels[labels.length - 1] + " files";
 }
 
 function extLabel(ext: string): string {
