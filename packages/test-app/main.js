@@ -34,11 +34,18 @@ function createWindow() {
 
   mainWindow.loadFile(path.join(__dirname, "index.html"));
 
-  // Grant media permissions for screen/audio capture
+  // Only grant permissions needed for screen/audio recording.
+  // This app is local-only dev tooling; it never loads remote content.
+  const ALLOWED_PERMISSIONS = new Set([
+    "media", "display-capture", "audioCapture", "desktopCapture",
+    "mediaKeySystem", "geolocation",
+  ]);
   session.defaultSession.setPermissionRequestHandler((_webContents, permission, callback) => {
-    callback(true);
+    callback(ALLOWED_PERMISSIONS.has(permission));
   });
-  session.defaultSession.setPermissionCheckHandler(() => true);
+  session.defaultSession.setPermissionCheckHandler((_webContents, permission) => {
+    return ALLOWED_PERMISSIONS.has(permission);
+  });
 
   // Handle getDisplayMedia requests: auto-select the primary screen
   // so the user doesn't get a picker dialog
@@ -50,6 +57,12 @@ function createWindow() {
       callback({});
     }
   });
+
+  // Prevent navigation to remote URLs (nodeIntegration security hardening)
+  mainWindow.webContents.on("will-navigate", (event) => {
+    event.preventDefault();
+  });
+  mainWindow.webContents.setWindowOpenHandler(() => ({ action: "deny" }));
 
   mainWindow.on("closed", () => {
     if (ptyProcess) {
