@@ -124,6 +124,7 @@ class AgentLoop extends EventEmitter {
           const { screenshot } = require("./mac-actions");
           const base64 = screenshot();
           return [
+            { type: "text", text: "Screenshot captured." },
             {
               type: "image",
               source: { type: "base64", media_type: "image/png", data: base64 },
@@ -136,6 +137,7 @@ class AgentLoop extends EventEmitter {
           const [x1, y1, x2, y2] = input.region;
           const base64 = screenshotRegion(x1, y1, x2, y2);
           return [
+            { type: "text", text: "Region screenshot captured." },
             {
               type: "image",
               source: { type: "base64", media_type: "image/png", data: base64 },
@@ -212,8 +214,12 @@ class AgentLoop extends EventEmitter {
 
       if (command === "str_replace") {
         const content = fs.readFileSync(filePath, "utf-8");
-        if (!content.includes(input.old_str)) {
+        const occurrences = content.split(input.old_str).length - 1;
+        if (occurrences === 0) {
           return [{ type: "text", text: `old_str not found in ${filePath}` }];
+        }
+        if (occurrences > 1) {
+          return [{ type: "text", text: `old_str appears ${occurrences} times in ${filePath}; must be unique` }];
         }
         const updated = content.replace(input.old_str, () => input.new_str);
         fs.writeFileSync(filePath, updated);
