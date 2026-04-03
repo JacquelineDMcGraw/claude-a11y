@@ -103,6 +103,27 @@ Bug reports should include:
 
 Feature requests should describe the problem you are trying to solve, not just the feature you want. This helps us find the right solution.
 
+## Screen reader validation
+
+The `test-voiceover.sh` script validates accessibility output in two phases:
+
+Phase 1 -- Hooks TTS validation: feeds hook fixtures through the format pipeline, records system audio, transcribes with local Whisper, and asserts expected phrases appear in the transcript.
+
+Phase 2 -- Browser extension validation: loads `sr-validation.html` in jsdom, injects `chat-a11y.js`, uses a virtual screen reader to navigate through all 9 test sections, and asserts that the expected ARIA announcements are present. This runs entirely in-process (no real browser, no VoiceOver, no focus stealing).
+
+Requirements for Phase 1: macOS, ffmpeg, local Whisper install. The script auto-detects available audio capture methods.
+Requirements for Phase 2: Node.js 20 or later. The virtual screen reader is installed as a dev dependency.
+
+Running the suite:
+
+1. Run `./test-voiceover.sh` for the full suite (hooks and browser), or `./test-voiceover.sh quick` for the tiny Whisper model.
+2. Run `./test-voiceover.sh --skip-browser` for hooks-only validation.
+3. Run `./test-voiceover.sh --skip-hooks` for browser-only validation (fast, no audio capture needed).
+4. Results are written to `recordings/results/` as JSON and Markdown. These files are committed as evidence for accessibility validation.
+5. Raw audio files are gitignored and never committed.
+
+If you add a new hook formatter, add a fixture in `packages/node/tests/hooks/fixtures/hook-inputs/` and an assertion entry in the hooks section of `test-voiceover.sh`. If you add a new DOM transform to `chat-a11y.js`, add a test section to `packages/browser/tests/sr-validation.html` and update the assertions in `test-browser-voiceover.js`.
+
 ## Code style
 
 - TypeScript for core and CLI. Plain JavaScript (ES5-compatible) for the Chrome extension and chat-a11y.js.

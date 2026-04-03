@@ -1,0 +1,507 @@
+{
+  "timestamp": "2026-04-03T06:31:10.254Z",
+  "method": "virtual-screen-reader",
+  "results": {
+    "virtual": [
+      {
+        "id": "test-1",
+        "name": "Python Code Block",
+        "expected": [
+          "Python",
+          "End Python",
+          "code block"
+        ],
+        "section_index": 1,
+        "found": true,
+        "phrases": [
+          "region, AI response, Response 1",
+          "heading, [Subheading] Test 1: Python Code Block, level 3",
+          "[Subheading]",
+          "Test 1: Python Code Block",
+          "end of heading, [Subheading] Test 1: Python Code Block, level 3",
+          "region, Python code block",
+          "note",
+          "[Python]",
+          "end of note",
+          "code",
+          "def hello(): print(\"Hello, World!\") hello()",
+          "end of code",
+          "[End Python]",
+          "end of region, Python code block",
+          "end of region, AI response, Response 1"
+        ],
+        "item_texts": [
+          "AI response, Response 1",
+          "[Subheading] Test 1: Python Code Block",
+          "[Subheading]",
+          "Test 1: Python Code Block",
+          "Python code block",
+          "",
+          "[Python]",
+          "def hello(): print(\"Hello, World!\") hello()",
+          "[End Python]"
+        ],
+        "pass": true,
+        "matched": [
+          "Python",
+          "End Python",
+          "code block"
+        ],
+        "missed": []
+      },
+      {
+        "id": "test-2",
+        "name": "JavaScript Code Block",
+        "expected": [
+          "Javascript",
+          "End Javascript"
+        ],
+        "section_index": 2,
+        "found": true,
+        "phrases": [
+          "region, AI response, Response 2",
+          "heading, [Subheading] Test 2: JavaScript Code Block, level 3",
+          "[Subheading]",
+          "Test 2: JavaScript Code Block",
+          "end of heading, [Subheading] Test 2: JavaScript Code Block, level 3",
+          "region, Javascript code block",
+          "note",
+          "[Javascript]",
+          "end of note",
+          "code",
+          "const greet = (name) => `Hello, ${name}!`;",
+          "end of code",
+          "[End Javascript]",
+          "end of region, Javascript code block",
+          "end of region, AI response, Response 2"
+        ],
+        "item_texts": [
+          "AI response, Response 2",
+          "[Subheading] Test 2: JavaScript Code Block",
+          "[Subheading]",
+          "Test 2: JavaScript Code Block",
+          "Javascript code block",
+          "",
+          "[Javascript]",
+          "const greet = (name) => `Hello, ${name}!`;",
+          "[End Javascript]"
+        ],
+        "pass": true,
+        "matched": [
+          "Javascript",
+          "End Javascript"
+        ],
+        "missed": []
+      },
+      {
+        "id": "test-3",
+        "name": "Table",
+        "expected": [
+          "Table",
+          "3 columns",
+          "End Table"
+        ],
+        "section_index": 3,
+        "found": true,
+        "phrases": [
+          "region, AI response, Response 3",
+          "heading, [Subheading] Test 3: Table, level 3",
+          "[Subheading]",
+          "Test 3: Table",
+          "end of heading, [Subheading] Test 3: Table, level 3",
+          "note",
+          "[Table, 3 columns]",
+          "end of note",
+          "table, Table, 3 columns",
+          "rowgroup",
+          "row, Screen Reader OS Status",
+          "columnheader, Screen Reader",
+          "columnheader, OS",
+          "columnheader, Status",
+          "end of row, Screen Reader OS Status",
+          "row, NVDA Windows Supported",
+          "cell, NVDA",
+          "cell, Windows",
+          "cell, Supported",
+          "end of row, NVDA Windows Supported",
+          "row, JAWS Windows Supported",
+          "cell, JAWS",
+          "end of row, JAWS Windows Supported",
+          "row, VoiceOver macOS Supported",
+          "cell, VoiceOver",
+          "cell, macOS",
+          "end of row, VoiceOver macOS Supported",
+          "row, Orca Linux Supported",
+          "cell, Orca",
+          "cell, Linux",
+          "end of row, Orca Linux Supported",
+          "end of rowgroup",
+          "end of table, Table, 3 columns",
+          "[End Table]",
+          "end of region, AI response, Response 3"
+        ],
+        "item_texts": [
+          "AI response, Response 3",
+          "[Subheading] Test 3: Table",
+          "[Subheading]",
+          "Test 3: Table",
+          "",
+          "[Table, 3 columns]",
+          "Table, 3 columns",
+          "Screen Reader OS Status",
+          "Screen Reader",
+          "OS",
+          "Status",
+          "NVDA Windows Supported",
+          "NVDA",
+          "Windows",
+          "Supported",
+          "JAWS Windows Supported",
+          "JAWS",
+          "VoiceOver macOS Supported",
+          "VoiceOver",
+          "macOS",
+          "Orca Linux Supported",
+          "Orca",
+          "Linux",
+          "[End Table]"
+        ],
+        "pass": true,
+        "matched": [
+          "Table",
+          "3 columns",
+          "End Table"
+        ],
+        "missed": []
+      },
+      {
+        "id": "test-4",
+        "name": "Headings",
+        "expected": [
+          "Heading",
+          "Subheading"
+        ],
+        "section_index": 4,
+        "found": true,
+        "phrases": [
+          "region, AI response, Response 4",
+          "heading, [Subheading] Test 4: Headings, level 3",
+          "[Subheading]",
+          "Test 4: Headings",
+          "end of heading, [Subheading] Test 4: Headings, level 3",
+          "heading, [Heading] Major Section, level 2",
+          "[Heading]",
+          "Major Section",
+          "end of heading, [Heading] Major Section, level 2",
+          "paragraph",
+          "Content under a heading.",
+          "end of paragraph",
+          "heading, [Subheading] Subsection Detail, level 4",
+          "Subsection Detail",
+          "end of heading, [Subheading] Subsection Detail, level 4",
+          "Content under a subheading.",
+          "end of region, AI response, Response 4"
+        ],
+        "item_texts": [
+          "AI response, Response 4",
+          "[Subheading] Test 4: Headings",
+          "[Subheading]",
+          "Test 4: Headings",
+          "[Heading] Major Section",
+          "[Heading]",
+          "Major Section",
+          "",
+          "Content under a heading.",
+          "[Subheading] Subsection Detail",
+          "Subsection Detail",
+          "Content under a subheading."
+        ],
+        "pass": true,
+        "matched": [
+          "Heading",
+          "Subheading"
+        ],
+        "missed": []
+      },
+      {
+        "id": "test-5",
+        "name": "Blockquote",
+        "expected": [
+          "Quote"
+        ],
+        "section_index": 5,
+        "found": true,
+        "phrases": [
+          "region, AI response, Response 5",
+          "heading, [Subheading] Test 5: Blockquote, level 3",
+          "[Subheading]",
+          "Test 5: Blockquote",
+          "end of heading, [Subheading] Test 5: Blockquote, level 3",
+          "note",
+          "[Quote]",
+          "The best way to predict the future is to invent it. — Alan Kay",
+          "end of note",
+          "end of region, AI response, Response 5"
+        ],
+        "item_texts": [
+          "AI response, Response 5",
+          "[Subheading] Test 5: Blockquote",
+          "[Subheading]",
+          "Test 5: Blockquote",
+          "",
+          "[Quote]",
+          "The best way to predict the future is to invent it. — Alan Kay"
+        ],
+        "pass": true,
+        "matched": [
+          "Quote"
+        ],
+        "missed": []
+      },
+      {
+        "id": "test-6",
+        "name": "Lists",
+        "expected": [
+          "bulleted list",
+          "numbered list"
+        ],
+        "section_index": 6,
+        "found": true,
+        "phrases": [
+          "region, AI response, Response 6",
+          "heading, [Subheading] Test 6: Lists, level 3",
+          "[Subheading]",
+          "Test 6: Lists",
+          "end of heading, [Subheading] Test 6: Lists, level 3",
+          "note",
+          "[3 item bulleted list]",
+          "end of note",
+          "list",
+          "listitem, level 1, position 1, set size 3",
+          "Install Node.js 18 or later",
+          "end of listitem, level 1, position 1, set size 3",
+          "listitem, level 1, position 2, set size 3",
+          "Clone the repository",
+          "end of listitem, level 1, position 2, set size 3",
+          "listitem, level 1, position 3, set size 3",
+          "Run npm install",
+          "end of listitem, level 1, position 3, set size 3",
+          "end of list",
+          "[2 item numbered list]",
+          "listitem, level 1, position 1, set size 2",
+          "Open the terminal",
+          "end of listitem, level 1, position 1, set size 2",
+          "listitem, level 1, position 2, set size 2",
+          "Navigate to the project",
+          "end of listitem, level 1, position 2, set size 2",
+          "end of region, AI response, Response 6"
+        ],
+        "item_texts": [
+          "AI response, Response 6",
+          "[Subheading] Test 6: Lists",
+          "[Subheading]",
+          "Test 6: Lists",
+          "",
+          "[3 item bulleted list]",
+          "Install Node.js 18 or later",
+          "Clone the repository",
+          "Run npm install",
+          "[2 item numbered list]",
+          "Open the terminal",
+          "Navigate to the project"
+        ],
+        "pass": true,
+        "matched": [
+          "bulleted list",
+          "numbered list"
+        ],
+        "missed": []
+      },
+      {
+        "id": "test-7",
+        "name": "Horizontal Rule",
+        "expected": [
+          "Separator"
+        ],
+        "section_index": 7,
+        "found": true,
+        "phrases": [
+          "region, AI response, Response 7",
+          "heading, [Subheading] Test 7: Horizontal Rule, level 3",
+          "[Subheading]",
+          "Test 7: Horizontal Rule",
+          "end of heading, [Subheading] Test 7: Horizontal Rule, level 3",
+          "paragraph",
+          "Section one content.",
+          "end of paragraph",
+          "separator, [Separator], orientated horizontally, max value 100, min value 0",
+          "Section two content.",
+          "end of region, AI response, Response 7"
+        ],
+        "item_texts": [
+          "AI response, Response 7",
+          "[Subheading] Test 7: Horizontal Rule",
+          "[Subheading]",
+          "Test 7: Horizontal Rule",
+          "",
+          "Section one content.",
+          "[Separator]",
+          "Section two content."
+        ],
+        "pass": true,
+        "matched": [
+          "Separator"
+        ],
+        "missed": []
+      },
+      {
+        "id": "test-8",
+        "name": "Image",
+        "expected": [
+          "Image"
+        ],
+        "section_index": 8,
+        "found": true,
+        "phrases": [
+          "region, AI response, Response 8",
+          "heading, [Subheading] Test 8: Image without Alt Text, level 3",
+          "[Subheading]",
+          "Test 8: Image without Alt Text",
+          "end of heading, [Subheading] Test 8: Image without Alt Text, level 3",
+          "image, Image",
+          "end of region, AI response, Response 8"
+        ],
+        "item_texts": [
+          "AI response, Response 8",
+          "[Subheading] Test 8: Image without Alt Text",
+          "[Subheading]",
+          "Test 8: Image without Alt Text",
+          "Image"
+        ],
+        "pass": true,
+        "matched": [
+          "Image"
+        ],
+        "missed": []
+      },
+      {
+        "id": "test-9",
+        "name": "Mixed Content",
+        "expected": [
+          "Heading",
+          "Python",
+          "Quote",
+          "Table",
+          "list"
+        ],
+        "section_index": 9,
+        "found": true,
+        "phrases": [
+          "region, AI response, Response 9",
+          "heading, [Subheading] Test 9: Mixed Content Response, level 3",
+          "[Subheading]",
+          "Test 9: Mixed Content Response",
+          "end of heading, [Subheading] Test 9: Mixed Content Response, level 3",
+          "heading, [Heading] Installation Guide, level 2",
+          "[Heading]",
+          "Installation Guide",
+          "end of heading, [Heading] Installation Guide, level 2",
+          "paragraph",
+          "Follow these steps to set up the project:",
+          "end of paragraph",
+          "note",
+          "[3 item numbered list]",
+          "end of note",
+          "list",
+          "listitem, level 1, position 1, set size 3",
+          "Clone the repo",
+          "end of listitem, level 1, position 1, set size 3",
+          "listitem, level 1, position 2, set size 3",
+          "Install dependencies",
+          "end of listitem, level 1, position 2, set size 3",
+          "listitem, level 1, position 3, set size 3",
+          "Start the server",
+          "end of listitem, level 1, position 3, set size 3",
+          "end of list",
+          "region, Python code block",
+          "[Python]",
+          "code",
+          "pip install -r requirements.txt python manage.py runserver",
+          "end of code",
+          "[End Python]",
+          "end of region, Python code block",
+          "[Quote]",
+          "Make sure Python 3.10+ is installed before proceeding.",
+          "[Table, 2 columns]",
+          "table, Table, 2 columns",
+          "rowgroup",
+          "row, Command Purpose",
+          "columnheader, Command",
+          "columnheader, Purpose",
+          "end of row, Command Purpose",
+          "row, pip install Install packages",
+          "cell, pip install",
+          "cell, Install packages",
+          "end of row, pip install Install packages",
+          "row, python manage.py Run server",
+          "cell, python manage.py",
+          "cell, Run server",
+          "end of row, python manage.py Run server",
+          "end of rowgroup",
+          "end of table, Table, 2 columns",
+          "[End Table]",
+          "end of region, AI response, Response 9"
+        ],
+        "item_texts": [
+          "AI response, Response 9",
+          "[Subheading] Test 9: Mixed Content Response",
+          "[Subheading]",
+          "Test 9: Mixed Content Response",
+          "[Heading] Installation Guide",
+          "[Heading]",
+          "Installation Guide",
+          "",
+          "Follow these steps to set up the project:",
+          "[3 item numbered list]",
+          "Clone the repo",
+          "Install dependencies",
+          "Start the server",
+          "Python code block",
+          "[Python]",
+          "pip install -r requirements.txt python manage.py runserver",
+          "[End Python]",
+          "[Quote]",
+          "Make sure Python 3.10+ is installed before proceeding.",
+          "[Table, 2 columns]",
+          "Table, 2 columns",
+          "Command Purpose",
+          "Command",
+          "Purpose",
+          "pip install Install packages",
+          "pip install",
+          "Install packages",
+          "python manage.py Run server",
+          "python manage.py",
+          "Run server",
+          "[End Table]"
+        ],
+        "pass": true,
+        "matched": [
+          "Heading",
+          "Python",
+          "Quote",
+          "Table",
+          "list"
+        ],
+        "missed": []
+      }
+    ]
+  },
+  "summary": {
+    "virtual": {
+      "passed": 9,
+      "failed": 0,
+      "total": 9
+    }
+  }
+}

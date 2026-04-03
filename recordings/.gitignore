@@ -1,2 +1,15 @@
-*
+*.wav
+*.mp4
+*.webm
+*.aac
+*.mp3
+*.json
+*.txt
+.config
+.ffmpeg.pid
+.current
+.capture-test.wav
+.audio-test.wav
+!results/
+!results/**
 !.gitignore

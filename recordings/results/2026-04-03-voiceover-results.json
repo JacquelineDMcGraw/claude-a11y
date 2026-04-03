@@ -1,0 +1,16 @@
+{
+  "date": "2026-04-03",
+  "platform": "Darwin arm64",
+  "captureMethod": "system-app",
+  "whisperModel": "tiny",
+  "ttsEngine": "say",
+  "tests": [{"fixture":"bash-success","expected":"Ran","transcript":"","found":true,"latencyMs":-1,"pass":true,"noise":true},{"fixture":"bash-failure","expected":"Ran","transcript":"Rancat non-existent, exit code 1.","found":true,"latencyMs":1960,"pass":true},{"fixture":"edit","expected":"Edited","transcript":"Edit Index T.S. Replace one line with two lines.","found":true,"latencyMs":1839,"pass":true},{"fixture":"read","expected":"Read","transcript":"","found":true,"latencyMs":-1,"pass":true,"noise":true},{"fixture":"write","expected":"file","transcript":"Rote new file TS2 lines defines the NB.","found":true,"latencyMs":1700,"pass":true},{"fixture":"glob","expected":"TypeScript","transcript":"","found":true,"latencyMs":-1,"pass":true,"noise":true},{"fixture":"grep","expected":"match","transcript":"","found":true,"latencyMs":-1,"pass":true,"noise":true},{"fixture":"task","expected":"Launched","transcript":"Launched Explore Agent, Status, completed.","found":true,"latencyMs":1799,"pass":true},{"fixture":"web-search","expected":"search","transcript":"Search for Vietest Coverage Setup.","found":true,"latencyMs":1700,"pass":true},{"fixture":"web-fetch","expected":"Fetched","transcript":"FetchedExample.com, slash Happy Ducks.","found":false,"latencyMs":2000,"pass":false,"noise":true}],
+  "earcons": [{"sound":"Tink.aiff","earconId":"edit-complete","meanVolumeDb":-42.9,"audible":true},{"sound":"Glass.aiff","earconId":"test-pass","meanVolumeDb":-42.1,"audible":true},{"sound":"Basso.aiff","earconId":"test-fail","meanVolumeDb":-44.9,"audible":true}],
+  "summary": {
+    "total": 10,
+    "passed": 9,
+    "failed": 1,
+    "avgLatencyMs": 1833,
+    "maxLatencyMs": 2000
+  }
+}
